@@ -61,18 +61,22 @@
         "nfregKey": {
             "type": "secureString",
             "defaultValue": null,
-            "description": "Enter the NetFoundry Gateway Registration Key"
+            "metadata": {
+                "description": "Enter the NetFoundry Gateway Registration Key"
+            }
         },
         "adminUsername": {
             "type": "string",
             "defaultValue": "nfadmin",
-            "description": "Please use only nfadmin as the user"
+            "metadata": {
+                "description": "Please use only nfadmin as the user"
+            }  
         },
         "sshKeyData": {
             "type": "string",
             "metadata": {
-            "description": "SSH rsa public key file as a string."
-          }
+                "description": "SSH rsa public key file as a string."
+            }
         }
     },
     "variables": {
