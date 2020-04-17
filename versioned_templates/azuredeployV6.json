@@ -16,7 +16,7 @@
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue":"nf-vnet"
+            "defaultValue": "nf-vnet"
         },
         "addressPrefix": {
             "type": "string",
@@ -70,7 +70,7 @@
             "defaultValue": "nfadmin",
             "metadata": {
                 "description": "Please use only nfadmin as the user"
-            }  
+            }
         },
         "sshKeyData": {
             "type": "string",
@@ -85,32 +85,43 @@
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
         "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
         "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
-
-
     },
     "resources": [
-      {
-          "apiVersion": "2018-08-01",
-          "type": "Microsoft.Network/networkSecurityGroups",
-          "name": "[parameters('SecurityGroupName')]",
-          "location": "[parameters('location')]",
-          "properties": {
-            "securityRules": [
-              {
-                "name": "SSH",
-                "properties": {
-                  "priority": 1010,
-                  "protocol": "TCP",
-                  "access": "Allow",
-                  "direction": "Inbound",
-                  "sourceAddressPrefix": "*",
-                  "sourcePortRange": "*",
-                  "destinationAddressPrefix": "*",
-                  "destinationPortRange": "22"
+        {
+            "apiVersion": "2018-02-01",
+            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
                 }
-              }
-            ]
-          }
+            }
+        },
+        {
+            "apiVersion": "2018-08-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('SecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
         },
         {
             "name": "[parameters('networkInterfaceName')]",
@@ -212,22 +223,22 @@
                     ]
                 },
                 "osProfile": {
-                  "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "customData": "[base64(variables('runScript'))]",
-                  "linuxConfiguration": {
-                    "disablePasswordAuthentication": true,
-                    "ssh": {
-                      "publicKeys": [
-                        {
-                          "path": "[variables('sshKeyPath')]",
-                          "keyData": "[parameters('sshKeyData')]"
+                    "computerName": "[parameters('virtualMachineName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "customData": "[base64(variables('runScript'))]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[variables('sshKeyPath')]",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
                         }
-                      ]
                     }
-                  }
                 }
-              },
+            },
             "plan": {
                 "name": "gateway",
                 "publisher": "netfoundryinc",
