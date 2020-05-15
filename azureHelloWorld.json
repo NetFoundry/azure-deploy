@@ -78,7 +78,7 @@
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "nfHelloDemoIpConfig01",
+                        "name": "nfHelloDemoIpGw01",
                         "properties": {
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
@@ -110,7 +110,7 @@
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "nfHelloDemoIpConfig01",
+                        "name": "nfHelloDemoIpServer01",
                         "properties": {
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
@@ -221,7 +221,7 @@
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript'))]",
+                    "customData": "[base64(variables('runScript'))]"
                 }
             },
             "dependsOn": [
@@ -268,7 +268,7 @@
                     "computerName": "nfHelloDemoServer",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript'))]",
+                    "customData": "[base64(variables('runScript'))]"
                 }
             },
             "dependsOn": [
