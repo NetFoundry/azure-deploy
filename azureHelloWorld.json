@@ -13,61 +13,6 @@
                 "description": "Enter the NetFoundry Gateway Registration Key"
             }
         },
-        "SecurityGroupName": {
-            "type": "string",
-            "defaultValue": "nfHelloDemoSg"
-        },
-        "virtualNetworkName": {
-            "type": "string",
-            "defaultValue": "nfHelloDemoVnet"
-        },
-        "addressPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.8.0/24"
-        },
-        "subnetName": {
-            "type": "string",
-            "defaultValue": "default"
-        },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.8.0/24"
-        },
-        "publicIpAddressName": {
-            "type": "string",
-            "defaultValue": "nfHelloDemoIp"
-        },
-        "publicIpAddressType": {
-            "type": "string",
-            "defaultValue": "Dynamic"
-        },
-        "publicIpAddressSku": {
-            "type": "string",
-            "defaultValue": "Basic"
-        },
-        "virtualMachineName": {
-            "type": "string",
-            "defaultValue": "nfHelloDemoGw"
-        },
-        "virtualMachineRG": {
-            "type": "string",
-            "defaultValue": "nfHelloDemoRG"
-        },
-        "osDiskType": {
-            "type": "string",
-            "defaultValue": "Premium_LRS"
-        },
-        "virtualMachineSize": {
-            "type": "string",
-            "defaultValue": "Standard_B1ms"
-        },
-        "adminUsername": {
-            "type": "string",
-            "defaultValue": "nfadmin",
-            "metadata": {
-                "description": "Please use only nfadmin as the user"
-            }
-        },
         "sshKeyData": {
             "type": "string",
             "metadata": {
@@ -77,10 +22,10 @@
     },
     "variables": {
         "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
         "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
-        "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
+        "sshKeyPath": "/home/nfadmin/.ssh/authorized_keys"
     },
     "resources": [
         {
@@ -99,7 +44,7 @@
         {
             "apiVersion": "2018-08-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[parameters('SecurityGroupName')]",
+            "name": "nfHelloDemoSg",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -125,9 +70,9 @@
             "apiVersion": "2018-04-01",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', parameters('SecurityGroupName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
+                "Microsoft.Network/networkSecurityGroups/nfHelloDemoSg",
+                "Microsoft.Network/virtualNetworks/nfHelloDemoVnet",
+                "Microsoft.Network/publicIpAddresses/nfHelloDemoIp"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -139,33 +84,33 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoIp')]"
                             }
                         }
                     }
                 ],
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('SecurityGroupName'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfHelloDemoSg')]"
                 }
             },
             "tags": {}
         },
         {
-            "name": "[parameters('virtualNetworkName')]",
+            "name": "nfHelloDemoVnet",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
             "location": "[parameters('location')]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('addressPrefix')]"
+                        "10.0.8.0/24"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[parameters('subnetName')]",
+                        "name": "nfHelloDemoSubnet",
                         "properties": {
-                            "addressPrefix": "[parameters('subnetPrefix')]"
+                            "addressPrefix": "10.0.8.0/24"
                         }
                     }
                 ]
@@ -173,20 +118,20 @@
             "tags": {}
         },
         {
-            "name": "[parameters('publicIpAddressName')]",
+            "name": "nfHelloDemoIp",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2018-08-01",
             "location": "[parameters('location')]",
             "properties": {
-                "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+                "publicIpAllocationMethod": "Dynamic"
             },
             "sku": {
-                "name": "[parameters('publicIpAddressSku')]"
+                "name": "Basic"
             },
             "tags": {}
         },
         {
-            "name": "[parameters('virtualMachineName')]",
+            "name": "nfHelloDemoGw",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2018-06-01",
             "location": "[parameters('location')]",
@@ -195,13 +140,13 @@
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "[parameters('virtualMachineSize')]"
+                    "vmSize": "Standard_B1ms"
                 },
                 "storageProfile": {
                     "osDisk": {
                         "createOption": "fromImage",
                         "managedDisk": {
-                            "storageAccountType": "[parameters('osDiskType')]"
+                            "storageAccountType": "Premium_LRS"
                         }
                     },
                     "imageReference": {
@@ -219,8 +164,8 @@
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[parameters('virtualMachineName')]",
-                    "adminUsername": "[parameters('adminUsername')]",
+                    "computerName": "nfHelloDemoGw",
+                    "adminUsername": "nfadmin",
                     "customData": "[base64(variables('runScript'))]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
@@ -246,7 +191,7 @@
     "outputs": {
         "adminUsername": {
             "type": "string",
-            "value": "[parameters('adminUsername')]"
+            "value": "nfadmin"
         }
     }
 }
