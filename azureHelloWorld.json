@@ -18,8 +18,7 @@
         "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
-        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
-        "sshKeyPath": "/home/nfadmin/.ssh/authorized_keys"
+        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]"
     },
     "resources": [
         {
@@ -153,7 +152,10 @@
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript'))]"
+                    "customData": "[base64(variables('runScript'))]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
                 }
             },
             "dependsOn": [
