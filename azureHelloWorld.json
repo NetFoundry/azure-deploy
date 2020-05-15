@@ -13,12 +13,9 @@
                 "description": "Enter the NetFoundry Gateway Registration Key"
             }
         },
-        "sshKeyData": {
-            "type": "string",
-            "metadata": {
-                "description": "SSH rsa public key file as a string."
-            }
-        }
+        "adminPassword": {
+            "type": "secureString"
+        },
     },
     "variables": {
         "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
@@ -29,20 +26,7 @@
     },
     "resources": [
         {
-            "apiVersion": "2018-02-01",
-            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": []
-                }
-            }
-        },
-        {
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-02-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "nfHelloDemoSg",
             "location": "[parameters('location')]",
@@ -67,7 +51,7 @@
         {
             "name": "nfHelloDemoInt",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-04-01",
+            "apiVersion": "2019-07-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "Microsoft.Network/networkSecurityGroups/nfHelloDemoSg",
@@ -98,7 +82,7 @@
         {
             "name": "nfHelloDemoVnet",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-09-01",
             "location": "[parameters('location')]",
             "properties": {
                 "addressSpace": {
@@ -120,7 +104,7 @@
         {
             "name": "nfHelloDemoIp",
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-02-01",
             "location": "[parameters('location')]",
             "properties": {
                 "publicIpAllocationMethod": "Dynamic"
@@ -133,7 +117,7 @@
         {
             "name": "nfHelloDemoGw",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-07-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "Microsoft.Network/networkInterfaces/nfHelloDemoInt"
@@ -153,7 +137,7 @@
                         "publisher": "netfoundryinc",
                         "offer": "centos",
                         "sku": "gateway",
-                        "version": "6.1.0"
+                        "version": "latest"
                     }
                 },
                 "networkProfile": {
@@ -166,18 +150,8 @@
                 "osProfile": {
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
-                    "customData": "[base64(variables('runScript'))]",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": true,
-                        "ssh": {
-                            "publicKeys": [
-                                {
-                                    "path": "[variables('sshKeyPath')]",
-                                    "keyData": "[parameters('sshKeyData')]"
-                                }
-                            ]
-                        }
-                    }
+                    "adminPassword": "[parameters('adminPassword')",
+                    "customData": "[base64(variables('runScript'))]"
                 }
             },
             "plan": {
