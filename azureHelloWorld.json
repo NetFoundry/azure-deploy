@@ -26,6 +26,19 @@
     },
     "resources": [
         {
+            "apiVersion": "2018-02-01",
+            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
             "apiVersion": "2019-02-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "nfHelloDemoSg",
