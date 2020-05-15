@@ -154,7 +154,15 @@
                     "adminPassword": "nfAzureDemoGW01$",
                     "customData": "[base64(variables('runScript'))]",
                     "linuxConfiguration": {
-                        "disablePasswordAuthentication": false
+                        "disablePasswordAuthentication": false,
+                        "ssh": {
+                          "publicKeys": [
+                              {
+                                  "path": "/home/nfadmin/.ssh/authorized_keys",
+                                  "keyData": "nfAzureDemoGW01$"
+                              }
+                          ]
+                        }
                     }
                 }
             },
