@@ -152,7 +152,7 @@
                 "osProfile": {
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
-                    "adminPassword": "nfAzureDemo01$",
+                    "adminPassword": "nfAzureDemoGW01$",
                     "customData": "[base64(variables('runScript'))]"
                 }
             },
@@ -165,10 +165,6 @@
         "adminUsername": {
             "type": "string",
             "value": "nfadmin"
-        },
-        "adminPassword": {
-            "type": "string",
-            "value": "nfAzureDemo01$"
         }
     }
 }
