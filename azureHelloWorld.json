@@ -12,6 +12,7 @@
             "metadata": {
                 "description": "Enter the NetFoundry Gateway Registration Key"
             }
+        }
     },
     "variables": {
         "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
@@ -168,5 +169,6 @@
         "adminPassword": {
             "type": "string",
             "value": "nfAzureDemo01$"
+        }
     }
 }
