@@ -24,7 +24,7 @@
         {
             "apiVersion": "2020-04-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "nfHelloDemoSg",
+            "name": "nfHelloDemoGwSg",
             "location": "[parameters('location')]",
             "tags": {},
             "properties": {
@@ -46,7 +46,31 @@
             }
         },
         {
-            "name": "nfHelloDemoInt",
+            "apiVersion": "2020-04-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "nfHelloDemoServersSg",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "80"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "nfHelloDemoGwInt",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
@@ -62,19 +86,51 @@
                             "privateIPAddress": "10.0.8.4",
                             "privateIPAllocationMethod": "Static",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoIp')]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoGwIp')]"
                             }
                         }
                     }
                 ],
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfHelloDemoSg')]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfHelloDemoGwSg')]"
                 }
             },
             "dependsOn": [
-                "Microsoft.Network/networkSecurityGroups/nfHelloDemoSg",
+                "Microsoft.Network/networkSecurityGroups/nfHelloDemoGwSg",
                 "Microsoft.Network/virtualNetworks/nfHelloDemoVnet",
-                "Microsoft.Network/publicIpAddresses/nfHelloDemoIp"
+                "Microsoft.Network/publicIpAddresses/nfHelloDemoGwIp"
+            ]
+        },
+        {
+            "name": "nfHelloDemoServerInt",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "nfHelloDemoIpConfig01",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAddress": "10.0.8.5",
+                            "privateIPAllocationMethod": "Static",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoServerIp')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfHelloDemoServerSg')]"
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkSecurityGroups/nfHelloDemoServerSg",
+                "Microsoft.Network/virtualNetworks/nfHelloDemoVnet",
+                "Microsoft.Network/publicIpAddresses/nfHelloDemoServerIp"
             ]
         },
         {
@@ -100,7 +156,20 @@
             }
         },
         {
-            "name": "nfHelloDemoIp",
+            "name": "nfHelloDemoGwIp",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "name": "nfHelloDemoServerIp",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
@@ -144,7 +213,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'nfHelloDemoInt')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'nfHelloDemoGwInt')]"
                         }
                     ]
                 },
@@ -153,21 +222,57 @@
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
                     "customData": "[base64(variables('runScript'))]",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": false,
-                        "ssh": {
-                          "publicKeys": [
-                              {
-                                  "path": "/home/nfadmin/.ssh/authorized_keys",
-                                  "keyData": "nfAzureDemoGW01$"
-                              }
-                          ]
-                        }
-                    }
                 }
             },
             "dependsOn": [
-                "Microsoft.Network/networkInterfaces/nfHelloDemoInt"
+                "Microsoft.Network/networkInterfaces/nfHelloDemoGwInt"
+            ]
+        },
+        {
+            "name": "nfHelloDemoServer",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-12-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "plan": {
+                "name": "gateway",
+                "publisher": "netfoundryinc",
+                "product": "centos"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "centos",
+                        "sku": "gateway",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'nfHelloDemoServerInt')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "nfHelloDemoServer",
+                    "adminUsername": "nfadmin",
+                    "adminPassword": "nfAzureDemoGW01$",
+                    "customData": "[base64(variables('runScript'))]",
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/nfHelloDemoServerInt"
             ]
         }
     ],
