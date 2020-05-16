@@ -279,7 +279,11 @@
     "outputs": {
         "resourceId": {
            "type": "string",
-           "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('nfHelloDemoServerIp'))]"
+           "value": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('nfHelloDemoServerIp'))]"
+        },
+        "resourceId": {
+           "type": "string",
+           "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nfHelloDemoServerInt'))]"
         }
     }
 }
