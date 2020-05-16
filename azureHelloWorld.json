@@ -15,10 +15,30 @@
         }
     },
     "variables": {
-        "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
+        "scriptCmd1": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
+        "scriptCmd2": "
+          #!/bin/bash -ex
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+          yum update -y
+          amazon-linux-extras install docker
+          service docker start
+          usermod -a -G docker nfadmin
+          curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          chown root:docker /usr/local/bin/docker-compose
+          cat <<EOF >/home/nfadmin/docker-compose.yml
+          netfoundry:
+            image: netfoundry/railz
+            ports:
+              - \"80:3000\"
+          EOF
+          chown nfadmin:nfadmin /home/nfadmin/docker-compose.yml
+          /usr/local/bin/docker-compose -f /home/nfadmin/docker-compose.yml up -d
+        ",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
-        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]"
+        "runScript1": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
+        "runScript2": "[variables('scriptCmd')]"
     },
     "resources": [
         {
@@ -221,7 +241,7 @@
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript'))]"
+                    "customData": "[base64(variables('runScript1'))]"
                 }
             },
             "dependsOn": [
@@ -268,18 +288,12 @@
                     "computerName": "nfHelloDemoServer",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript'))]"
+                    "customData": "[base64(variables('runScript2'))]"
                 }
             },
             "dependsOn": [
                 "Microsoft.Network/networkInterfaces/nfHelloDemoServerInt"
             ]
         }
-    ],
-    "outputs": {
-        "serverPublicIp": {
-           "type": "string",
-           "value": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('nfHelloDemoServerIp'))]"
-        }
-    }
+    ]
 }
