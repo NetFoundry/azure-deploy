@@ -277,9 +277,9 @@
         }
     ],
     "outputs": {
-        "adminUsername": {
-            "type": "string",
-            "value": "nfadmin"
-        }
+      "resourceID": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('nfHelloDemoServerIp'))]"
+      },
     }
 }
