@@ -30,7 +30,8 @@
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
         "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
-        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]"
+        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]",
+        "sshKeyPath": "/home/nfadmin/.ssh/authorized_keys"
     },
     "resources": [
         {
