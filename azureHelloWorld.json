@@ -15,30 +15,16 @@
         }
     },
     "variables": {
-        "scriptCmd1": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
-        "scriptCmd2": "
-          #!/bin/bash -ex
-          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-          yum update -y
-          amazon-linux-extras install docker
-          service docker start
-          usermod -a -G docker nfadmin
-          curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
-          chown root:docker /usr/local/bin/docker-compose
-          cat <<EOF >/home/nfadmin/docker-compose.yml
-          netfoundry:
-            image: netfoundry/railz
-            ports:
-              - \"80:3000\"
-          EOF
-          chown nfadmin:nfadmin /home/nfadmin/docker-compose.yml
-          /usr/local/bin/docker-compose -f /home/nfadmin/docker-compose.yml up -d
-        ",
+        "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
+        "scriptCmd1_a": "#!/bin/bash -ex\ncurl -fsSL https://get.docker.com -o get-docker.sh\nsh get-docker.sh\nusermod -a -G docker nfadmin\n",
+        "scriptCmd1_b": "curl -L https://github.com/docker/compose/releases/download/1.25.5/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose\n",
+        "scriptCmd1_c": "chmod +x /usr/local/bin/docker-compose\nchown root:docker /usr/local/bin/docker-compose\n",
+        "scriptCmd1_d": "cat <<EOF >/home/nfadmin/docker-compose.yml\nnetfoundry:\n  image: netfoundry/railz\n  ports:\n    - \"80:3000\"\nEOF\n",
+        "scriptCmd1_e": "chown nfadmin:nfadmin /home/nfadmin/docker-compose.yml\n/usr/local/bin/docker-compose -f /home/nfadmin/docker-compose.yml up -d",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
-        "runScript1": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
-        "runScript2": "[variables('scriptCmd')]"
+        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
+        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]"
     },
     "resources": [
         {
@@ -241,7 +227,7 @@
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript1'))]"
+                    "customData": "[base64(variables('runScript'))]"
                 }
             },
             "dependsOn": [
@@ -288,7 +274,7 @@
                     "computerName": "nfHelloDemoServer",
                     "adminUsername": "nfadmin",
                     "adminPassword": "nfAzureDemoGW01$",
-                    "customData": "[base64(variables('runScript2'))]"
+                    "customData": "[base64(variables('runScript1'))]"
                 }
             },
             "dependsOn": [
@@ -296,4 +282,5 @@
             ]
         }
     ]
+
 }
