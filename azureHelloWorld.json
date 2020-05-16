@@ -277,9 +277,9 @@
         }
     ],
     "outputs": {
-      "resourceID": {
-        "type": "string",
-        "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('nfHelloDemoServerIp'))]"
-      },
+        "resourceId": {
+           "type": "string",
+           "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('nfHelloDemoServerIp'))]"
+        }
     }
 }
