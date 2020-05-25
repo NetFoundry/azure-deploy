@@ -283,9 +283,9 @@
                 },
                 "osProfile": {
                     "computerName": "nfHelloDemoServer",
-                    "adminUsername": "nfadmin",
+                    "adminUsername": "helloword",
                     "adminPassword": "n3tf0undry",
-                    "customData": "[base64(variables('runScript1'))]",
+                    "customData": "[base64(variables('runScript1'))]"
                 }
             },
             "dependsOn": [
