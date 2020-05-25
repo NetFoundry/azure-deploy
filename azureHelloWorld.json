@@ -226,7 +226,7 @@
                 "osProfile": {
                     "computerName": "nfHelloDemoGw",
                     "adminUsername": "helloworld",
-                    "adminPassword": "n3tf0undry",
+                    "adminPassword": "n3tf0undrY*",
                     "customData": "[base64(variables('runScript'))]"
                 }
             },
@@ -273,7 +273,7 @@
                 "osProfile": {
                     "computerName": "nfHelloDemoServer",
                     "adminUsername": "helloworld",
-                    "adminPassword": "n3tf0undry",
+                    "adminPassword": "n3tf0undrY*",
                     "customData": "[base64(variables('runScript1'))]"
                 }
             },
