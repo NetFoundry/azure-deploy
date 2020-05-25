@@ -24,8 +24,7 @@
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
         "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
-        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]",
-        "sshKeyPath": "/home/nfadmin/.ssh/authorized_keys"
+        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]"
     },
     "resources": [
         {
@@ -226,19 +225,9 @@
                 },
                 "osProfile": {
                     "computerName": "nfHelloDemoGw",
-                    "adminUsername": "nfadmin",
-                    "customData": "[base64(variables('runScript'))]",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": true,
-                        "ssh": {
-                            "publicKeys": [
-                                {
-                                    "path": "[variables('sshKeyPath')]",
-                                    "keyData": "[parameters('sshKeyData')]"
-                                }
-                            ]
-                        }
-                    }
+                    "adminUsername": "helloworld",
+                    "adminPassword": "n3tf0undry",
+                    "customData": "[base64(variables('runScript'))]"
                 }
             },
             "dependsOn": [
@@ -283,7 +272,7 @@
                 },
                 "osProfile": {
                     "computerName": "nfHelloDemoServer",
-                    "adminUsername": "helloword",
+                    "adminUsername": "helloworld",
                     "adminPassword": "n3tf0undry",
                     "customData": "[base64(variables('runScript1'))]"
                 }
