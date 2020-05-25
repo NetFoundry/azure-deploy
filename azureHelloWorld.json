@@ -89,7 +89,7 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAddress": "10.0.8.4",
+                            "privateIPAddress": "172.29.253.10",
                             "privateIPAllocationMethod": "Static",
                             "publicIpAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoGwIp')]"
@@ -121,7 +121,7 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAddress": "10.0.8.5",
+                            "privateIPAddress": "172.29.253.11",
                             "privateIPAllocationMethod": "Static",
                             "publicIpAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoServerIp')]"
@@ -148,14 +148,14 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.0.8.0/24"
+                        "172.29.253.0/24"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "nfHelloDemoSubnet",
                         "properties": {
-                            "addressPrefix": "10.0.8.0/24"
+                            "addressPrefix": "172.29.253.0/24"
                         }
                     }
                 ]
