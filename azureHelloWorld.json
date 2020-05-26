@@ -285,7 +285,7 @@
     "outputs": {
       "DemoAppPublicUrl": {
         "type": "string",
-        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp'),'2020-04-01', 'Full').ipAddress)]"
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp'),'2020-04-01', 'Full').properties.ipAddress)]"
       },
       "DemoAppPrivateUrl": {
         "type": "string",
