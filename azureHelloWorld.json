@@ -289,9 +289,9 @@
         "type": "object",
         "value": "[reference(variables('demoServerPublicIpId')).ipAddress]"
       },
-      "DemoAppPrivateIP": {
+      "DemoAppPrivateUrl": {
         "type": "string",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations[0].properties.privateIPAddress]"
+        "value": "[concat('http://',[reference(variables('demoServerIntId')).ipConfigurations[0].properties.privateIPAddress])]"
       }
     }
 }
