@@ -284,9 +284,13 @@
         }
     ],
     "outputs": {
-      "DemoAppPublicIP": {
-        "type": "array",
+      "DemoAppPrivateIP": {
+        "type": "string",
         "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties.privateIPAddress]"
       }
-    }
+    },
+      "DemoAppPublicIP": {
+        "type": "string",
+        "value": "[resourceId(resourceGroup().name,'Microsoft.Network/publicIpAddresses', 'nfHelloDemoServerIp').publicIpAddress]"
+      }
 }
