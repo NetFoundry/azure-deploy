@@ -286,11 +286,23 @@
     "outputs": {
       "DemoAppPublicIP": {
         "type": "string",
-        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'nfHelloDemoServerIp'))).ipAddress]"
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'nfHelloDemoServerIp')).ipAddress]"
       },
       "DemoAppPrivateIP": {
         "type": "array",
         "value": "[reference(variables('demoServerIntId')).ipConfigurations[0]]"
       }
+    }
+}
+
+
+"outputs": {
+    "BlobUri": {
+        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob]",
+        "type" : "string"
+    },
+    "FQDN": {
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('ipAddressName'))).dnsSettings.fqdn]",
+        "type" : "string"
     }
 }
