@@ -286,7 +286,7 @@
     "outputs": {
       "DemoAppPublicIP": {
         "type": "array",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations]"
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties.privateIPAddress]"
       }
     }
 }
