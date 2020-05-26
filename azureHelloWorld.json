@@ -290,7 +290,7 @@
       },
       "DemoAppPrivateIP": {
         "type": "array",
-        "value": "[privateIPAddress(variables('demoServerIntId').ipConfigurations, 'nfHelloDemoIpServer01')]"
+        "value": "[variables('demoServerIntId').ipConfigurations]"
       }
     }
 }
