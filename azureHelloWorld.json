@@ -176,7 +176,7 @@
         },
         {
             "name": "nfHelloDemoServerIp",
-            "type": "Microsoft.Network/publicIpAddresses",
+            "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-04-01",
             "location": "[parameters('location')]",
             "tags": {},
@@ -285,7 +285,7 @@
     "outputs": {
       "DemoAppPublicUrl": {
         "type": "string",
-        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp')).IpAddress)]"
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp')).ipAddress)]"
       },
       "DemoAppPrivateUrl": {
         "type": "string",
