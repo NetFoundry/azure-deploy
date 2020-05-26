@@ -285,12 +285,12 @@
     ],
     "outputs": {
       "DemoAppPrivateIP": {
-        "type": "array",
-        "value": "[variables('demoServerIntId').ipConfigurations('properties')]"
+        "type": "string",
+        "value": "[variables('demoServerIntId').ipConfigurations('privateIPAddress')]"
       },
       "DemoAppPublicIP": {
         "type": "array",
-        "value": "[variables('demoServerIntId').ipConfigurations('properties')]"
+        "value": "[variables('demoServerIntId').ipConfigurations('publicIPAddress')]"
       }
     }
 }
