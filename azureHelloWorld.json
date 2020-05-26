@@ -291,7 +291,7 @@
       },
       "DemoAppPrivateUrl": {
         "type": "string",
-        "value": "[concat('http://',[reference(variables('demoServerIntId')).ipConfigurations[0].properties.privateIPAddress])]"
+        "value": "[concat('http://',reference(variables('demoServerIntId')).ipConfigurations[0].properties.privateIPAddress)]"
       }
     }
 }
