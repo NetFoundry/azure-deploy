@@ -294,15 +294,3 @@
       }
     }
 }
-
-
-"outputs": {
-    "BlobUri": {
-        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob]",
-        "type" : "string"
-    },
-    "FQDN": {
-        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('ipAddressName'))).dnsSettings.fqdn]",
-        "type" : "string"
-    }
-}
