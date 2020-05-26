@@ -286,11 +286,11 @@
     "outputs": {
       "DemoAppPrivateIP": {
         "type": "array",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties]"
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations('properties')]"
       },
       "DemoAppPublicIP": {
         "type": "array",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties]"
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations('properties')]"
       }
     }
 }
