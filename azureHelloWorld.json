@@ -285,7 +285,7 @@
     ],
     "outputs": {
       "DemoAppPublicIP": {
-        "type": "array",
+        "type": "object",
         "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'nfHelloDemoServerIp'))]"
       },
       "DemoAppPrivateIP": {
