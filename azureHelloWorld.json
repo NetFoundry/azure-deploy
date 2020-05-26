@@ -286,11 +286,11 @@
     "outputs": {
       "DemoAppPublicIP": {
         "type": "object",
-        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', 'nfHelloDemoServerIp'))]"
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations[0].publicIPAddress]"
       },
       "DemoAppPrivateIP": {
-        "type": "object",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations[0]]"
+        "type": "string",
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations[0].privateIPAddress]"
       }
     }
 }
