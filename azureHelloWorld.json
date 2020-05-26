@@ -92,7 +92,7 @@
                             },
                             "privateIPAddress": "172.29.253.10",
                             "privateIPAllocationMethod": "Static",
-                            "publicIpAddress": {
+                            "publicIPAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoGwIp')]"
                             }
                         }
@@ -124,7 +124,7 @@
                             },
                             "privateIPAddress": "172.29.253.11",
                             "privateIPAllocationMethod": "Static",
-                            "publicIpAddress": {
+                            "publicIPAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfHelloDemoServerIp')]"
                             }
                         }
@@ -286,11 +286,11 @@
     "outputs": {
       "DemoAppPrivateIP": {
         "type": "string",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations.privateIPAddress]"
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties.privateIPAddress]"
       },
       "DemoAppPublicIP": {
-        "type": "string",
-        "value": "[reference(variables('demoServerIntId')).ipConfigurations.publicIpAddress]"
+        "type": "object",
+        "value": "[reference(variables('demoServerIntId')).ipConfigurations.properties.publicIPAddress]"
       }
     }
 }
