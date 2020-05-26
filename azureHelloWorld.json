@@ -284,13 +284,13 @@
         }
     ],
     "outputs": {
-      "DemoAppPrivateIP": {
-        "type": "string",
-        "value": "[variables('demoServerIntId').ipConfigurations('privateIPAddress')]"
-      },
       "DemoAppPublicIP": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('nfHelloDemoServerIp'))]
+      },
+      "DemoAppPrivateIP": {
         "type": "array",
-        "value": "[variables('demoServerIntId').ipConfigurations('publicIPAddress')]"
+        "value": "[privateIPAddress(variables('demoServerIntId').ipConfigurations, 'nfHelloDemoIpServer01')]"
       }
     }
 }
