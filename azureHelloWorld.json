@@ -184,7 +184,7 @@
                 "name": "Basic"
             },
             "properties": {
-                "publicIpAllocationMethod": "Dynamic"
+                "publicIpAllocationMethod": "Static"
             }
         },
         {
@@ -284,8 +284,8 @@
     ],
     "outputs": {
       "DemoAppPublicUrl": {
-        "type": "array",
-        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp')).properties]"
+        "type": "string",
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp')).ipAddress)]"
       },
       "DemoAppPrivateUrl": {
         "type": "string",
