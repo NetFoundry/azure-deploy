@@ -284,8 +284,8 @@
     ],
     "outputs": {
       "DemoAppPublicUrl": {
-        "type": "string",
-        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp')))]"
+        "type": "array",
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','nfHelloDemoServerIp'))]"
       },
       "DemoAppPrivateUrl": {
         "type": "string",
