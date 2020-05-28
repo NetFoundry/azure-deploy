@@ -12,6 +12,20 @@
             "metadata": {
                 "description": "Enter the NetFoundry Gateway Registration Key"
             }
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Enter the username for admin user"
+            }
+        },
+        "adminPassword": {
+            "type": "secureString",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Enter the password for admin user"
+            }
         }
     },
     "variables": {
@@ -225,8 +239,8 @@
                 },
                 "osProfile": {
                     "computerName": "nfHelloDemoGw",
-                    "adminUsername": "helloworld",
-                    "adminPassword": "n3tf0undrY*",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
                     "customData": "[base64(variables('runScript'))]"
                 }
             },
@@ -272,8 +286,8 @@
                 },
                 "osProfile": {
                     "computerName": "nfHelloDemoServer",
-                    "adminUsername": "helloworld",
-                    "adminPassword": "n3tf0undrY*",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
                     "customData": "[base64(variables('runScript1'))]"
                 }
             },
@@ -290,6 +304,14 @@
       "DemoAppPrivateUrl": {
         "type": "string",
         "value": "[concat('http://',reference(resourceId('Microsoft.Network/networkInterfaces','nfHelloDemoServerInt')).ipConfigurations[0].properties.privateIPAddress)]"
+      },
+      "adminUsername": {
+        "type": "string",
+        "value": "[parameters('adminUsername')]"
+      },
+      "adminPassword": {
+        "type": "string",
+        "value": "[parameters('adminPassword')]"
       }
     }
 }
