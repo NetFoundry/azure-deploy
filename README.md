@@ -29,3 +29,7 @@ Deploy the latest:
 Deploy Hello World Demo:
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Fmaster%2FazureHelloWorld.json)
+
+Deploy Speed Test Demo:
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Ffeature%2FCLOUDDEV-332%2FazureSpeedTest.json)
