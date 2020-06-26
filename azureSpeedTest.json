@@ -299,11 +299,11 @@
     "outputs": {
       "DemoAppPublicUrl": {
         "type": "string",
-        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfSpeedTestServerIp')).ipAddress)]"
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfSpeedTestServerIp')).ipAddress,':8080')]"
       },
       "DemoAppPrivateUrl": {
         "type": "string",
-        "value": "[concat('http://',reference(resourceId('Microsoft.Network/networkInterfaces','nfSpeedTestServerInt')).ipConfigurations[0].properties.privateIPAddress)]"
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/networkInterfaces','nfSpeedTestServerInt')).ipConfigurations[0].properties.privateIPAddress,':8080')]"
       },
       "adminUsername": {
         "type": "string",
