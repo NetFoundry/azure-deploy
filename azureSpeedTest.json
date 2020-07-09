@@ -1,0 +1,317 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "eastus"
+        },
+        "nfregKey": {
+            "type": "secureString",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Enter the NetFoundry Gateway Registration Key"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Enter the username for admin user"
+            }
+        },
+        "adminPassword": {
+            "type": "secureString",
+            "defaultValue": null,
+            "metadata": {
+                "description": "Enter the password for admin user"
+            }
+        }
+    },
+    "variables": {
+        "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
+        "scriptCmd1_a": "#!/bin/bash -ex\ncurl -fsSL https://get.docker.com -o get-docker.sh\nsh get-docker.sh\nusermod -a -G docker nfadmin\n",
+        "scriptCmd1_b": "curl -L https://github.com/docker/compose/releases/download/1.25.5/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose\n",
+        "scriptCmd1_c": "chmod +x /usr/local/bin/docker-compose\nchown root:docker /usr/local/bin/docker-compose\nsystemctl enable docker\nsystemctl start docker\n",
+        "scriptCmd1_d": "cat <<EOF >/home/nfadmin/docker-compose.yml\nnetfoundry:\n  image: netfoundry/speedtest-remote\n  ports:\n    - \"8080:80\"\nEOF\n",
+        "scriptCmd1_e": "chown nfadmin:wheel /home/nfadmin/docker-compose.yml\n/usr/local/bin/docker-compose -f /home/nfadmin/docker-compose.yml up -d",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfSpeedTestVnet')]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/nfSpeedTestSubnet')]",
+        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
+        "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-04-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "nfSpeedTestGwSg",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-04-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "nfSpeedTestServerSg",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "8080"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "nfSpeedTestGwInt",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "nfSpeedTestIpGw01",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAddress": "172.29.253.10",
+                            "privateIPAllocationMethod": "Static",
+                            "publicIPAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfSpeedTestGwIp')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfSpeedTestGwSg')]"
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkSecurityGroups/nfSpeedTestGwSg",
+                "Microsoft.Network/virtualNetworks/nfSpeedTestVnet",
+                "Microsoft.Network/publicIpAddresses/nfSpeedTestGwIp"
+            ]
+        },
+        {
+            "name": "nfSpeedTestServerInt",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "nfSpeedTestIpServer01",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAddress": "172.29.253.11",
+                            "privateIPAllocationMethod": "Static",
+                            "publicIPAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', 'nfSpeedTestServerIp')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nfSpeedTestServerSg')]"
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkSecurityGroups/nfSpeedTestServerSg",
+                "Microsoft.Network/virtualNetworks/nfSpeedTestVnet",
+                "Microsoft.Network/publicIpAddresses/nfSpeedTestServerIp"
+            ]
+        },
+        {
+            "name": "nfSpeedTestVnet",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.29.253.0/24"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "nfSpeedTestSubnet",
+                        "properties": {
+                            "addressPrefix": "172.29.253.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "nfSpeedTestGwIp",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "name": "nfSpeedTestServerIp",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "nfSpeedTestGw",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-12-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "plan": {
+                "name": "gateway",
+                "publisher": "netfoundryinc",
+                "product": "centos"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "centos",
+                        "sku": "gateway",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'nfSpeedTestGwInt')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "nfSpeedTestGw",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "customData": "[base64(variables('runScript'))]"
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/nfSpeedTestGwInt"
+            ]
+        },
+        {
+            "name": "nfSpeedTestServer",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-12-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "plan": {
+                "name": "gateway",
+                "publisher": "netfoundryinc",
+                "product": "centos"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "centos",
+                        "sku": "gateway",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'nfSpeedTestServerInt')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "nfSpeedTestServer",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "customData": "[base64(variables('runScript1'))]"
+                }
+            },
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/nfSpeedTestServerInt"
+            ]
+        }
+    ],
+    "outputs": {
+      "DemoAppPublicUrl": {
+        "type": "string",
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/publicIPAddresses','nfSpeedTestServerIp')).ipAddress,':8080')]"
+      },
+      "DemoAppPrivateUrl": {
+        "type": "string",
+        "value": "[concat('http://',reference(resourceId('Microsoft.Network/networkInterfaces','nfSpeedTestServerInt')).ipConfigurations[0].properties.privateIPAddress,':8080')]"
+      },
+      "adminUsername": {
+        "type": "string",
+        "value": "[parameters('adminUsername')]"
+      },
+      "adminPassword": {
+        "type": "string",
+        "value": "[parameters('adminPassword')]"
+      }
+    }
+}
