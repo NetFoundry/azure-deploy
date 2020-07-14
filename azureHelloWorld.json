@@ -4,7 +4,10 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "eastus"
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Enter the location where you want to deploy NetFoundry Gateway to"
+            }
         },
         "nfregKey": {
             "type": "secureString",
