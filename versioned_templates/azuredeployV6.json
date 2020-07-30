@@ -4,7 +4,10 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "eastus"
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Enter the location where you want to deploy NetFoundry Gateway to"
+            }
         },
         "networkInterfaceName": {
             "type": "string",
@@ -46,10 +49,6 @@
             "type": "string",
             "defaultValue": "nfVm"
         },
-        "virtualMachineRG": {
-            "type": "string",
-            "defaultValue": "nf"
-        },
         "osDiskType": {
             "type": "string",
             "defaultValue": "Premium_LRS"
@@ -58,7 +57,7 @@
             "type": "string",
             "defaultValue": "Standard_B1ms"
         },
-        "nfregKey": {
+        "gatewayRegistrationKey": {
             "type": "secureString",
             "defaultValue": null,
             "metadata": {
@@ -83,7 +82,7 @@
         "scriptCmd": "#!/bin/sh\nsudo /opt/netfoundry/vtc/nfnreg",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
-        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
+        "runScript": "[concat(variables('scriptCmd'),' ',parameters('gatewayRegistrationKey'))]",
         "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
     },
     "resources": [

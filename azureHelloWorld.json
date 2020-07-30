@@ -4,9 +4,12 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "eastus"
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Enter the location where you want to deploy NetFoundry Gateway to"
+            }
         },
-        "nfregKey": {
+        "gatewayRegistrationKey": {
             "type": "secureString",
             "defaultValue": null,
             "metadata": {
@@ -37,7 +40,7 @@
         "scriptCmd1_e": "chown nfadmin:wheel /home/nfadmin/docker-compose.yml\n/usr/local/bin/docker-compose -f /home/nfadmin/docker-compose.yml up -d",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', 'nfHelloDemoVnet')]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/nfHelloDemoSubnet')]",
-        "runScript": "[concat(variables('scriptCmd'),' ',parameters('nfregKey'))]",
+        "runScript": "[concat(variables('scriptCmd'),' ',parameters('gatewayRegistrationKey'))]",
         "runScript1": "[concat(variables('scriptCmd1_a'),variables('scriptCmd1_b'),variables('scriptCmd1_c'),variables('scriptCmd1_d'),variables('scriptCmd1_e'))]"
     },
     "resources": [
