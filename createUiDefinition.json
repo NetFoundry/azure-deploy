@@ -1,220 +1,127 @@
 {
-    "handler": "Microsoft.Compute.MultiVm",
-    "version": "0.1.2-preview",
-    "parameters": {
-        "basics": [
-            {
-                "name": "vmUsername",
-                "type": "Microsoft.Compute.UserNameTextBox",
-                "label": "VM user name",
-                "defaultValue": "nfadmin",
-                "toolTip": "Enter the username you would like to use to access the VM, default is nfadmin",
-                "constraints": {
-                    "required": true
-                },
-                "osPlatform": "Linux"
-            },
-            {
-                "name": "vmSSHKey",
-                "type": "Microsoft.Common.TextBox",
-                "label": "VM SSH Public Key",
-                "toolTip": "Please paste a public ssh key to access the vm",
-                "constraints": {
-                    "required": true
-                }
-            }
-        ],
-        "steps": [
-            {
-                "name": "regKey",
-                "label": "Registration Key",
-                "subLabel": {
-                    "preValidation": "Required",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Key Settings",
-                "elements": [
-                    {
-                        "name": "vmKey",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Gateway Registration Key",
-                        "toolTip": "NF Gateway Registration Key",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": true
-                        }
-                    }
-                ]    
-            },
-            {
-                "name": "nodesSettings",
-                "label": "Nodes Settings",
-                "subLabel": {
-                    "preValidation": "Required",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Nodes Settings",
-                "elements": [
-                    {
-                        "name": "vmName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Application name",
-                        "toolTip": "Assign a name to your Azure application",
-                        "defaultValue": "NFGateway",
-                        "constraints": {
-                            "required": true,
-                            "regex": "[a-z][a-z0-9-]{2,12}[a-z0-9]$",
-                            "validationMessage": "Must be 3-12 characters."
-                        }
-                    },
-                    {
-                        "name": "vmSize",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "VM size",
-                        "toolTip": "Select VM Size (will use 8 data disks)",
-                        "recommendedSizes": [
-                            "Standard_B1ms",
-                            "Standard_B1s",
-                            "Standard_B2ms",
-                            "Standard_B1s",
-                            "Standard_B4ms",
-                            "Standard_B8ms"
-                        ],
-                        "constraints": {
-                            "allowedSizes": [
-                                "Standard_B1ms",
-                                "Standard_B1s",
-                                "Standard_B2ms",
-                                "Standard_B1s",
-                                "Standard_B4ms",
-                                "Standard_B8ms",
-                                "Standard_A3",
-                                "Standard_A4",
-                                "Standard_A6",
-                                "Standard_A7",
-                                "Standard_A8",
-                                "Standard_A9",
-                                "Standard_A10",
-                                "Standard_A11",
-                                "Standard_D3",
-                                "Standard_D4",
-                                "Standard_D12",
-                                "Standard_D13",
-                                "Standard_D14",
-                                "Standard_D3_v2",
-                                "Standard_D4_v2",
-                                "Standard_D5_v2",
-                                "Standard_D12_v2",
-                                "Standard_D13_v2",
-                                "Standard_D14_v2",
-                                "Standard_D15_v2",
-                                "Standard_DS3",
-                                "Standard_DS4",
-                                "Standard_DS12",
-                                "Standard_DS13",
-                                "Standard_DS14",
-                                "Standard_DS3_v2",
-                                "Standard_DS4_v2",
-                                "Standard_DS5_v2",
-                                "Standard_DS12_v2",
-                                "Standard_DS13_v2",
-                                "Standard_DS14_v2",
-                                "Standard_DS15_v2"
-                            ]
-                        },
-                        "osPlatform": "Linux"
-                    }
-                ]
-            },
-            {
-                "name": "networkSettings",
-                "label": "Network Settings",
-                "subLabel": {
-                    "preValidation": "Required",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Network Settings",
-                "elements": [
-                    {
-                        "name": "vnetSpec",
-                        "type": "Microsoft.Network.VirtualNetworkCombo",
-                        "label": {
-                            "virtualNetwork": "Virtual network",
-                            "subnets": "Subnets"
-                        },
-                        "toolTip": {
-                            "virtualNetwork": "",
-                            "subnets": ""
-                        },
-                        "defaultValue": {
-                            "name": "NF-Vnet",
-                            "addressPrefixSize": "/16"
-                        },
-                        "constraints": {
-                            "minAddressPrefixSize": "/29"
-                        },
-                        "subnets": {
-                            "subnet1": {
-                                "label": "Search head subnet",
-                                "defaultValue": {
-                                    "name": "shsubnet",
-                                    "addressPrefixSize": "/24"
-                                },
-                                "constraints": {
-                                    "minAddressPrefixSize": "/29",
-                                    "minAddressCount": 1,
-                                    "requireContiguousAddresses": true
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "name": "pubSpec",
-                        "type": "Microsoft.Network.PublicIpAddressCombo",
-                        "label": {
-                          "publicIpAddress": "Public IP address",
-                          "domainNameLabel": "Domain name label"
-                        },
-                        "toolTip": {
-                          "publicIpAddress": "",
-                          "domainNameLabel": ""
-                        },
-                        "defaultValue": {
-                          "publicIpAddressName": "ip01",
-                          "domainNameLabel": "mydomain"
-                        },
-                        "constraints": {
-                          "required": {
-                            "domainNameLabel": true
-                          }
-                        },
-                        "options": {
-                          "hideNone": false,
-                          "hideDomainNameLabel": false,
-                          "hideExisting": false,
-                          "zone": 3
-                        },
-                        "visible": true
-                      }
-                ]
-            }
-
-        ],
-        "outputs": {
-            "location": "[location()]",
-            "adminUsername": "[basics('vmUsername')]",
-            "sshKeyData": "[basics('vmSSHKey')]",
-            "virtualMachineName": "[steps('nodesSettings').VmName]",
-            "virtualMachineSize": "[steps('nodesSettings').VmSize]",
-            "publicIpAddressName": "[steps('networkSettings').pubSpec.name]",
-            "publicIpAddressType":  "[steps('networkSettings').pubSpec.publicIPAllocationMethod]",
-            "publicIpAddressSku":  "[steps('networkSettings').pubSpec.sku]",
-            "virtualNetworkName": "[steps('networkSettings').vnetSpec.name]",
-            "addressPrefix": "[steps('networkSettings').vnetSpec.addressPrefix]",
-            "subnetName": "[steps('networkSettings').vnetSpec.subnets.subnet1.name]",
-            "subnetPrefix": "[steps('networkSettings').vnetSpec.subnets.subnet1.addressPrefix]",
-            "virtualMachineRG": "[steps('networkSettings').vnetSpec.resourceGroup]",
-            "nfregKey": "[steps('regKey').vmKey]"
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "isWizard": true,
+      "basics": {
+        "location": {
+          "toolTip": "Region in which Vendor VNF will be created.",
+          "allowedValues": [
+            "eastus"
+          ]
         }
-    }
+      }
+    },
+    "basics": [
+      {
+        "name": "deviceId",
+        "type": "Microsoft.Solutions.ResourceSelector",
+        "label": "Azure Network Function Manager device",
+        "toolTip": "Select the Azure Network Function Manager device on which Vendor VNF will be deployed",
+        "resourceType": "Microsoft.HybridNetwork/devices",
+        "options": {
+          "filter": {
+            "subscription": "onBasics",
+            "location": "onBasics"
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "bladeTitle": "Network settings",
+        "label": "Network settings",
+        "name": "Network Settings",
+        "subLabel": {
+          "preValidation": "Configure Network Settings",
+          "postValidation": "Done"
+        },
+        "elements": [
+          {
+            "name": "Management",
+            "type": "Microsoft.Common.Section",
+            "label": "Management",
+            "elements": [
+              {
+                "name": "ipAddress",
+                "label": "IP address",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Statically assigned IP address for the management interface",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address.",
+                  "required": true
+                }
+              },
+              {
+                "name": "subnet",
+                "label": "Subnet",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "IP subnet for the interface",
+                "placeholder": "192.168.0.x/24",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(8|9|[1-2][0-9]|3[0-2])$",
+                  "validationMessage": "Value must be an IPv4 subnet.",
+                  "required": true
+                }
+              },
+              {
+                "name": "gateway",
+                "label": "Default gateway",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Default gateway for the subnet",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address.",
+                  "required": true
+                }
+              },
+              {
+                "name": "dnsServer",
+                "label": "Dns Server",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Single DNS Server",
+                "placeholder": "1.1.1.1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "bladeTitle": "Key settings",
+        "label": "Key settings",
+        "name": "keySettings",
+        "subLabel": {
+          "preValidation": "Register the device with NF Network",
+          "postValidation": "Done"
+        },
+        "elements": [
+          {
+            "name": "edgeRouterKey",
+            "label": "Edge Router Registration Key",
+            "type": "Microsoft.Common.TextBox",
+            "toolTip": "Edge router Registration Key",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "endpointJWT",
+            "label": "Endpoint JWT",
+            "type": "Microsoft.Common.TextBox",
+            "toolTip": "Endpoint JWT Key",
+            "constraints": {
+              "required": true
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {},
+    "resourceTypes": []
+  }
 }

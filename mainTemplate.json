@@ -92,7 +92,7 @@
                     "subnet": "[parameters('mecmgmtNic').subnet]",
                     "gateway": "[parameters('mecmgmtNic').gateway]",
                     "ipVersion": "IPv4",
-                    "dnsServers": null
+                    "dnsServer": null
                   }
                 ]
               }
