@@ -18,7 +18,7 @@
       {
         "name": "deviceId",
         "type": "Microsoft.Solutions.ResourceSelector",
-        "label": "Azure Network Function Manager device",
+        "label": "Azure VNF Manager device",
         "toolTip": "Select the Azure Network Function Manager device on which Vendor VNF will be deployed",
         "resourceType": "Microsoft.HybridNetwork/devices",
         "options": {
@@ -26,6 +26,33 @@
             "subscription": "onBasics",
             "location": "onBasics"
           }
+        }
+      },
+      {
+        "name": "nfName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "NetFoundry VNF Name",
+        "placeholder": "demoZiti01",
+        "constraints": {
+          "required": true
+        }
+      },
+      {
+        "name": "edgeRouterKey",
+        "label": "Edge Router Registration Key",
+        "type": "Microsoft.Common.TextBox",
+        "toolTip": "Edge router Registration Key",
+        "constraints": {
+          "required": true
+        }
+      },
+      {
+        "name": "endpointJWT",
+        "label": "Endpoint JWT",
+        "type": "Microsoft.Common.TextBox",
+        "toolTip": "Endpoint JWT Key",
+        "constraints": {
+          "required": true
         }
       }
     ],
@@ -88,35 +115,6 @@
                 "placeholder": "1.1.1.1"
               }
             ]
-          }
-        ]
-      },
-      {
-        "bladeTitle": "Key settings",
-        "label": "Key settings",
-        "name": "keySettings",
-        "subLabel": {
-          "preValidation": "Register the device with NF Network",
-          "postValidation": "Done"
-        },
-        "elements": [
-          {
-            "name": "edgeRouterKey",
-            "label": "Edge Router Registration Key",
-            "type": "Microsoft.Common.TextBox",
-            "toolTip": "Edge router Registration Key",
-            "constraints": {
-              "required": true
-            }
-          },
-          {
-            "name": "endpointJWT",
-            "label": "Endpoint JWT",
-            "type": "Microsoft.Common.TextBox",
-            "toolTip": "Endpoint JWT Key",
-            "constraints": {
-              "required": true
-            }
           }
         ]
       }

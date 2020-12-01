@@ -5,19 +5,13 @@
     "location": {
       "type": "string",
       "metadata": {
-        "description": "Region where VENDOR is deployed"
+        "description": "Region in which NF VNF will be created"
       }
     },
     "nfName": {
       "type": "string",
       "metadata": {
-        "description": "Name of VENDOR Network Function to deploy"
-      }
-    },
-    "nfSku": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of VENDOR SKU"
+        "description": "Name of NF VNF to be crated"
       }
     },
     "deviceId": {
@@ -68,10 +62,10 @@
     {
       "type": "Microsoft.HybridNetwork/networkFunctions",
       "apiVersion": "2020-01-01-preview",
-      "name": "[parameters('nfname')]",
       "location": "[parameters('location')]",
+      "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "[parameters('nfSku')]",
+        "skuName": "24490147-aa35-425b-93ff-11bc17b4d6b2",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"
