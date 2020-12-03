@@ -119,7 +119,19 @@
         ]
       }
     ],
-    "outputs": {},
+    "outputs": {
+      "nfName": "[basics('nfName')]",
+      "deviceId": "[basics('deviceId').id]",
+      "edgeRouterKey": "[basics('edgeRouterKey')]",
+      "endpointJWT": "[basics('endpointJWT')]",
+      "mecmgmtNic": {
+        "vmSwitchType": "Management",
+        "ipAddress": "[steps('Network Settings').Management.ipAddress]",
+        "subnet": "[steps('Network Settings').Management.subnet]",
+        "gateway": "[steps('Network Settings').Management.gateway]",
+        "dnsServer": "[steps('Network Settings').Management.dnsServer]"
+      }
+    },
     "resourceTypes": []
   }
 }
