@@ -108,8 +108,8 @@
                 }
               },
               {
-                "name": "dnsServer",
-                "label": "Dns Server",
+                "name": "dnsServers",
+                "label": "Dns Servers",
                 "type": "Microsoft.Common.TextBox",
                 "toolTip": "Single DNS Server",
                 "placeholder": "1.1.1.1"
@@ -120,6 +120,7 @@
       }
     ],
     "outputs": {
+      "location": "[location()]",
       "nfName": "[basics('nfName')]",
       "deviceId": "[basics('deviceId').id]",
       "edgeRouterKey": "[basics('edgeRouterKey')]",
@@ -129,9 +130,8 @@
         "ipAddress": "[steps('Network Settings').Management.ipAddress]",
         "subnet": "[steps('Network Settings').Management.subnet]",
         "gateway": "[steps('Network Settings').Management.gateway]",
-        "dnsServer": "[steps('Network Settings').Management.dnsServer]"
+        "dnsServers": "[steps('Network Settings').Management.dnsServers]"
       }
-    },
-    "resourceTypes": []
+    }
   }
 }
