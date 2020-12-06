@@ -21,15 +21,13 @@
       }
     },
     "edgeRouterKey": {
-      "type": "secureString",
-      "defaultValue": null,
+      "type": "string",
       "metadata": {
         "description": "Enter the edge router key"
       }
     },
     "endpointJWT": {
-      "type": "secureString",
-      "defaultValue": null,
+      "type": "string",
       "metadata": {
         "description": "Enter the endpoint jwt"
       }
@@ -43,7 +41,11 @@
     "endpointRegCmd": "\nsudo /opt/netfoundry/gw-tunnel-setup",
     "runEdgeRouter": "[concat(variables('edgeRouterRegCmd'),' ',parameters('edgeRouterKey'))]",
     "runEndpoint": "[concat(variables('endpointRegCmd'),' ',parameters('endpointJWT'))]",
-    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]"
+    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
+    "dnsServers": [
+      "[parameters('mecmgmtNic').dnsServer1]",
+      "[parameters('mecmgmtNic').dnsServer2]"
+    ]
   },
   "resources": [
     {
@@ -65,7 +67,7 @@
       "location": "[parameters('location')]",
       "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "24490147-aa35-425b-93ff-11bc17b4d6b2",
+        "skuName": "ziti-7-3-0",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"
@@ -73,7 +75,6 @@
         "networkFunctionUserConfigurations": [
           {
             "roleName": "ziti-edge-router",
-            "userDataParameters": "[base64(variables('runCmd'))]",
             "networkInterfaces": [
               {
                 "networkInterfaceName": "mecmgmtNic",
@@ -86,13 +87,14 @@
                     "subnet": "[parameters('mecmgmtNic').subnet]",
                     "gateway": "[parameters('mecmgmtNic').gateway]",
                     "ipVersion": "IPv4",
-                    "dnsServers": [
-                      "[parameters('mecmgmtNic').dnsServers]"
-                    ]
+                    "dnsServers": "[variables('dnsServers')]"
                   }
                 ]
               }
-            ]
+            ],
+            "osProfile": {
+              "customData": "[base64(variables('runCmd'))]"
+            }
           }
         ]
       }

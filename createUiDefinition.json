@@ -108,11 +108,15 @@
                 }
               },
               {
-                "name": "dnsServers",
-                "label": "Dns Servers",
+                "name": "dnsServer1",
                 "type": "Microsoft.Common.TextBox",
-                "toolTip": "Single DNS Server",
+                "label": "DNS 1",
                 "placeholder": "1.1.1.1"
+              },
+              {
+                "name": "dnsServer2",
+                "type": "Microsoft.Common.TextBox",
+                "label": "DNS 2"
               }
             ]
           }
@@ -130,7 +134,8 @@
         "ipAddress": "[steps('Network Settings').Management.ipAddress]",
         "subnet": "[steps('Network Settings').Management.subnet]",
         "gateway": "[steps('Network Settings').Management.gateway]",
-        "dnsServers": "[steps('Network Settings').Management.dnsServers]"
+        "dnsServer1": "[steps('Network Settings').Management.dnsServer1]",
+        "dnsServer2": "[steps('Network Settings').Management.dnsServer2]"
       }
     }
   }
