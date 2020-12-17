@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_sase_vnet_name": {
-            "value": null
+            "value": "sase-us-east-vnet"
         },
         "virtualNetworks_sase_vnet_location": {
-            "value": null
+            "value": "useast"
         }
     }
 }

@@ -3,11 +3,9 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_sase_vnet_name": {
-            "defaultValue": "sase-us-east-vnet",
             "type": "String"
         },
         "virtualNetworks_sase_vnet_location": {
-            "defaultValue": "useast",
             "type": "String"
         }
     },
