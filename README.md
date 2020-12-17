@@ -33,3 +33,7 @@ Deploy Hello World Demo:
 Deploy Speed Test Remote Demo:
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Fmaster%2FazureSpeedTest.json)
+
+Deploy SASE WSG Components:
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Ffeature%2mecdeploy%2SASE%2template.json)
