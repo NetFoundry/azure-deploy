@@ -9,6 +9,8 @@ az deployment group create \
   --parameters azure-deploy/SASE/saseDeploy.parameters.json
 ```
 !!! important
-        Configure Envrionmnet Varaible ARM_RESOURCE_GROUP and ARM_SUBSCRIPTION_ID
+    Configure Envrionmnet Varaible ARM_RESOURCE_GROUP and ARM_SUBSCRIPTION_ID
+
+        
 
 
