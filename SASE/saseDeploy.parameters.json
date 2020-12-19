@@ -2,11 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "virtualNetworks_sase_vnet_name": {
-            "value": "sase-us-east-vnet"
-        },
         "virtualNetworks_sase_vnet_location": {
-            "value": "useast"
+            "value": "eastus2"
+        },
+        "edgeRouterKey": {
+            "value": "HFFZAOOTUC"
+        },
+        "endpointJWT": {
+            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYwODQ2OTg0NywiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6ImYwNjBiMzBiLWRmOWEtNDgxNS1iYThhLTk0YjlkNzU4YjBlMyIsInN1YiI6IjlCTy1BN1J2cSJ9.Xy1GYMuzAR9F8jYPIJ7vF1nav4Dw-x9qtbAwYLYphWW2YazTLCfQ0smKm_klAvK-a2RtI1CqerqbB1MhBjV23B-3I9zELUiHwavLqDKSRQ21bGA361A5koyGhUI8PNvJ0ZeZik7A6Xf0hCptO1QnWwA6U6DEj3D-d9jFy9CFe0eTAqKdN6DUbB8NKoQ5tcbiC9yN3Fd0F2yi5y1r34bjl-AiLR_js898ixu5OrN7aHZ624hqcN_OTDOeg0gI8lnZQSMR44OWNIled2bPrMPnFcdt4rycsk6ydhv-nfvTfRpgl1sZcdhaHe7WH3dMNDsMgMNCmPPYvgWpVjnfv5mzbg"
+        },
+        "sshKeyData": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="
         }
     }
 }
