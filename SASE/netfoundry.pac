@@ -18,5 +18,5 @@ return 'PROXY secure.internet.http:80';
 }
 if (url.substring(0, 6) == 'https:')
 {
-return 'PROXY secure.internet.http:443';
+return 'PROXY secure.internet.https:443';
 }
