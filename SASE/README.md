@@ -10,12 +10,7 @@ az deployment group create \
 ```
 *Configure Envrionmental Variables ARM_RESOURCE_GROUP and ARM_SUBSCRIPTION_ID*
 
-``` js
-Internet Explorer and Microsoft Edge on Windows 10-based computers use the WinHttp proxy service to retrieve proxy server information. The WinHttp Proxy service does not support using the ftp:// or file:// protocol for a PAC file.
-To resolve this issue, host the PAC file on a web server, then refer to it by using the http protocol.
-[More on this here](https://docs.microsoft.com/en-us/troubleshoot/browsers/cannot-read-pac-file)
-
-```
+:warning: Internet Explorer and Microsoft Edge on Windows 10-based computers use the WinHttp proxy service to retrieve proxy server information. The WinHttp Proxy service does not support using the ftp:// or file:// protocol for a PAC file. To resolve this issue, host the PAC file on a web server, then refer to it by using the http protocol. [More on this here](https://docs.microsoft.com/en-us/troubleshoot/browsers/cannot-read-pac-file)
 
 
 
