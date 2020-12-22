@@ -122,6 +122,9 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-datapath-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "tags": {
+                "Service": "Web Secure Gateway"
+            },
             "properties": {
                 "securityRules": [
                     {
@@ -145,6 +148,9 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-mgmt-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "tags": {
+                "Service": "Web Secure Gateway"
+            },
             "properties": {
                 "securityRules": [
                     {
@@ -168,6 +174,9 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "tags": {
+                "Service": "Web Secure Gateway"
+            },
             "properties": {
                 "securityRules": [
                     {

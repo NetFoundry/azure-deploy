@@ -1,0 +1,126 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Region in which NF VNF will be created"
+      }
+    },
+    "nfName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of NF VNF to be crated"
+      }
+    },
+    "deviceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Network Function Manager device instance"
+      }
+    },
+    "edgeRouterKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter the edge router key"
+      }
+    },
+    "endpointJWT": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter the endpoint jwt"
+      }
+    },
+    "mecmgmtNic": {
+      "type": "object"
+    },
+    "meclanNic": {
+      "type": "object"
+    }
+  },
+  "variables": {
+    "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
+    "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
+    "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
+    "runEndpoint": "[concat(variables('cloudInit2'),', ',parameters('endpointJWT'),']')]",
+    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
+    "dnsMgmtServers": [
+      "[parameters('mecmgmtNic').dnsServer1]",
+      "[parameters('mecmgmtNic').dnsServer2]"
+    ],
+    "dnsLanServers": [
+      "[parameters('meclanNic').dnsServer1]",
+      "[parameters('meclanNic').dnsServer2]"
+    ]
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-02-01",
+      "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.HybridNetwork/networkFunctions",
+      "apiVersion": "2020-01-01-preview",
+      "location": "[parameters('location')]",
+      "name": "[parameters('nfName')]",
+      "properties": {
+        "skuName": "ziti-7-3-2",
+        "vendorName": "NetFoundryInc",
+        "device": {
+          "id": "[parameters('deviceId')]"
+        },
+        "networkFunctionUserConfigurations": [
+          {
+            "roleName": "ziti-edge-router-multinic",
+            "networkInterfaces": [
+              {
+                "networkInterfaceName": "mecmgmtNic",
+                "macAddress": null,
+                "vmSwitchType": "Management",
+                "ipConfigurations": [
+                  {
+                    "ipAllocationMethod": "Static",
+                    "ipAddress": "[parameters('mecmgmtNic').ipAddress]",
+                    "subnet": "[parameters('mecmgmtNic').subnet]",
+                    "gateway": "[parameters('mecmgmtNic').gateway]",
+                    "ipVersion": "IPv4",
+                    "dnsServers": "[variables('dnsMgmtServers')]"
+                  }
+                ]
+              },
+              {
+                "networkInterfaceName": "meclanNic",
+                "macAddress": null,
+                "vmSwitchType": "Lan",
+                "ipConfigurations": [
+                  {
+                    "ipAllocationMethod": "Static",
+                    "ipAddress": "[parameters('meclanNic').ipAddress]",
+                    "subnet": "[parameters('meclanNic').subnet]",
+                    "gateway": "[parameters('meclanNic').gateway]",
+                    "ipVersion": "IPv4",
+                    "dnsServers": "[variables('dnsLanServers')]"
+                  }
+                ]
+              }
+            ],
+            "osProfile": {
+              "customData": "[base64(variables('runCmd'))]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}
