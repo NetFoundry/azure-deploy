@@ -1,0 +1,380 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_vnet_location": {
+            "type": "String"
+        },
+        "edgeRouterKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter the edge router key"
+            }
+        },
+        "endpointJWT": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter the endpoint jwt"
+            }
+        },
+        "sshKeyData": {
+            "type": "string",
+            "metadata": {
+                "description": "SSH RSA public key as a string."
+            }
+        }
+    },
+    "variables": {
+        "virtualNetworks_vnet_name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-vnet')]",
+        "subnet_name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-subnet')]",
+        "route_table_name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-routetable')]",
+        "ziti_edge_router_name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-router')]",
+        "webserver_name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-webserver')]",
+        "cloudInitZiti1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
+        "cloudInitZiti2": "\n - [/opt/netfoundry/gw-tunnel-setup",
+        "runEdgeRouter": "[concat(variables('cloudInitZiti1'),', ',parameters('edgeRouterKey'),']')]",
+        "runEndpoint": "[concat(variables('cloudInitZiti2'),', ',parameters('endpointJWT'),']')]",
+        "runZitiCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
+        "cloudInitWS1": "#cloud-config\nruncmd:\n - apt update\n - apt install python-pip -y\n - pip install ansible\n - ansible-galaxy install nginxinc.nginx",
+        "cloudInitWS2": "\nwrite_files:\n - encoding: b64\n   content: 'LS0tCi0gaG9zdHM6IGxvY2FsaG9zdAogIGJlY29tZTogdHJ1ZQogIHJvbGVzOgogICAgLSByb2xlOiBuZ2lueGluYy5uZ2lueA=='",
+        "cloudInitWS3": "\n   owner: root:root\n   path: /var/lib/cloud/playbook.yml\n   permissions: '0755'\nruncmd: ansible-playbook /var/lib/cloud/playbook.yml",
+        "runWebserverCmd": "[concat(variables('cloudInitWS1'),' ',variables('cloudInitWS2'),' ',variables('cloudInitWS3'))]"
+        },
+    "resources": [
+        {
+            "apiVersion": "2019-05-01",
+            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-05-01",
+            "name": "[variables('virtualNetworks_vnet_name')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[variables('route_table_name')]"
+            ],
+            "tags": {
+                "Service": "Web Hosting"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnet_name')]",
+                        "properties": {
+                            "addressPrefix": "10.1.1.0/24",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', variables('route_table_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/routeTables",
+            "name": "[variables('route_table_name')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Web Hosting"
+            },
+            "properties": {
+                "disableBgpRoutePropagation": false
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-webserver-sg')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Web Hosting"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "10.1.0.0/16",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    },
+                    {
+                        "name": "WEB80",
+                        "properties": {
+                            "priority": 1020,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "10.1.0.0/16",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "80"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-sg')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Web Hosting"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-router-int01')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/sase-', parameters('virtualnetworks_vnet_location'), '-ziti-sg')]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_vnet_name'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('ziti_edge_router_name'), '-int01-ip')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworks_vnet_name'), variables('subnet_name'))]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('ziti_edge_router_name'), '-int01-ip'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('sase-', parameters('virtualnetworks_vnet_location'), '-ziti-sg'))]"
+                }
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        },
+        {
+            "name": "[concat('sase-', parameters('virtualnetworks_vnet_location'), '-webserver-int01')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/sase-', parameters('virtualnetworks_vnet_location'), '-webserver-sg')]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_vnet_name'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('webserver_name'), '-int01-ip')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworks_vnet_name'), variables('subnet_name'))]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('webserver_name'), '-int01-ip'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('sase-', parameters('virtualnetworks_vnet_location'), '-webserver-sg'))]"
+                }
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        },
+        {
+            "name": "[concat(variables('ziti_edge_router_name'), '-int01-ip')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        },
+        {
+            "name": "[concat(variables('webserver_name'), '-int01-ip')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        },
+        {
+            "name": "[variables('ziti_edge_router_name')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int01')]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "centos",
+                        "sku": "gateway",
+                        "version": "7.3.0"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',  concat(variables('ziti_edge_router_name'), '-int01'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('ziti_edge_router_name')]",
+                    "adminUsername": "nfadmin",
+                    "customData": "[base64(variables('runZitiCmd'))]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/nfadmin/.ssh/authorized_keys",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "plan": {
+                "name": "gateway",
+                "publisher": "netfoundryinc",
+                "product": "centos"
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        },
+        {
+            "name": "[variables('webserver_name')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('webserver_name'), '-int01')]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',  concat(variables('webserver_name'), '-int01'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('webserver_name')]",
+                    "adminUsername": "nfadmin",
+                    "customData": "[base64(variables('runWebserverCmd'))]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/nfadmin/.ssh/authorized_keys",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "tags": {
+                "Service": "Web Hosting"
+            }
+        }
+    ]
+}

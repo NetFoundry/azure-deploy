@@ -42,8 +42,10 @@
   "variables": {
     "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
     "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
-    "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
-    "runEndpoint": "[concat(variables('cloudInit2'),', ',parameters('endpointJWT'),']')]",
+    "cloudInit3": "[concat('-e ',parameters('meclanNic').ipAddress)]",
+    "cloudInit4": "[concat('-o ',parameters('meclanNic').ipAddress)]",
+    "runEdgeRouter": "[concat(variables('cloudInit1'),', ',variables('cloudInit3'),', ',parameters('edgeRouterKey'),']')]",
+    "runEndpoint": "[concat(variables('cloudInit2'),', ',variables('cloudInit4'),', ',parameters('endpointJWT'),']')]",
     "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
     "dnsMgmtServers": [
       "[parameters('mecmgmtNic').dnsServer1]",
