@@ -8,7 +8,7 @@ if (isPlainHostName(host))
 {
 return 'DIRECT';
 }
-if (host == "100.25.68.105" || host == "13.93.117.39" || host == "20.185.40.104")
+if (host == "ws.http.ziti")
 {
 return 'DIRECT';
 }
@@ -19,4 +19,5 @@ return 'PROXY secure.internet.http:80';
 if (url.substring(0, 6) == 'https:')
 {
 return 'PROXY secure.internet.https:443';
+}
 }

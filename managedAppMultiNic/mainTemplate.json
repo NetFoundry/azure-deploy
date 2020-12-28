@@ -50,10 +50,6 @@
     "dnsMgmtServers": [
       "[parameters('mecmgmtNic').dnsServer1]",
       "[parameters('mecmgmtNic').dnsServer2]"
-    ],
-    "dnsLanServers": [
-      "[parameters('meclanNic').dnsServer1]",
-      "[parameters('meclanNic').dnsServer2]"
     ]
   },
   "resources": [
@@ -110,8 +106,7 @@
                     "ipAddress": "[parameters('meclanNic').ipAddress]",
                     "subnet": "[parameters('meclanNic').subnet]",
                     "gateway": "[parameters('meclanNic').gateway]",
-                    "ipVersion": "IPv4",
-                    "dnsServers": "[variables('dnsLanServers')]"
+                    "ipVersion": "IPv4"
                   }
                 ]
               }
