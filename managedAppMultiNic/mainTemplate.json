@@ -40,13 +40,12 @@
     }
   },
   "variables": {
-    "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
-    "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
-    "cloudInit3": "[concat('-e ',parameters('meclanNic').ipAddress)]",
-    "cloudInit4": "[concat('-o ',parameters('meclanNic').ipAddress)]",
-    "runEdgeRouter": "[concat(variables('cloudInit1'),', ',variables('cloudInit3'),', ',parameters('edgeRouterKey'),']')]",
-    "runEndpoint": "[concat(variables('cloudInit2'),', ',variables('cloudInit4'),', ',parameters('endpointJWT'),']')]",
-    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
+    "cloudInit1": "#cloud-config\nruncmd:\n- [sh, /opt/netfoundry/setup_lan_script.sh]\n- [/bin/systemctl, restart, network.service]",
+    "cloudInit2": "\n- [/opt/netfoundry/router-registration, -e, ",
+    "cloudInit3": "\n- [/opt/netfoundry/gw-tunnel-setup, -o, ",
+    "runEdgeRouter": "[concat(variables('cloudInit2'), parameters('meclanNic').ipAddress,', ',parameters('edgeRouterKey'),']')]",
+    "runEndpoint": "[concat(variables('cloudInit3'), parameters('meclanNic').ipAddress,', ',parameters('endpointJWT'),']')]",
+    "runCmd": "[concat(variables('cloudInit1'),' ',variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
     "dnsMgmtServers": [
       "[parameters('mecmgmtNic').dnsServer1]",
       "[parameters('mecmgmtNic').dnsServer2]"
@@ -72,7 +71,7 @@
       "location": "[parameters('location')]",
       "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "ziti-7-3-2",
+        "skuName": "ziti-multinic",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"

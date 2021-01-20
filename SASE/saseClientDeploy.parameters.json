@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_endpoint_vnet_location": {
+            "value": "switzerlandnorth"
+        },
+        "edgeRouterKey": {
+            "value": "QSU91U6DHY"
+        },
+        "endpointJWT": {
+            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYwOTg5NzE5MSwiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6IjMyZGJlYmU0LTU3MzQtNDRiMy1hMTIwLWFiMDBhZTcwYzI1MSIsInN1YiI6IkxPRU9kUGx2cSJ9.rXLUV94xjrY373WobHz3tgBrIr1qh04y1O8ocK75nUEtz97Xoa4EOCx_I8pBuXGlKqF27GkE7nj_gr05QL3LIsJS7cQW14ZXfdOWpAoDD7QnZfWd0v96xDofFREZFwcuiWUpRdNj8pZKVbL-wzXfk-62ctL-rYuTozvnrNp5VwPn1b3Qcm_glJ8PMUIQtdRpJDcXSdnFqQFknnbdCk2_GMC5MUCYIpf8bqqCzKEihqWNZEBq59uIX-UKz99ggYrCO0Mjkv-eQ2ZATE_V4m5liSyslMUFF5vfsH-HT_GcDqqkgAEVz7nbf-Aaevk9AfgJgkBsKSnCbGQcD70iYrrsew"
+        },
+        "sshKeyData": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="
+        }
+    }
+}

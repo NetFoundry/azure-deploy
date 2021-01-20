@@ -183,9 +183,7 @@
         "vmSwitchType": "Lan",
         "ipAddress": "[steps('Network Settings').Lan.ipAddress]",
         "subnet": "[steps('Network Settings').Lan.subnet]",
-        "gateway": "[steps('Network Settings').Lan.gateway]",
-        "dnsServer1": "[steps('Network Settings').Lan.dnsServer1]",
-        "dnsServer2": "[steps('Network Settings').Lan.dnsServer2]"
+        "gateway": "[steps('Network Settings').Lan.gateway]"
       }
     }
   }

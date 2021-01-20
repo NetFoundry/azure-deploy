@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_vnet_location": {
@@ -30,10 +30,10 @@
         "subnet2_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-subnet2')]",
         "route_table_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-routetable')]",
         "ziti_edge_router_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-router')]",
-        "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
-        "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
-        "runEdgeRouter": "[concat(variables('cloudInit1'),', -e 10.1.2.4, ',parameters('edgeRouterKey'),']')]",
-        "runEndpoint": "[concat(variables('cloudInit2'),', -o 10.1.2.4, ',parameters('endpointJWT'),']')]",
+        "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, -e, ",
+        "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup, -o, ",
+        "runEdgeRouter": "[concat(variables('cloudInit1'),'10.1.2.4, ',parameters('edgeRouterKey'),']')]",
+        "runEndpoint": "[concat(variables('cloudInit2'),'10.1.2.4, ',parameters('endpointJWT'),']')]",
         "runZitiCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]"
         },
     "resources": [
@@ -251,7 +251,7 @@
             "properties": {
                 "storageProfile": {
                     "osDisk": {
-                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/nf-vnf-7.3.0-osDisk.1f0da44b-473e-4e27-93ef-f2331d9ca92c.vhd",
+                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/nf-vnf-7.3.0-osDisk.b4ad50cb-8e67-489e-895b-551077555f28.vhd",
                         "caching": "ReadWrite",
                         "diskSizeGB": 30,
                         "osType": "Linux",
@@ -266,11 +266,6 @@
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[parameters('virtualnetworks_vnet_location')]",
-            "plan": {
-                "name": "gateway",
-                "publisher": "netfoundryinc",
-                "product": "centos"
-            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int01')]",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int02')]",

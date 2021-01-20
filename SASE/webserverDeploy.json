@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_vnet_location": {
@@ -35,7 +35,7 @@
         "runEdgeRouter": "[concat(variables('cloudInitZiti1'),', ',parameters('edgeRouterKey'),']')]",
         "runEndpoint": "[concat(variables('cloudInitZiti2'),', ',parameters('endpointJWT'),']')]",
         "runZitiCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]",
-        "cloudInitWS1": "#cloud-config\nruncmd:\n - apt update\n - apt install python-pip -y\n - pip install ansible\n - ansible-galaxy install nginxinc.nginx",
+        "cloudInitWS1": "#cloud-config\nruncmd:\n - apt update\n - apt install ansible selinux-utils policycoreutils selinux-basics\n - selinux-activate\n - ansible-galaxy install nginxinc.nginx",
         "cloudInitWS2": "\nwrite_files:\n - encoding: b64\n   content: 'LS0tCi0gaG9zdHM6IGxvY2FsaG9zdAogIGJlY29tZTogdHJ1ZQogIHJvbGVzOgogICAgLSByb2xlOiBuZ2lueGluYy5uZ2lueA=='",
         "cloudInitWS3": "\n   owner: root:root\n   path: /var/lib/cloud/playbook.yml\n   permissions: '0755'\nruncmd: ansible-playbook /var/lib/cloud/playbook.yml",
         "runWebserverCmd": "[concat(variables('cloudInitWS1'),' ',variables('cloudInitWS2'),' ',variables('cloudInitWS3'))]"

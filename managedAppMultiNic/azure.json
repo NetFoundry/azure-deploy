@@ -23,15 +23,7 @@
       "tenant_id": "{{user `azure_tenant_id`}}",
       "storage_account": "{{user `azure_storage_account`}}",
       "os_type": "Linux",
-      "image_publisher": "netfoundryinc",
-      "image_offer": "centos",
-      "image_sku": "gateway",
-      "image_version": "7.3.0",
-      "plan_info": {
-          "plan_name": "gateway",
-          "plan_product": "centos",
-          "plan_publisher": "netfoundryinc"
-      },
+      "image_url": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/nf-gw-7.3.0-60373398-osDisk.f6787df2-de9f-4377-819b-e2aa97e12e4d.vhd",
       "ssh_username": "packer",
       "ssh_pty": true,
       "vm_size": "Standard_DS1"
@@ -39,12 +31,26 @@
   ],
   "provisioners": [
     {
+      "type": "file",
+      "source": "{{user `working_directory`}}/managedAppMultiNic/setup_lan_script.sh",
+      "destination": "/tmp/setup_lan_script.sh"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo cp /tmp/setup_lan_script.sh /opt/netfoundry/setup_lan_script.sh",
+        "sudo sed -i -e 's/\r$//' /opt/netfoundry/setup_lan_script.sh",
+        "sudo chmod +x /opt/netfoundry/setup_lan_script.sh",
+        "sudo rm -Rf /tmp/*"
+      ]
+    },
+    {
       "type": "shell",
       "execute_command": "echo '{{user `ssh_pass`}}' | {{ .Vars }} sudo -S -E '{{ .Path }}'",
       "inline_shebang": "/bin/bash -eux",
       "inline": [
         "set -o pipefail",
-        "/usr/bin/nmcli connection add type ethernet con-name eth1 ifname eth1"
+        "/usr/bin/nmcli connection add type ethernet con-name 'System eth1' ifname eth1 connection.autoconnect yes ipv6.method ignore"
       ],
       "skip_clean": "true"
     },

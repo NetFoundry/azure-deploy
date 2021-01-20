@@ -8,8 +8,8 @@ az deployment group create \
   --name ExampleDeployment \
   --resource-group $ARM_RESOURCE_GROUP \
   --subscription $ARM_SUBSCRIPTION_ID \
-  --template-file azure-deploy/SASE/webserverDeploy.json \
-  --parameters azure-deploy/SASE/webserverDeploy.parameters.json
+  --template-file azure-deploy/SASE/saseClientDeploy.json \
+  --parameters azure-deploy/SASE/saseClientDeploy.parameters.json
 ```
 *Configure Envrionmental Variables ARM_RESOURCE_GROUP and ARM_SUBSCRIPTION_ID*
 
