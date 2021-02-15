@@ -44,7 +44,7 @@
   },
   "variables": {
     "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
-    "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
+    "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration",
     "cloudInit3": "\nssh_authorized_keys:\n- ",
     "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
     "runEndpoint": "[concat(variables('cloudInit2'),', ',parameters('endpointJWT'),']')]",
@@ -75,7 +75,7 @@
       "location": "[parameters('location')]",
       "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "ziti-7-3-1",
+        "skuName": "ziti-1.0.0-snic",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"
