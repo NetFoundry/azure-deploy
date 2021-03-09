@@ -7,10 +7,7 @@
       "isWizard": true,
       "basics": {
         "location": {
-          "toolTip": "Region in which Vendor VNF will be created.",
-          "allowedValues": [
-            "eastus"
-          ]
+          "toolTip": "Region in which Vendor VNF will be created."
         }
       }
     },
@@ -32,8 +29,11 @@
         "name": "nfName",
         "type": "Microsoft.Common.TextBox",
         "label": "NetFoundry VNF Name",
+        "toolTip": "Edge Router Name used in NF Console",
         "placeholder": "demoZiti01",
         "constraints": {
+          "regex": "^(([a-zA-Z0-9]){1,64})$",
+          "validationMessage": "Value must be a alphanumeric string with less than or equal 64 characters",
           "required": true
         }
       },
@@ -43,6 +43,8 @@
         "type": "Microsoft.Common.TextBox",
         "toolTip": "Edge router Registration Key",
         "constraints": {
+          "regex": "^(([A-Z0-9]){10,12})$",
+          "validationMessage": "Value must be a valid NF router registration key.",
           "required": true
         }
       },
@@ -50,8 +52,10 @@
         "name": "endpointJWT",
         "label": "Endpoint JWT",
         "type": "Microsoft.Common.TextBox",
-        "toolTip": "Endpoint JWT Key",
+        "toolTip": "Endpoint JWT Token",
         "constraints": {
+          "regex": "^([a-zA-Z0-9\\-_]+?\\.){2}([a-zA-Z0-9\\-_]+)$",
+          "validationMessage": "Value must be a valid JWT string",
           "required": true
         }
       },
@@ -59,7 +63,11 @@
         "name": "publicSshKey",
         "label": "Public SSH Key",
         "type": "Microsoft.Common.TextBox",
-        "toolTip": "Enter a public ssh key"
+        "toolTip": "Enter a RSA public ssh key",
+        "constraints": {
+          "regex": "^(ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3})([^@]+@[^@]+)$",
+          "validationMessage": "Value must be a valid RSA Public SSH key, i.e. ssh-rsa AAAA... username@computername"
+        }
       }
     ],
     "steps": [
@@ -117,12 +125,22 @@
                 "name": "dnsServer1",
                 "type": "Microsoft.Common.TextBox",
                 "label": "DNS 1",
-                "placeholder": "1.1.1.1"
+                "toolTip": "Domain Name Server to be used as the first name resolver",
+                "placeholder": "1.1.1.1",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address."
+                }
               },
               {
                 "name": "dnsServer2",
                 "type": "Microsoft.Common.TextBox",
-                "label": "DNS 2"
+                "toolTip": "Domain Name Server to be used as the second name resolver",
+                "label": "DNS 2",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address."
+                }
               }
             ]
           },

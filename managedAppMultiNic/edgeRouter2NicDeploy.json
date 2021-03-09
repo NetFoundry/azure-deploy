@@ -31,7 +31,7 @@
         "route_table_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-routetable')]",
         "ziti_edge_router_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-router')]",
         "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, -e, ",
-        "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup, -o, ",
+        "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration, -o, ",
         "runEdgeRouter": "[concat(variables('cloudInit1'),'10.1.2.4, ',parameters('edgeRouterKey'),']')]",
         "runEndpoint": "[concat(variables('cloudInit2'),'10.1.2.4, ',parameters('endpointJWT'),']')]",
         "runZitiCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]"
@@ -251,7 +251,7 @@
             "properties": {
                 "storageProfile": {
                     "osDisk": {
-                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/nf-vnf-7.3.0-osDisk.b4ad50cb-8e67-489e-895b-551077555f28.vhd",
+                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub1.0.20210303-osDisk.2d673de0-a9d2-4e7d-8bd6-a113525b2d81.vhd",
                         "caching": "ReadWrite",
                         "diskSizeGB": 30,
                         "osType": "Linux",

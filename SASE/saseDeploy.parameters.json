@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_sase_vnet_location": {
-            "value": "westeurope"
+            "value": "westus"
         },
         "edgeRouterKey": {
-            "value": "VB0NUIMMAZ"
+            "value": "2BPZNU13JA"
         },
         "endpointJWT": {
-            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYwODUxMDU4MywiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6IjRkNjZlMjA3LTU1MDQtNDRmZC1hMjk2LTYzMWZjMjhkNWMyNiIsInN1YiI6Ii52UDh4S1J3byJ9.U0tZaJdqrhikHJQ3oshfooXP_jciJ4q2SdbacfkGcxZJQgCZ1Cmqch_0WIgE4p3ICX3PzQumYtLeTeEjQ9LlCQyifBBVK3HGjUb5HJ5ZaYHPh-YuwsqawCtFK1pXyY13_E6v_UhC3nhx9rYPGESSgQu-JP2DKVnf42GvZEKp0gYNGP9lj4-Xp95Sk5PPa8k54llEO8v14hj3RkvVUgrzkj6Pxi0OBy1JW6PBMtiJYLJZRyFHcv0FKmwxia_g7htQbCI_19khXdBNxyNhxvZ4ZDbdW6ugJ3PXJeYvCHJ3-XPzg9iv3aeEsflKfMqey2Cz2JjRMewoXScx9eHukP-kFA"
+            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYxNTA4ODgxMiwiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6IjUxYzFiOGNjLTRiMGItNDk0OC05Mjk2LTQ3NjcwNjdjNmM1ZiIsInN1YiI6ImhTd3B4Y09GTiJ9.J1yQP5AuE-Q-85a_m0E4cJJhdTyewRJliQfeBofSntMpz9r6q-RPnu87cPJjNraZOxu6W80eGyiGiR7wuUKMMjtTYV1s4xnL70ksUOhj5WPMPWAmFyJPURuBjlDhYIAWR77fLUENgTOmqEvx4tri45vUuJXf0HB7X6P9xAnOiRHG0HDyyzZHPRVmca24u2mjUfbc1bpp8DfZf5bvq2M934ZtKr6oi2I9i_K07K85ZHU4BBpRH3MaJ36I-BQW1l2BQRXT3BZjFCs6ZTV7wiDNBuLXQO_mENgIDU10CpOt8qCvpg9534okqmTsTK1jVeFG8yDavtYh2F5V1GV4toBrLw"
         },
         "sshKeyData": {
             "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="

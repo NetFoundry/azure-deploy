@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_vnet_location": {
-            "value": "centralus"
+            "value": "eastus"
         },
         "edgeRouterKey": {
-            "value": "7RQL9G3913"
+            "value": "TVMKN6QPUI"
         },
         "endpointJWT": {
-            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYwOTAxNDUwNSwiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6IjkzMWRlYjM1LWMxZTMtNDNmYS1iZWM2LWEzZWQ4ZjkzNjQzMiIsInN1YiI6IlJRVkxnRy52cSJ9.fAhAXCPtJOEczf6lBskF7okfUDYNo_AC575D7gWKg_9WVr4jc2qbNzexnVtdyDkzg-wml5QhAsXNUtRSsLNw32-mBe4YxsG7OAQ1ZvBm81VQOVW-It3knfpldJ3_X1a_THdbDg6gZxgJoSPOcON_VgQq7OAQhBF_Zgs7nkADy7OTl5eFWErgZFtxcyYOqlUgd23d1XjWetlzrYF3Cg8NkKJ7ZNBZxhw55ZV27TpVjRpSd6e1r8PObJ1Hpqw4EUoJsgdx_Nr29rEphb_z4Uqf4hLK_i8Jcl5-n4As0xsTE509p8Uon6foAo42_xc8tXSHNiGYzg9J1WbmjMRUuRLimA"
+            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYxNDIyNDgzMywiaXNzIjoiaHR0cHM6Ly8zLjIxMy4xNDMuNDk6NDQzIiwianRpIjoiYWU0YzgxNWYtMGY4Yy00ZmJiLWIwNjEtZmQ2OWM1NmFlZWQwIiwic3ViIjoiMzdVUGpETFl2In0.gDpRc-fMl7kRG1ryExqvfxLwRfsTSao_LuNryxE2mOtXtkwYmBZ9wNQw6EzLdNZ2yOcTWt1pIPGh8tVEshylStvfwnf2otr7wQCB-LOE7Adx1JEJDkpfDNfPC0-RviYFNBN0LRyfEhvkTDtpRQ9PgdruThDD7PAwfjKrUJHBzx6MVS1Q-DEsZC2a-GX7TMNBvr76ecI73H-CQibTxLSbmT8pwA_Sb7arPHLskN2QUbRtKodhhdFv2FVV-pe1Ilyhd8bgeoBkynU_pPEd05zgPAYK8AS0sr3TOrN2zxrHlsqt_4vPxmC-cNFK2FFSi69iRGcdSMZ-cJM7dL-iJ1uXog"
         },
         "sshKeyData": {
             "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="

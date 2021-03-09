@@ -32,7 +32,7 @@
         "route_table3_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-routetable')]",
         "ziti_edge_router_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-router')]",
         "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
-        "cloudInit2": "\n - [/opt/netfoundry/gw-tunnel-setup",
+        "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration",
         "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
         "runEndpoint": "[concat(variables('cloudInit2'),', ',parameters('endpointJWT'),']')]",
         "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]"
@@ -141,14 +141,21 @@
                     {
                         "name": "Fabric-Router01",
                         "properties": {
-                            "addressPrefix": "20.185.40.104/32",
+                            "addressPrefix": "35.193.41.7/32",
                             "nextHopType": "Internet"
                         }
                     },
                     {
                         "name": "Fabric-Router-02",
                         "properties": {
-                            "addressPrefix": "13.93.117.39/32",
+                            "addressPrefix": "3.12.229.99/32",
+                            "nextHopType": "Internet"
+                        }
+                    },
+                    {
+                        "name": "Azure-DNS",
+                        "properties": {
+                            "addressPrefix": "168.63.129.0/24",
                             "nextHopType": "Internet"
                         }
                     }
@@ -175,7 +182,7 @@
                 "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
             ],
             "properties": {
-                "addressPrefix": "20.185.40.104/32",
+                "addressPrefix": "35.193.41.7/32",
                 "nextHopType": "Internet"
             }
         },
@@ -187,7 +194,7 @@
                 "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
             ],
             "properties": {
-                "addressPrefix": "13.93.117.39/32",
+                "addressPrefix": "3.12.229.99/32",
                 "nextHopType": "Internet"
             }
         },
@@ -213,6 +220,18 @@
             ],
             "properties": {
                 "addressPrefix": "100.25.68.109/32",
+                "nextHopType": "Internet"
+            }
+        },
+        {
+            "type": "Microsoft.Network/routeTables/routes",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(variables('route_table3_name'), '/Azure-DNS')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "168.63.129.0/24",
                 "nextHopType": "Internet"
             }
         },
@@ -361,11 +380,17 @@
                             "storageAccountType": "Premium_LRS"
                         }
                     },
+ //                   "imageReference": {
+ //                       "publisher": "netfoundryinc",
+ //                       "offer": "centos",
+ //                       "sku": "gateway",
+ //                       "version": "7.3.0"
+ //                   },
                     "imageReference": {
                         "publisher": "netfoundryinc",
-                        "offer": "centos",
-                        "sku": "gateway",
-                        "version": "7.3.0"
+                        "offer": "ziti-edge-router-preview",
+                        "sku": "ziti-edge-router",
+                        "version": "1.0.0"
                     }
                 },
                 "networkProfile": {
@@ -377,14 +402,14 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('ziti_edge_router_name')]",
-                    "adminUsername": "nfadmin",
+                    "adminUsername": "ziggy",
                     "customData": "[base64(variables('runCmd'))]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "/home/nfadmin/.ssh/authorized_keys",
+                                    "path": "/home/ziggy/.ssh/authorized_keys",
                                     "keyData": "[parameters('sshKeyData')]"
                                 }
                             ]
@@ -392,10 +417,15 @@
                     }
                 }
             },
+ //           "plan": {
+ //               "name": "gateway",
+ //               "publisher": "netfoundryinc",
+ //               "product": "centos"
+ //           },
             "plan": {
-                "name": "gateway",
+                "name": "ziti-edge-router",
                 "publisher": "netfoundryinc",
-                "product": "centos"
+                "product": "ziti-edge-router-preview"
             },
             "tags": {
                 "Service": "Web Secure Gateway"
