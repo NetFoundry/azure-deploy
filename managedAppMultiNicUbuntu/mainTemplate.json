@@ -6,7 +6,8 @@
       "type": "string",
       "metadata": {
         "description": "Region in which NF VNF will be created"
-      }
+      },
+      "defaultValue": "[resourceGroup().location]"
     },
     "nfName": {
       "type": "string",
@@ -103,7 +104,6 @@
               },
               {
                 "networkInterfaceName": "meclanNic",
-                "macAddress": null,
                 "vmSwitchType": "Lan",
                 "ipConfigurations": [
                   {
