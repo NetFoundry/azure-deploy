@@ -3,16 +3,19 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworks_sase_vnet_location": {
-            "value": "westus"
+            "value": "centralindia"
         },
         "edgeRouterKey": {
-            "value": "2BPZNU13JA"
+            "value": "QKFIIX75EN"
         },
         "endpointJWT": {
-            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYxNTA4ODgxMiwiaXNzIjoiaHR0cHM6Ly8xMDAuMjUuNjguMTA5OjQ0MyIsImp0aSI6IjUxYzFiOGNjLTRiMGItNDk0OC05Mjk2LTQ3NjcwNjdjNmM1ZiIsInN1YiI6ImhTd3B4Y09GTiJ9.J1yQP5AuE-Q-85a_m0E4cJJhdTyewRJliQfeBofSntMpz9r6q-RPnu87cPJjNraZOxu6W80eGyiGiR7wuUKMMjtTYV1s4xnL70ksUOhj5WPMPWAmFyJPURuBjlDhYIAWR77fLUENgTOmqEvx4tri45vUuJXf0HB7X6P9xAnOiRHG0HDyyzZHPRVmca24u2mjUfbc1bpp8DfZf5bvq2M934ZtKr6oi2I9i_K07K85ZHU4BBpRH3MaJ36I-BQW1l2BQRXT3BZjFCs6ZTV7wiDNBuLXQO_mENgIDU10CpOt8qCvpg9534okqmTsTK1jVeFG8yDavtYh2F5V1GV4toBrLw"
+            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYxNzIwNDI2NSwiaXNzIjoiaHR0cHM6Ly8zNC4xOTQuMjQzLjE3MDo0NDMiLCJqdGkiOiJlYjVhYzYxOS1jNWQzLTQ4YjMtOTZiMy1mZmUwZmVkMDNmZWQiLCJzdWIiOiJCYUJyRWt5V0gifQ.LFVjahr-j1eBJiHV-baELwUO_X3a9Gf88rHUYU8oQ7aqGBcZavnrguuNzVYnAkCU9XjyuvcfH4cwjacAvsk6dYfz4Ha3AGrOCp76FO6-8ozs8JesMZa9LoGWbHKM07tzmi0Ub9U2CQQxcvjuKTN0jx3wb9yCfT93h_Cu49gM8t4RbNv9ixVFGslBcMyPzD9_DP9TmmgA86xtOWIDpjjXfJMvfTcNqcQWpYzRwzXt1tCNty3BPTF2LIE1TtEqjlzQ0VVv8D79Epk7ZcXrFI_YnAk3rpJvbcsvjCy2ZCYuZ8MvJHKOPIsJooXtlMcObBEhqU4T-y5Kesw0SaOE2X4nMQ"
         },
         "sshKeyData": {
             "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="
+        },
+        "namePrefix": {
+            "value": "tcs-sase-"
         }
     }
 }

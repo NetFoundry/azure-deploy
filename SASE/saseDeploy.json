@@ -22,15 +22,22 @@
             "metadata": {
                 "description": "SSH RSA public key as a string."
             }
+        },
+        "namePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Prefix string added to the generated name of resource"
+            }
         }
+
     },
     "variables": {
-        "virtualNetworks_sase_vnet_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-vnet')]",
-        "subnet1_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-datapath-subnet')]",
-        "subnet2_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-mgmt-subnet')]",
-        "subnet3_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-subnet')]",
-        "route_table3_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-routetable')]",
-        "ziti_edge_router_name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-router')]",
+        "virtualNetworks_sase_vnet_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-vnet')]",
+        "subnet1_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-datapath-subnet')]",
+        "subnet2_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-mgmt-subnet')]",
+        "subnet3_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-subnet')]",
+        "route_table3_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-routetable')]",
+        "ziti_edge_router_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-router')]",
         "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
         "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration",
         "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
@@ -117,45 +124,17 @@
                 "disableBgpRoutePropagation": false,
                 "routes": [
                     {
-                        "name": "Dariusz-Home",
+                        "name": "Clients_Subnet",
                         "properties": {
-                            "addressPrefix": "69.248.225.68/32",
-                            "nextHopType": "Internet"
+                            "addressPrefix": "100.64.0.0/16",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "10.1.3.4"
                         }
                     },
                     {
                         "name": "Internet",
                         "properties": {
                             "addressPrefix": "0.0.0.0/0",
-                            "nextHopType": "VirtualAppliance",
-                            "nextHopIpAddress": "10.1.1.4"
-                        }
-                    },
-                    {
-                        "name": "Ziti-Controller",
-                        "properties": {
-                            "addressPrefix": "100.25.68.109/32",
-                            "nextHopType": "Internet"
-                        }
-                    },
-                    {
-                        "name": "Fabric-Router01",
-                        "properties": {
-                            "addressPrefix": "35.193.41.7/32",
-                            "nextHopType": "Internet"
-                        }
-                    },
-                    {
-                        "name": "Fabric-Router-02",
-                        "properties": {
-                            "addressPrefix": "3.12.229.99/32",
-                            "nextHopType": "Internet"
-                        }
-                    },
-                    {
-                        "name": "Azure-DNS",
-                        "properties": {
-                            "addressPrefix": "168.63.129.0/24",
                             "nextHopType": "Internet"
                         }
                     }
@@ -165,37 +144,14 @@
         {
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-05-01",
-            "name": "[concat(variables('route_table3_name'), '/Dariusz-Home')]",
+            "name": "[concat(variables('route_table3_name'), '/Clients_Subnet')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
             ],
             "properties": {
-                "addressPrefix": "69.248.225.68/32",
-                "nextHopType": "Internet"
-            }
-        },
-        {
-            "type": "Microsoft.Network/routeTables/routes",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('route_table3_name'), '/Fabric-Router01')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
-            ],
-            "properties": {
-                "addressPrefix": "35.193.41.7/32",
-                "nextHopType": "Internet"
-            }
-        },
-        {
-            "type": "Microsoft.Network/routeTables/routes",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('route_table3_name'), '/Fabric-Router-02')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
-            ],
-            "properties": {
-                "addressPrefix": "3.12.229.99/32",
-                "nextHopType": "Internet"
+                "addressPrefix": "100.64.0.0/16",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "10.1.3.4"
             }
         },
         {
@@ -207,38 +163,13 @@
             ],
             "properties": {
                 "addressPrefix": "0.0.0.0/0",
-                "nextHopType": "VirtualAppliance",
-                "nextHopIpAddress": "10.1.1.4"
-            }
-        },
-        {
-            "type": "Microsoft.Network/routeTables/routes",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('route_table3_name'), '/Ziti-Controller')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
-            ],
-            "properties": {
-                "addressPrefix": "100.25.68.109/32",
-                "nextHopType": "Internet"
-            }
-        },
-        {
-            "type": "Microsoft.Network/routeTables/routes",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('route_table3_name'), '/Azure-DNS')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables', variables('route_table3_name'))]"
-            ],
-            "properties": {
-                "addressPrefix": "168.63.129.0/24",
                 "nextHopType": "Internet"
             }
         },
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-datapath-sg')]",
+            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-datapath-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
@@ -246,13 +177,13 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "ZitiSubnet",
+                        "name": "ZitiClients",
                         "properties": {
                             "priority": 1010,
                             "protocol": "*",
                             "access": "Allow",
                             "direction": "Inbound",
-                            "sourceAddressPrefix": "10.1.3.0/24",
+                            "sourceAddressPrefix": "100.64.0.0/16",
                             "sourcePortRange": "*",
                             "destinationAddressPrefix": "*",
                             "destinationPortRange": "*"
@@ -264,7 +195,7 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-mgmt-sg')]",
+            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-mgmt-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
@@ -290,7 +221,7 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
+            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
@@ -314,12 +245,12 @@
             }
         },
         {
-            "name": "[concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-router-int01')]",
+            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-router-int01')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
             "location": "[parameters('virtualNetworks_sase_vnet_location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
+                "[concat('Microsoft.Network/networkSecurityGroups/',parameters('namePrefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_sase_vnet_name'))]",
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('ziti_edge_router_name'), '-int01-ip')]"
             ],
@@ -339,7 +270,7 @@
                     }
                 ],
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('sase-', parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg'))]"
                 }
             },
             "tags": {
@@ -380,15 +311,9 @@
                             "storageAccountType": "Premium_LRS"
                         }
                     },
- //                   "imageReference": {
- //                       "publisher": "netfoundryinc",
- //                       "offer": "centos",
- //                       "sku": "gateway",
- //                       "version": "7.3.0"
- //                   },
                     "imageReference": {
                         "publisher": "netfoundryinc",
-                        "offer": "ziti-edge-router-preview",
+                        "offer": "ziti-edge-router",
                         "sku": "ziti-edge-router",
                         "version": "1.0.0"
                     }
@@ -417,15 +342,10 @@
                     }
                 }
             },
- //           "plan": {
- //               "name": "gateway",
- //               "publisher": "netfoundryinc",
- //               "product": "centos"
- //           },
             "plan": {
                 "name": "ziti-edge-router",
                 "publisher": "netfoundryinc",
-                "product": "ziti-edge-router-preview"
+                "product": "ziti-edge-router"
             },
             "tags": {
                 "Service": "Web Secure Gateway"
