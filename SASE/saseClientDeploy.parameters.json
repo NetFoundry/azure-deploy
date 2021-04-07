@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_endpoint_vnet_location": {
+            "value": ""
+        },
+        "edgeRouterKey": {
+            "value": ""
+        },
+        "endpointJWT": {
+            "value": ""
+        },
+        "sshKeyData": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="
+        }
+    }
+}

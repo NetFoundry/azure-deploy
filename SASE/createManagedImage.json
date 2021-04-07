@@ -1,0 +1,47 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "String",
+            "defaultValue": "centralus"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2019-05-01",
+            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
+            "name": "managedOsDiskER",
+            "type": "Microsoft.Compute/images",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('location')]",
+            "tags": {
+                "Service": "Ziti Edge Router"
+            },
+            "properties": {
+                "storageProfile": {
+                    "osDisk": {
+                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub1.0.20210303-osDisk.2d673de0-a9d2-4e7d-8bd6-a113525b2d81.vhd",
+                        "caching": "ReadWrite",
+                        "diskSizeGB": 30,
+                        "osType": "Linux",
+                        "osState": "Generalized"
+                    }
+                },
+                "hyperVGeneration": "V1"
+            }
+        }
+    ]
+}
