@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "virtualNetworks_sase_vnet_location": {
+        "wsg_vnet_location": {
             "type": "String"
         },
         "edgeRouterKey": {
@@ -32,12 +32,12 @@
 
     },
     "variables": {
-        "virtualNetworks_sase_vnet_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-vnet')]",
-        "subnet1_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-datapath-subnet')]",
-        "subnet2_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-mgmt-subnet')]",
-        "subnet3_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-subnet')]",
-        "route_table3_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-routetable')]",
-        "ziti_edge_router_name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-router')]",
+        "wsg_vnet_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-vnet')]",
+        "subnet1_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-datapath-subnet')]",
+        "subnet2_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-mgmt-subnet')]",
+        "subnet3_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-subnet')]",
+        "route_table3_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-routetable')]",
+        "ziti_edge_router_name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-router')]",
         "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
         "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration",
         "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
@@ -61,8 +61,8 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
-            "name": "[variables('virtualNetworks_sase_vnet_name')]",
-            "location": "[parameters('virtualnetworks_sase_vnet_location')]",
+            "name": "[variables('wsg_vnet_name')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "dependsOn": [
                 "[variables('route_table3_name')]"
             ],
@@ -116,7 +116,7 @@
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/routeTables",
             "name": "[variables('route_table3_name')]",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
             },
@@ -169,8 +169,8 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-datapath-sg')]",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-datapath-sg')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
             },
@@ -195,8 +195,8 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-mgmt-sg')]",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-mgmt-sg')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
             },
@@ -221,8 +221,8 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-sg')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "tags": {
                 "Service": "Web Secure Gateway"
             },
@@ -245,13 +245,13 @@
             }
         },
         {
-            "name": "[concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-router-int01')]",
+            "name": "[concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-router-int01')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/',parameters('namePrefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg')]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_sase_vnet_name'))]",
+                "[concat('Microsoft.Network/networkSecurityGroups/',parameters('namePrefix'), parameters('wsg_vnet_location'), '-ziti-sg')]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('wsg_vnet_name'))]",
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('ziti_edge_router_name'), '-int01-ip')]"
             ],
             "properties": {
@@ -260,7 +260,7 @@
                         "name": "ipconfig1",
                         "properties": {
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworks_sase_vnet_name'), variables('subnet3_name'))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('wsg_vnet_name'), variables('subnet3_name'))]"
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
@@ -270,7 +270,7 @@
                     }
                 ],
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('nameprefix'), parameters('virtualnetworks_sase_vnet_location'), '-ziti-sg'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('nameprefix'), parameters('wsg_vnet_location'), '-ziti-sg'))]"
                 }
             },
             "tags": {
@@ -281,7 +281,7 @@
             "name": "[concat(variables('ziti_edge_router_name'), '-int01-ip')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-05-01",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "properties": {
                 "publicIPAllocationMethod": "Static"
             },
@@ -296,7 +296,7 @@
             "name": "[variables('ziti_edge_router_name')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('virtualNetworks_sase_vnet_location')]",
+            "location": "[parameters('wsg_vnet_location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int01')]"
             ],
