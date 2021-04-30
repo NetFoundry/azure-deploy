@@ -187,6 +187,30 @@
             ]
           }
         ]
+      },
+      {
+        "bladeTitle": "Managed Identity Details",
+        "name": "identityDetails",
+        "label": "Managed Identity Details",
+        "subLabel": {
+          "preValidation": "Required",
+          "postValidation": "Done!"
+        },
+        "elements": [
+          {
+            "name": "identity",
+            "type": "Microsoft.ManagedIdentity.IdentitySelector",
+            "label": "Managed Identity Configuration",
+            "toolTip": {
+              "userAssignedIdentity": "Add user assigned identities to grant the managed application access to Azure Network Function Managed device."
+            },
+            "options": {
+              "hideSystemAssignedIdentity": true,
+              "hideUserAssignedIdentity": false
+            },
+            "visible": true
+          }
+        ]
       }
     ],
     "outputs": {
@@ -209,7 +233,8 @@
         "ipAddress": "[steps('Network Settings').Lan.ipAddress]",
         "subnet": "[steps('Network Settings').Lan.subnet]",
         "gateway": "[steps('Network Settings').Lan.gateway]"
-      }
+      },
+      "managedIdentity": "[steps('identityDetails').identity]"
     }
   }
 }
