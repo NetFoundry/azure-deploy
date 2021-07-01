@@ -27,12 +27,6 @@
         "description": "Enter the edge router key"
       }
     },
-    "endpointJWT": {
-      "type": "string",
-      "metadata": {
-        "description": "Enter the endpoint jwt"
-      }
-    },
     "publicSshKey": {
       "type": "string",
       "metadata": {
@@ -45,12 +39,10 @@
   },
   "variables": {
     "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
-    "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration",
-    "cloudInit3": "\nssh_authorized_keys:\n- ",
+    "cloudInit2": "\nssh_authorized_keys:\n- ",
     "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
-    "runEndpoint": "[concat(variables('cloudInit2'),', ',parameters('endpointJWT'),']')]",
-    "addSshKey": "[concat(variables('cloudInit3'), parameters('publicSshKey'))]",
-    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'),' ',variables('addSshKey'))]",
+    "addSshKey": "[concat(variables('cloudInit2'), parameters('publicSshKey'))]",
+    "runCmd": "[concat(variables('runEdgeRouter'),' ',variables('addSshKey'))]",
     "dnsServers": [
       "[parameters('mecmgmtNic').dnsServer1]",
       "[parameters('mecmgmtNic').dnsServer2]"

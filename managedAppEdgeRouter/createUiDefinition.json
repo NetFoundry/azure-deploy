@@ -49,17 +49,6 @@
         }
       },
       {
-        "name": "endpointJWT",
-        "label": "Endpoint JWT",
-        "type": "Microsoft.Common.TextBox",
-        "toolTip": "Endpoint JWT Token",
-        "constraints": {
-          "regex": "^([a-zA-Z0-9\\-_]+?\\.){2}([a-zA-Z0-9\\-_]+)$",
-          "validationMessage": "Value must be a valid JWT string",
-          "required": true
-        }
-      },
-      {
         "name": "publicSshKey",
         "label": "Public SSH Key",
         "type": "Microsoft.Common.TextBox",
@@ -176,7 +165,6 @@
       "nfName": "[basics('nfName')]",
       "deviceId": "[basics('deviceId').id]",
       "edgeRouterKey": "[basics('edgeRouterKey')]",
-      "endpointJWT": "[basics('endpointJWT')]",
       "publicSshKey": "[basics('publicSshKey')]",
       "mecmgmtNic": {
         "type": "object",
