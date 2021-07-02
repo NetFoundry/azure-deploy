@@ -27,12 +27,6 @@
         "description": "Enter the edge router key"
       }
     },
-    "endpointJWT": {
-      "type": "string",
-      "metadata": {
-        "description": "Enter the endpoint jwt"
-      }
-    },
     "publicSshKey": {
       "type": "string",
       "metadata": {
@@ -51,9 +45,8 @@
     "cloudInit2": "\n  owner: root:root\n  path: /var/lib/cloud/add_inteface.py\n  permissions: '0755'\nruncmd:",
     "runIpaddress": "[concat('\n- [/var/lib/cloud/add_inteface.py, --ipaddress, ', parameters('meclanNic').ipAddress, ', --subnet, ', parameters('meclanNic').subnet,']')]",
     "runEdgeRouter": "[concat('\n- [/usr/sbin/netplan, apply]\n- [/opt/netfoundry/router-registration, -e, ', parameters('meclanNic').ipAddress,', ',parameters('edgeRouterKey'),']')]",
-    "runEndpoint": "[concat('\n- [/opt/netfoundry/tunnel-registration, -o, ', parameters('meclanNic').ipAddress,', ',parameters('endpointJWT'),']')]",
     "addSshKey": "[concat('\nssh_authorized_keys:\n- ', parameters('publicSshKey'))]",
-    "runCmd": "[concat(variables('cloudInit1'),' ',variables('cloudInit2'),' ',variables('runIpaddress'),' ',variables('runEdgeRouter'),' ',variables('runEndpoint'),' ',variables('addSshKey'))]",
+    "runCmd": "[concat(variables('cloudInit1'),' ',variables('cloudInit2'),' ',variables('runIpaddress'),' ',variables('runEdgeRouter'),' ',variables('addSshKey'))]",
     "dnsMgmtServers": [
       "[parameters('mecmgmtNic').dnsServer1]",
       "[parameters('mecmgmtNic').dnsServer2]"
