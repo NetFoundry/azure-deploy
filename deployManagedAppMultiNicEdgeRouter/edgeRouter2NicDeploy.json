@@ -11,16 +11,16 @@
                 "description": "Enter the edge router key"
             }
         },
-        "endpointJWT": {
-            "type": "string",
-            "metadata": {
-                "description": "Enter the endpoint jwt"
-            }
-        },
         "sshKeyData": {
             "type": "string",
             "metadata": {
                 "description": "SSH RSA public key as a string."
+            }
+        },
+        "secondNic": {
+            "type": "string",
+            "metadata": {
+                "description": "Static IP of the Second Interface"
             }
         }
     },
@@ -30,12 +30,9 @@
         "subnet2_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-subnet2')]",
         "route_table_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-routetable')]",
         "ziti_edge_router_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-router')]",
-        "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, -e, ",
-        "cloudInit2": "\n - [/opt/netfoundry/tunnel-registration, -o, ",
-        "runEdgeRouter": "[concat(variables('cloudInit1'),'10.1.2.4, ',parameters('edgeRouterKey'),']')]",
-        "runEndpoint": "[concat(variables('cloudInit2'),'10.1.2.4, ',parameters('endpointJWT'),']')]",
-        "runZitiCmd": "[concat(variables('runEdgeRouter'),' ',variables('runEndpoint'))]"
-        },
+        "cloudInit": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, -e, ",
+        "runZitiCmd": "[concat(variables('cloudInit'), parameters('secondNic'),', -i , ', parameters('secondNic'),', ', parameters('edgeRouterKey'),']')]"
+    },
     "resources": [
         {
             "apiVersion": "2019-05-01",
@@ -241,48 +238,32 @@
             }
         },
         {
-            "name": "[concat(variables('ziti_edge_router_name'), '-osdisk')]",
-            "type": "Microsoft.Compute/images",
-            "apiVersion": "2019-07-01",
-            "location": "[parameters('virtualnetworks_vnet_location')]",
-            "tags": {
-                "Service": "Edge Router Multi Nic"
-            },
-            "properties": {
-                "storageProfile": {
-                    "osDisk": {
-                        "blobUri": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub1.0.20210303-osDisk.2d673de0-a9d2-4e7d-8bd6-a113525b2d81.vhd",
-                        "caching": "ReadWrite",
-                        "diskSizeGB": 30,
-                        "osType": "Linux",
-                        "osState": "Generalized"
-                    }
-                },
-                "hyperVGeneration": "V1"
-            }
-        },
-        {
             "name": "[variables('ziti_edge_router_name')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[parameters('virtualnetworks_vnet_location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int01')]",
-                "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int02')]",
-                "[concat('Microsoft.Compute/images/', variables('ziti_edge_router_name'), '-osdisk')]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int02')]"
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_B1ms"
+                    "vmSize": "Standard_B2ms"
                 },
                 "storageProfile": {
-                    "imageReference": {
-                        "id": "[resourceId('Microsoft.Compute/images',  concat(variables('ziti_edge_router_name'), '-osdisk'))]"
-                    },
                     "osDisk": {
-                        "createOption": "FromImage"
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "ziti-edge-router",
+                        "sku": "ziti-edge-router",
+                        "version": "1.0.0"
                     }
-                },
+                                },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
@@ -301,20 +282,25 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('ziti_edge_router_name')]",
-                    "adminUsername": "nfadmin",
+                    "adminUsername": "ziggy",
                     "customData": "[base64(variables('runZitiCmd'))]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "/home/nfadmin/.ssh/authorized_keys",
+                                    "path": "/home/ziggy/.ssh/authorized_keys",
                                     "keyData": "[parameters('sshKeyData')]"
                                 }
                             ]
                         }
                     }
                 }
+            },
+            "plan": {
+                "name": "ziti-edge-router",
+                "publisher": "netfoundryinc",
+                "product": "ziti-edge-router"
             },
             "tags": {
                 "Service": "Edge Router Multi Nic"
