@@ -8,8 +8,8 @@ az deployment group create \
   --name ExampleDeployment \
   --resource-group $ARM_RESOURCE_GROUP \
   --subscription $ARM_SUBSCRIPTION_ID \
-  --template-file azure-deploy/SASE/saseDeploy.json \
-  --parameters azure-deploy/SASE/saseDeploy.parameters.json
+  --template-file azure-deploy/deployManagedAppMultiNicEdgeRouter/edgeRouter2NicDeploy.json \
+  --parameters azure-deploy/deployManagedAppMultiNicEdgeRouter/edgeRouter2NicDeploy.parameters.json
 ```
 *Configure Envrionmental Variables ARM_RESOURCE_GROUP and ARM_SUBSCRIPTION_ID*
 

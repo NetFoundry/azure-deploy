@@ -6,13 +6,13 @@
             "value": "eastus"
         },
         "edgeRouterKey": {
-            "value": "TVMKN6QPUI"
-        },
-        "endpointJWT": {
-            "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbSI6Im90dCIsImV4cCI6MTYxNDIyNDgzMywiaXNzIjoiaHR0cHM6Ly8zLjIxMy4xNDMuNDk6NDQzIiwianRpIjoiYWU0YzgxNWYtMGY4Yy00ZmJiLWIwNjEtZmQ2OWM1NmFlZWQwIiwic3ViIjoiMzdVUGpETFl2In0.gDpRc-fMl7kRG1ryExqvfxLwRfsTSao_LuNryxE2mOtXtkwYmBZ9wNQw6EzLdNZ2yOcTWt1pIPGh8tVEshylStvfwnf2otr7wQCB-LOE7Adx1JEJDkpfDNfPC0-RviYFNBN0LRyfEhvkTDtpRQ9PgdruThDD7PAwfjKrUJHBzx6MVS1Q-DEsZC2a-GX7TMNBvr76ecI73H-CQibTxLSbmT8pwA_Sb7arPHLskN2QUbRtKodhhdFv2FVV-pe1Ilyhd8bgeoBkynU_pPEd05zgPAYK8AS0sr3TOrN2zxrHlsqt_4vPxmC-cNFK2FFSi69iRGcdSMZ-cJM7dL-iJ1uXog"
+            "value": ""
         },
         "sshKeyData": {
-            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzmCKwD6kdwMrBsFEw2LWXCBENyKLOgvIX0QMORMFpU2aubpJc9whezBFLBcyLEQdAOJvz72BDLVM/Ob4h1WjOM6WiyhujA8v+IehYQlqvBUkNRYFeRX76oQhLTqpUYiFBVrbQ2Ci3huxC2tqOabMrFM6ULwJ1nqNuwKTJVvbx0jC4NNK+CZ2lN3XiGVVhaNj6UQ+7TCGsG99j84pTjfaTUcUggJ7NzDaIomnb5A6DjtXQef1gjjrU4MEQSny1px0LjcXiwrmHbXSzViND6ikWrgvDQvhuvLW6rV3DUJN3Tg7QnPG5CEws9H3CR9+mCD4KoENOjJPufhFDZ18aQmI6gAyIyXbydsznNPpwyxQ4I9+EuegeyPMxcshYF7XW6Qy+TcJJ1F+G9DBqS0NZvZEgTlguZ+1loZ65Mqzxbr1BJewr0BML7BfNz+r+aJM+ZB5Wc7uxFWjuArwtJP/tYYmOE0hm1R8pWwWt+fHGfM/C0x6Igz8pf4XZqxU4cQel01U="
+            "value": ""
+        },
+        "secondNic": {
+            "value": "10.1.2.4"
         }
     }
 }
