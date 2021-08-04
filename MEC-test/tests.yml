@@ -1,0 +1,29 @@
+---
+#ansible-playbook -i quickstarts/docs/ansible/hosts quickstarts/docs/ansible/local.yml --tags test-case-01 -u nfadmin -e testCase01=True -e serverIp=$serverIp
+#############
+# Run Tests #
+#############
+
+- name:  Test | Run nc on MEC in listen udp mode
+  shell: sh -c 'nc -luk 192.168.100.21 8443 1>nc_mec_out &'
+
+- name:  Test | Run nc on Azure in client udp mode
+  shell: sh -c 'echo "mec\nmec\nmec" | nc 192.168.100.21 8443 -u | exit'
+
+- name: Kill nc process
+  shell: kill $(pidof nc)
+
+- name: Test | Run nc on Azure in listen tcp mode
+  shell: sh -c 'nc -lk 10.1.1.4 8080 1>nc_azure_out &'
+
+- name:  Test | Run nc on Azure in client tcp mode
+  shell: sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.4  8080 | exit'
+
+- name: Kill nc process
+  shell: kill $(pidof nc)
+
+- name: Check netcat output file to confirm the transfer
+  shell: sh -c 'grep -w "nc_azure_out" -e "azure" | wc -l'
+
+- name: Check netcat output file to confirm the transfer
+  shell: sh -c 'grep -w "nc_mec_out" -e "mec" | wc -l'

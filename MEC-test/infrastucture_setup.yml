@@ -1,7 +1,7 @@
 ---
-#####################
-# Create NF Network #
-#####################
+#################
+# Initial Setup #
+#################
 - hosts: localhost
   gather_facts: no
   connection: local
@@ -26,13 +26,15 @@
       rg_name: dariusz_test
     snic: []
     mnic: []
-    azure_er_regkey: ""
-    mec_er_regkey: ""
+    azure_er_public_ip:
+    mec_er_public_ip: 64.86.230.66
+    azure_er_regkey: 
+    mec_er_regkey:
     public_ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjga67wcolSXaD1bswknLrejRYtZ4W55Y6qfoipYfeDVrwVgtalcWcEGPsrqcs3hd/+xSZ0bC6BakO4wpuX38I3uMH0RVOiZlKzgCkVih5hJoAi2YAMCCpV0FhAvKEWIs9HPXEW0Ke5hRkGybi7lkHIfKWwOBOQZTkHCbTR4HdcjrOo2MdTbJK/6EgsJF6Cy9k+F0z8SSKd0C2S0O2VZ49/iF5OcEHeUuyjurJZWdPl3CutQ9dNTgUkOiVfHWRUco7n4wTa/1I/8V0w8dU2F+rHu2UEo1h3humFfyT0nOfsySgLTG+4h90C+INMSungC0QwoVmpJs/TrPnaWRvZ9dJ DariuszSliwinski@dsliwinski-byod
 
-  #######################
-  # Create NF Resources #
-  #######################
+#######################
+# Create NF Resources #
+#######################
   tasks:
   - name: Establish session
     netfoundry_info:
@@ -107,24 +109,7 @@
     tags: 
     - netfoundry
     - create
-#
-#  - name: re-use the session and discover resources in a Network with "inventory"
-#    netfoundry.platform.netfoundry_info:
-#      inventory: True
-#      network: "{{ netfoundry_network.network.id }}"
-#      session: "{{ netfoundry_organization.session }}"
-#    register: network_inventory
-#    tags: 
-#    - netfoundry
-#    - create
-#   
-#  - name: Dump NF Network Inventory
-#    debug:
-#      msg: "{{ network_inventory.network.customer_edge_routers[0]}}"
-#    tags:
-#    - netfoundry
-#    - create
-# 
+
   - name: Set Azure ER Reg Key
     set_fact: azure_er_regkey="{{ azure_er_response.results[0].message.registrationKey }}"
     tags:
@@ -205,9 +190,9 @@
     - netfoundry
     - delete
   
-  ###################
-  # Create Azure ER #
-  ###################
+###################
+# Create Azure ER #
+###################
   - name: Create resource group
     azure_rm_resourcegroup:
       name: "{{ azure.rg_name }}"
@@ -272,12 +257,18 @@
       - azure
       - create
 
-  - name: Print results for Azure Edge Routers
-    debug:
-      var: customer_edge_routers_results.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress
+  - name: Set Azure ER Public IP to variable
+    set_fact: azure_er_public_ip="{{ customer_edge_routers_results.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
     tags:
-      - azure
-      - create
+    - azure
+    - create
+
+  - name: Print Azure ER Public IP to stdout
+    debug:
+      var: azure_er_public_ip
+    tags:
+    - azure
+    - create
 
   - name: Delete resource group
     azure_rm_resourcegroup:
@@ -289,9 +280,9 @@
     - azure
     - delete
   
-  #################
-  # Create MEC ER #
-  #################
+#################
+# Create MEC ER #
+#################
   - name: Azure Authorization to get an API Session Token 
     uri:
       url: https://login.microsoftonline.com/{{ lookup('env','AZURE_TENANT') }}/oauth2/token
@@ -486,4 +477,4 @@
     - azure-mec
     - delete
 
-  
+
