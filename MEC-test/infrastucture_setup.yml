@@ -56,8 +56,8 @@
     tags: 
     - netfoundry
     - create
-
-  - name: Describe the network
+  
+  - name: Collect the Network Info
     netfoundry_info:
       network: dariuszDemo
       inventory: True
@@ -67,7 +67,7 @@
     - netfoundry
     - create
 
-  - name: provision public edge router
+  - name: Provision public edge router
     netfoundry_router:
       name: "{{ item.name }}"
       attributes: 
@@ -82,7 +82,7 @@
     - netfoundry
     - create
 
-  - name: provision each Azure hosted edge router
+  - name: Provision each Azure hosted edge router
     netfoundry_router:
       name: "{{ item.name }}"
       attributes: 
@@ -95,8 +95,9 @@
     tags: 
     - netfoundry
     - create
+    - skip
 
-  - name: provision each MEC hosted edge router
+  - name: Provision each MEC hosted edge router
     netfoundry_router:
       name: "{{ item.name }}"
       attributes: 
@@ -109,37 +110,50 @@
     tags: 
     - netfoundry
     - create
+    - skip
+
+  - name: Collect Router Info
+    netfoundry_info:
+      network: dariuszDemo
+      inventory: True
+      session: "{{ netfoundry_organization.session }}"
+    register: netfoundry_network
+    tags: 
+    - netfoundry
+    - create
 
   - name: Set Azure ER Reg Key
     set_fact: azure_er_regkey="{{ azure_er_response.results[0].message.registrationKey }}"
     tags:
     - netfoundry
     - create
+    - skip
 
   - name: Set MEC ER Reg Key
     set_fact: mec_er_regkey="{{ mec_er_response.results[0].message.registrationKey }}"
     tags:
     - netfoundry
     - create
+    - skip
 
-  - name: netcat udp service
+  - name: Netcat udp service
     netfoundry_service_simple:
       name: netcat80
       endpoints: 
       - "@{{ mec_edge_routers[0].name }}"
       attributes: 
       - "#mec"
-      clientHostName: 192.168.100.103
-      clientPortRange: 80
-      serverHostName: 192.168.100.103
-      serverPortRange: 80
+      clientHostName: 192.168.100.21
+      clientPortRange: 5050
+      serverHostName: 192.168.100.21
+      serverPortRange: 5050
       serverProtocol: UDP
       network: "{{ netfoundry_network.network }}"
     tags:
     - netfoundry
     - create
 
-  - name: netcat tcp service
+  - name: Netcat tcp service
     netfoundry_service_simple:
       name: netcat8080
       endpoints: 
@@ -160,7 +174,7 @@
     netfoundry_appwan:
       name: MEC-Appwan
       endpoints:
-      - "#azure"
+      - "@{{ customer_edge_routers[0].name }}"
       services:
       - "#mec"
       network: "{{ netfoundry_network.network }}"
@@ -172,7 +186,7 @@
     netfoundry_appwan:
       name: Azure-Appwan
       endpoints:
-      - "#mec"
+      - "@{{ mec_edge_routers[0].name }}"
       services:
       - "#azure"
       network: "{{ netfoundry_network.network }}"
@@ -180,7 +194,7 @@
     - netfoundry
     - create
 
-  - name: delete network
+  - name: Delete network
     netfoundry_network:
       name: dariuszDemo
       state: DELETED
@@ -269,6 +283,14 @@
     tags:
     - azure
     - create
+
+  - name: Copy Azure ER Public IP tp hosts file
+    copy:
+      content: "[azure-routers]\n{{ azure_er_public_ip }}\n[mec-routers]\n64.86.230.66 ansible_port=2222"
+      dest: "hosts.ini"
+    tags:
+      - azure
+      - create
 
   - name: Delete resource group
     azure_rm_resourcegroup:
@@ -424,12 +446,15 @@
         Authorization: "Bearer {{ auth_response.json.access_token }}"
       timeout: 10
     register: result
-    until: result.status == 200
+    when:
+      - request_mec.status == 404
+    until: result.json.status == "Succeeded"
     retries: 30
     delay: 30
     tags:
     - azure-mec
     - create
+    - skip
 
   - name: debug
     debug:
@@ -463,7 +488,7 @@
         Authorization: "Bearer {{ auth_response.json.access_token }}"
       timeout: 10
     register: result
-    until: result.status == 204
+    until: result.json.status == "Succeeded"
     retries: 30
     delay: 45
     tags:

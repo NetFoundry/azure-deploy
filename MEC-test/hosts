@@ -1,0 +1,4 @@
+[azure-routers]
+52.170.152.253
+[mec-routers]
+64.86.230.66 ansible_port=2222
