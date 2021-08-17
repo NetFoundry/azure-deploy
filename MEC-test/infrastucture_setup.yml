@@ -263,12 +263,34 @@
     - azure
     - create
 
+  - name: Create Routing table
+    azure_rm_routetable:
+      resource_group: "{{ azure.rg_name }}"
+      name: Dariusz-RouteTable
+      disable_bgp_route_propagation: False
+    tags:
+      - azure
+      - create
+
+  - name: Create a route to MEC Subnet
+    azure_rm_route:
+      resource_group: "{{ azure.rg_name }}"
+      name: "Dariusz-MecRoute"
+      address_prefix: 192.168.100.0/24
+      next_hop_ip_address: 10.1.1.4
+      next_hop_type: virtual_appliance
+      route_table_name: Dariusz-RouteTable
+    tags:
+      - azure
+      - create
+
   - name: Create subnet
     azure_rm_subnet:
       name: dariuszTestSubnet
       resource_group: "{{ azure.rg_name }}"
       virtual_network_name: dariuszTestvnet
       address_prefix_cidr: "10.1.1.0/24"
+      route_table: Dariusz-RouteTable
       state: present
     tags:
     - azure
@@ -290,9 +312,7 @@
           source_address_prefix:
             - '10.1.1.0/24'
             - '192.168.100.0/24'
-          destination_port_range:
-            - 5050
-            - 8080
+          destination_port_range: "*"
           access: Allow
           priority: 102
       state: present
@@ -382,7 +402,7 @@
 
   - name: Create hosts.ini file
     copy:
-      content: "[azure-routers]\n[mec-routers]\n64.86.230.66 ansible_port=2221\n64.86.230.66 ansible_port=2222"
+      content: "[azure-routers]\n[mec-routers]\n64.86.230.66 ansible_port=2222"
       dest: "hosts.ini"
     tags:
       - azure
@@ -392,9 +412,8 @@
     ini_file:
       path: hosts.ini
       section: azure-routers
-      option: "{{ item.public_ip }}"
+      option: "{{ azure_er_details[1].public_ip }}"
       allow_no_value: True
-    loop: "{{ azure_er_details }}"
     tags:
       - azure
       - create

@@ -17,7 +17,10 @@
 # TC1: UDP Azure --> MEC #
 ##########################
   - name:  Test | Run nc on MEC in listen udp mode
-    shell: nohup nc -luk 192.168.100.111 5050 1>nc_mec_out &
+    shell: "{{ item }}"
+    loop:
+    - sudo ufw disable
+    - nohup nc -luk 192.168.100.111 5050 1>nc_mec_out &
     tags:
     - mec-listen
 
@@ -50,13 +53,17 @@
 # TC2: TCP MEC --> Azure #
 ##########################
   - name: Test | Run nc on Azure in listen tcp mode
-    shell: nohup nc -lk 10.1.1.5 8080 1>nc_azure_out &
+    shell: "{{ item }}"
+    loop:
+    - sudo ufw disable
+    - nohup nc -lk 10.1.1.5 8080 1>nc_azure_out &
     tags:
     - azure-listen
 
   - name:  Test | Run nc on MEC in client tcp mode
     shell: "{{ item }}"
     loop:
+    - sh -c 'sudo ip route add 10.1.1.0/24 via 192.168.100.111'
     - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5  8080 | exit'
     - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5 8080 | exit'
     - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5  8080 | exit'
