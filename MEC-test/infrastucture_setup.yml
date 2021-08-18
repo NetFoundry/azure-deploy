@@ -30,7 +30,7 @@
       tunnelerEnabled: True
       rotateKey: True
     azure:
-      rg_name: dariusz_test
+      rg_name: mec_test_rg
     snic: []
     mnic: []
     mec_er_public_ip: 64.86.230.66
@@ -59,7 +59,7 @@
 
   - name: Create network
     netfoundry_network:
-      name: dariuszDemo
+      name: mec-test-net
       size: small
       datacenter: us-east-2
       state: PROVISIONED
@@ -71,7 +71,7 @@
   
   - name: Collect the Network Info
     netfoundry_info:
-      network: dariuszDemo
+      network: mec-test-net
       inventory: True
       session: "{{ netfoundry_organization.session }}"
     register: netfoundry_network
@@ -125,7 +125,7 @@
 
   - name: Collect Router Info
     netfoundry_info:
-      network: dariuszDemo
+      network: mec-test-net
       inventory: True
       session: "{{ netfoundry_organization.session }}"
     register: netfoundry_network
@@ -174,7 +174,7 @@
 
   - name: Netcat udp service
     netfoundry_service_simple:
-      name: netcat80
+      name: netcat5050
       endpoints: 
       - "@{{ mec_edge_routers[0].name }}"
       attributes: 
@@ -232,7 +232,7 @@
 
   - name: Delete network
     netfoundry_network:
-      name: dariuszDemo
+      name: mec-test-net
       state: DELETED
       wait: 600
       network_group: "{{ netfoundry_organization.network_group }}"

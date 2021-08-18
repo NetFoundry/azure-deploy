@@ -1,0 +1,76 @@
+pipeline {
+  agent {
+    docker {
+        image "netfoundry/jenkins-slave-edge:latest"
+        registryCredentialsId 'dockerhub'
+        registryUrl 'https://index.docker.io/v1/'
+        alwaysPull true
+    }
+  }
+  options {
+    disableConcurrentBuilds()
+    parallelsAlwaysFailFast()
+  }
+  parameters {
+    booleanParam(name: 'DEPLOY_RESOURCES', defaultValue: true, description: 'Deploy Network, Client, Server to use for traffic generation and termination')
+    booleanParam(name: 'DESTROY_RESOURCES', defaultValue: true, description: 'Destroy Network, Client, Server to use for traffic generation and termination')
+    booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
+  }
+  environment {
+    // Need this for terraform workspace setup only
+    ENVIRONMENT='production'
+    // Azure Credentials
+    AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
+    AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
+  }
+  stages {
+    stage('Set up WORKSPACE') {
+      steps {
+        // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
+        // check out the mop git repo where python3 scripts are housed
+        checkout scm
+        // fill the gateways details to be deployed
+      }
+    }
+    stage('Deploy Resources in Azure and on MEC') {
+      when { expression { params.DEPLOY_RESOURCES }}
+      steps {
+        withCredentials([usernamePassword(credentialsId: '?', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: ' AZURE_SECRET')]) {
+           sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create
+            '''
+        }
+      }
+    }
+    stage('Test Case 01') {
+      when { expression { params.TEST_CASE01 }}
+      steps {
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
+            ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
+            '''
+          }
+        }
+      }
+    }
+    stage('Destroy All Resource built in Azure and on MEC') {
+      when { expression { params.DESTROY_RESOURCES }}
+      steps {
+        withCredentials([usernamePassword(credentialsId: '?', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: ' AZURE_SECRET')]) {
+          sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags delete
+            '''
+        }
+      }
+    }
+  }
+}
