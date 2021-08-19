@@ -32,8 +32,7 @@ pipeline {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
           /usr/bin/python3 -m pip install --upgrade pip
-          pip install netfoundry --upgrade
-          pip install azure-cli==2.26.1
+          pip install netfoundry
           ansible-galaxy collection install netfoundry.platform
           wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
           pip install -r requirements-azure.txt
