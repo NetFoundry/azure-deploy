@@ -34,8 +34,7 @@ pipeline {
         ]){
           sh '''set +x; set -e -u -o pipefail
             mkdir -pvm0700 ~/.netfoundry
-            touch ~/.netfoundry/credentials.json
-            sh "cp \$NETFOUNDRY_CREDS_FILE ~/.netfoundry/credentials.json"
+            sh "echo $NETFOUNDRY_CREDS_FILE >> ~/.netfoundry/credentials.json"
             '''
         }
       }
