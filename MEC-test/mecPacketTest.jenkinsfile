@@ -34,7 +34,7 @@ pipeline {
           /usr/bin/python3 -m pip install --upgrade pip
           pip install netfoundry --upgrade
           pip install azure-cli==2.26.1
-          pip install --upgrade ansible
+          pip install "ansible=2.11.4"
           wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
           sudo pip install -r requirements-azure.txt
           sudo pip install azure-mgmt-datalake-nspkg==3.0.1
