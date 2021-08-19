@@ -20,6 +20,7 @@ pipeline {
     // Azure Credentials
     AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
     AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
+    NETFOUNDRY_CREDS_FILE = credentials('cldeng-creds-prod')
   }
   stages {
     stage('Set up WORKSPACE') {
@@ -27,14 +28,10 @@ pipeline {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         // check out the mop git repo where python3 scripts are housed
         checkout scm
-        withCredentials([
-          file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
-        ]){
-          sh '''set +x; set -e -u -o pipefail
-            mkdir -pvm0700 /home/jenkins/.netfoundry
-            sh "cp \$NETFOUNDRY_CREDS_FILE /home/jenkins/.netfoundry/credentials.json"
-            '''
-        }
+        sh '''set +x; set -e -u -o pipefail
+          mkdir -pvm0700 $JENKINS_HOME/.netfoundry
+          sh "cp \$NETFOUNDRY_CREDS_FILE $JENKINS_HOME/.netfoundry/credentials.json"
+          '''
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
