@@ -35,7 +35,7 @@ pipeline {
           pip install azure-cli==2.26.1
           pip uninstall ansible
           pip uninstall ansible-base
-          pip install "ansible==4.3.0"
+          pip install --force-reinstall "ansible==4.3.0" ansible-core
           ansible-galaxy collection install azure.azcollection
           ansible-galaxy collection install azure.azcollection --force
           wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
