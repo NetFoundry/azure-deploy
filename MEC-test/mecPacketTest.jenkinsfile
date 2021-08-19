@@ -59,12 +59,12 @@ pipeline {
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh ''' #!/bin/bash
               set -Eeuxo pipefail
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
-              ansible-playbook  MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
+              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
               '''
             }
           }
