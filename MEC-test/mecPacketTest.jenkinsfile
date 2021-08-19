@@ -29,7 +29,14 @@ pipeline {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         // check out the mop git repo where python3 scripts are housed
         checkout scm
-        // fill the gateways details to be deployed
+        withCredentials([
+          file(credentialsId: 'cldeng-creds-prod', variable: 'netfoundry-creds-file')
+        ]){
+          sh '''set +x; set -e -u -o pipefail
+            mkdir -pvm0700 ~/.netfoundry
+            sh "cp \$netfoundry-creds-file ~/.netfoundry/credentials.json"
+            '''
+        }
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
