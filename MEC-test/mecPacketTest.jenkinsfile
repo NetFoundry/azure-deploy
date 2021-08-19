@@ -28,7 +28,18 @@ pipeline {
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
             writeFile file: 'credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
-        }   
+        } 
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          pip install netfoundry --upgrade
+          pip install azure-cli==2.26.1
+          pip install "ansible==4.3.0"
+          ansible-galaxy collection install azure.azcollection
+          ansible-galaxy collection install azure.azcollection --force
+          wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
+          sudo pip install -r requirements-azure.txt
+          sudo pip install azure-mgmt-datalake-nspkg==3.0.1
+        '''
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
@@ -37,7 +48,6 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_SECRET')]) {
            sh ''' #!/bin/bash
             set -Eeuxo pipefail
-            cat credentials.json
             eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create
             '''
         }
