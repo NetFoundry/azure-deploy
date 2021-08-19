@@ -31,6 +31,7 @@ pipeline {
         ]){
           sh '''set +x; set -e -u -o pipefail
             mkdir -pvm0700 ~/.netfoundry
+            ls $WORKSPACE
             sh "mv $WORKSPACE/$NETFOUNDRY_CREDS_FILE ~/.netfoundry/credentials.json"
             sh "cat ~/.netfoundry/credentials.json"
             '''
