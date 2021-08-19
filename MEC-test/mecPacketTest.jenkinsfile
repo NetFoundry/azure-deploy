@@ -28,14 +28,15 @@ pipeline {
         checkout scm
         withCredentials([
           file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
-        ]){
+        ]) dir('/home/jenkins/.netfoundry') {
+          {
           sh '''set +x; set -e -u -o pipefail
-            mkdir -pvm0700 /home/jenkins/.netfoundry
             sh "ls /home/jenkins/.netfoundry/"
             sh "echo $NETFOUNDRY_CREDS_FILE >| /home/jenkins/.netfoundry/credentials.json"
             sh "cat /home/jenkins/.netfoundry/credentials.json"
             '''
-        }
+          }
+      }
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
