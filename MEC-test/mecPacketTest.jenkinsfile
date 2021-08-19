@@ -30,9 +30,9 @@ pipeline {
           file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
         ]) {
           sh '''set +x; set -e -u -o pipefail
-            sh "mkdir -pvm0700 /home/jenkins/.netfoundry"
-            sh "ls /home/jenkins/.netfoundry/"
-            sh "echo $NETFOUNDRY_CREDS_FILE >| /home/jenkins/.netfoundry/credentials.json"
+            dir ('/home/jenkins/.netfoundry') {
+                writeFile file:'credentials.json', text:'$NETFOUNDRY_CREDS_FILE'
+            }
             sh "cat /home/jenkins/.netfoundry/credentials.json"
             '''
         }
