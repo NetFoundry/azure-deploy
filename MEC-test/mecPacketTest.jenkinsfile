@@ -29,9 +29,6 @@ pipeline {
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
             writeFile file: 'credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
         }   
-        sh '''set +x; set -e -u -o pipefail
-        sh "cat credentials.json"
-        '''
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
@@ -40,6 +37,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_SECRET')]) {
            sh ''' #!/bin/bash
             set -Eeuxo pipefail
+            cat credentials.json
             eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create
             '''
         }
