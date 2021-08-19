@@ -30,11 +30,11 @@ pipeline {
         // check out the mop git repo where python3 scripts are housed
         checkout scm
         withCredentials([
-          file(credentialsId: 'cldeng-creds-prod', variable: 'netfoundry-creds-file')
+          file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
         ]){
           sh '''set +x; set -e -u -o pipefail
             mkdir -pvm0700 ~/.netfoundry
-            sh "cp \$netfoundry-creds-file ~/.netfoundry/credentials.json"
+            sh "cp \$NETFOUNDRY_CREDS_FILE ~/.netfoundry/credentials.json"
             '''
         }
       }
@@ -42,7 +42,7 @@ pipeline {
     stage('Deploy Resources in Azure and on MEC') {
       when { expression { params.DEPLOY_RESOURCES }}
       steps {
-        withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: ' AZURE_SECRET')]) {
+        withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_SECRET')]) {
            sh ''' #!/bin/bash
             set -Eeuxo pipefail
             eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create
