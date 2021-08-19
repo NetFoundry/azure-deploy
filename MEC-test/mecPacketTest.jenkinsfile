@@ -30,12 +30,10 @@ pipeline {
           file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
         ]){
           sh '''set +x; set -e -u -o pipefail
-            mkdir -pvm0700 ~/.netfoundry
-            sh "ls ~/"
-            sh "touch ~/.netfoundry/credentials.json"
-            sh "ls ~/.netfoundry/"
-            sh "echo $NETFOUNDRY_CREDS_FILE >| ~/.netfoundry/credentials.json"
-            sh "cat ~/.netfoundry/credentials.json"
+            mkdir -pvm0700 /home/jenkins/.netfoundry
+            sh "ls /home/jenkins/.netfoundry/"
+            sh "echo $NETFOUNDRY_CREDS_FILE >| /home/jenkins/.netfoundry/credentials.json"
+            sh "cat /home/jenkins/.netfoundry/credentials.json"
             '''
         }
       }
