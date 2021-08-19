@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-        image "netfoundry/jenkins-slave-edge:latest"
+        image "netfoundry/python:ansible"
         registryCredentialsId 'dockerhub'
         registryUrl 'https://index.docker.io/v1/'
         alwaysPull true
@@ -34,11 +34,6 @@ pipeline {
           /usr/bin/python3 -m pip install --upgrade pip
           pip install netfoundry --upgrade
           pip install azure-cli==2.26.1
-          pip uninstall --no-input  ansible 
-          pip uninstall --no-input  ansible-base
-          pip install "ansible==4.3.0"
-          ansible-galaxy collection install azure.azcollection
-          ansible-galaxy collection install azure.azcollection --force
           wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
           sudo pip install -r requirements-azure.txt
           sudo pip install azure-mgmt-datalake-nspkg==3.0.1
