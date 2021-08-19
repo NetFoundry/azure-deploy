@@ -31,10 +31,11 @@ pipeline {
         } 
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
+          /usr/bin/python3 -m pip install --upgrade pip
           pip install netfoundry --upgrade
           pip install azure-cli==2.26.1
-          pip uninstall --no-input --no-warn-conflicts ansible 
-          pip uninstall --no-input --no-warn-conflicts ansible-base
+          pip uninstall --no-input  ansible 
+          pip uninstall --no-input  ansible-base
           pip install "ansible==4.3.0"
           ansible-galaxy collection install azure.azcollection
           ansible-galaxy collection install azure.azcollection --force
