@@ -17,8 +17,6 @@ pipeline {
     booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
   }
   environment {
-    // Need this for terraform workspace setup only
-    ENVIRONMENT='production'
     // Azure Credentials
     AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
     AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
@@ -33,8 +31,8 @@ pipeline {
           file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')
         ]){
           sh '''set +x; set -e -u -o pipefail
-            mkdir -pvm0700 ~/.netfoundry
-            sh "echo $NETFOUNDRY_CREDS_FILE >> ~/.netfoundry/credentials.json"
+            mkdir -pvm0700 /home/jenkins/.netfoundry
+            sh "cp \$NETFOUNDRY_CREDS_FILE /home/jenkins/.netfoundry/credentials.json"
             '''
         }
       }
