@@ -49,7 +49,7 @@
   tasks:
   - name: Look up Public SSH Key
     set_fact:
-      public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa') }}"
+      public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     tags:
     - create
 
