@@ -17,7 +17,7 @@ pipeline {
     booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
   }
   environment {
-    // Azure Credentials
+    // Azure Details
     AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
     AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
   }
@@ -37,6 +37,8 @@ pipeline {
           wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
           pip install -r requirements-azure.txt
           pip install azure-mgmt-datalake-nspkg==3.0.1
+          export $AZURE_TENANT
+          export $AZURE_SUBSCRIPTION_ID
         '''
       }
     }
