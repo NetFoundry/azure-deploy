@@ -42,12 +42,26 @@
       - name: MECER02
         mgmt_ip: 192.168.101.11
         lan_ip: 192.168.100.111
-    public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa') }}"
+
+#######################
+# Common Tasks        #
+#######################
+  tasks:
+  - name: Look up Public SSH Key
+    set_fact:
+      public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa') }}"
+    tags:
+    - create
 
 #######################
 # Create NF Resources #
 #######################
-  tasks:
+  - name: Print Public SSH Key
+    debug:
+      var: "{{ public_ssh_key }}"
+    tags:
+    - create
+  
   - name: Establish session
     netfoundry_info:
       credentials: credentials.json
@@ -142,7 +156,7 @@
     - create
     - skip
 
-  - name: Print azure er ssh_public_keys
+  - name: Print azure er details
     debug: 
       var: azure_er_details
     tags:
