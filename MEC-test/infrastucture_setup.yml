@@ -53,15 +53,15 @@
     tags:
     - create
 
+  - name: Print Public SSH Key
+    debug:
+      var: public_ssh_key
+    tags:
+    - create
+
 #######################
 # Create NF Resources #
 #######################
-  - name: Print Public SSH Key
-    debug:
-      var: "{{ public_ssh_key }}"
-    tags:
-    - create
-  
   - name: Establish session
     netfoundry_info:
       credentials: credentials.json
