@@ -479,7 +479,7 @@
                           'value': '{{ item.key }}'
                       },
                       'publicSshKey': {
-                          'value': '{{ lookup(\"file\", \"~/.ssh/id_rsa.pub\") }}'
+                          'value': '{{ lookup('file', '~/.ssh/id_rsa.pub') }}'
                       },
                       'mecmgmtNic': {
                           'value': {
