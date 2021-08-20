@@ -16,12 +16,7 @@ pipeline {
     booleanParam(name: 'DESTROY_RESOURCES', defaultValue: true, description: 'Destroy Network, Client, Server to use for traffic generation and termination')
     booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
   }
-  environment {
-    // Azure Details
-    AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
-    AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
-  }
-  stages {
+    stages {
     stage('Set up WORKSPACE') {
       steps {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
@@ -40,10 +35,20 @@ pipeline {
           echo $AZURE_TENANT
           echo $AZURE_SUBSCRIPTION_ID
         '''
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
+          cat ~/.ssh/id_rsa
+        '''
       }
     }
     stage('Deploy Resources in Azure and on MEC') {
       when { expression { params.DEPLOY_RESOURCES }}
+      environment {
+        // Azure Details
+        AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
+        AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_SECRET')]) {
            sh ''' #!/bin/bash
@@ -56,25 +61,25 @@ pipeline {
     stage('Test Case 01') {
       when { expression { params.TEST_CASE01 }}
       steps {
-        withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: ' AZURE_SECRET')]) {
-          script {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
-              ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
-              '''
-            }
-          }
-        }
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
+        '''
       }
     }
     stage('Destroy All Resource built in Azure and on MEC') {
       when { expression { params.DESTROY_RESOURCES }}
+      environment {
+        // Azure Details
+        AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
+        AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: ' AZURE_SECRET')]) {
           sh ''' #!/bin/bash
