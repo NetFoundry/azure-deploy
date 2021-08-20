@@ -359,7 +359,7 @@
       ssh_password_enabled: false
       ssh_public_keys:
         - path: /home/ziggy/.ssh/authorized_keys
-          key_data: "{{ public_ssh_key }}"
+          key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
       image:
         publisher: netfoundryinc
         offer: ziti-edge-router
@@ -479,7 +479,7 @@
                           'value': '{{ item.key }}'
                       },
                       'publicSshKey': {
-                          'value': '{{ public_ssh_key }}'
+                          'value': '{{ lookup(\"file\", \"~/.ssh/id_rsa.pub\") }}'
                       },
                       'mecmgmtNic': {
                           'value': {

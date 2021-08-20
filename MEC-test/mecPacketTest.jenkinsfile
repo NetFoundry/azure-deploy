@@ -66,8 +66,8 @@ pipeline {
         eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
         eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
         eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy
+        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy
         '''
       }
     }
