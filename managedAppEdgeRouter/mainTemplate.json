@@ -38,7 +38,7 @@
     }
   },
   "variables": {
-    "cloudInit1": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration",
+    "cloudInit1": "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration",
     "cloudInit2": "\nssh_authorized_keys:\n- ",
     "runEdgeRouter": "[concat(variables('cloudInit1'),', ',parameters('edgeRouterKey'),']')]",
     "addSshKey": "[concat(variables('cloudInit2'), parameters('publicSshKey'))]",
@@ -55,7 +55,7 @@
       "location": "[parameters('location')]",
       "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "ziti-1.0.0-snic",
+        "skuName": "ziti-1.1.0-snic",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"
