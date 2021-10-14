@@ -520,9 +520,9 @@
                 'kind': 'MarketPlace',
                 'plan': {
                     'name': 'app-edge-router-multinic',
-                    'product': 'application-ziti-private-edge',
+                    'product': 'application-ziti-private-edge-preview',
                     'publisher': 'netfoundryinc',
-                    'version': '1.1.1'
+                    'version': '1.2.0'
                 },
                 'identity': {
                     'type': 'UserAssigned',
@@ -583,9 +583,9 @@
                 'kind': 'MarketPlace',
                 'plan': {
                     'name': 'app-edge-router-multinic',
-                    'product': 'application-ziti-private-edge',
+                    'product': 'application-ziti-private-edge-preview',
                     'publisher': 'netfoundryinc',
-                    'version': '1.1.1'
+                    'version': '1.2.0'
                 },
                 'identity': {
                     'type': 'UserAssigned',
