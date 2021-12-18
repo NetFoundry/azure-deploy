@@ -1,0 +1,17 @@
+---
+- name: Ensure api token initialized
+  assert:
+    that:
+      - netfoundry_organization is defined and netfoundry_organization
+    fail_msg: >-
+      'netfoundry api token needs to initilized' MUST be supplied
+      in order to apply this role.
+  tags:
+    - always
+
+- include_tasks: network.yml
+  tags:
+    - network
+- include_tasks: services.yml
+  tags:
+    - service

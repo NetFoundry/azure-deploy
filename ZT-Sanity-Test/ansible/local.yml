@@ -1,0 +1,67 @@
+---
+#################
+# Initial Setup #
+#################
+- name: Network Check
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  environment:
+    OCI_USE_NAME_AS_IDENTIFIER: "1"
+  collections:
+    - netfoundry.platform
+    - community.general
+    - oracle.oci
+
+  pre_tasks:
+
+    - name: Set variables used in this playbook
+      set_fact:
+        public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        oci_api_pem: "{{ lookup('file', '~/.oci/oci-12-06-19-21.pem') }}"
+        oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
+        network_prefix: zititestnet
+        network_version: '7.3.52'
+        datacenter:
+          provider: OCP
+          regions: 
+            - us-ashburn-1
+            - us-phoenix-1
+      tags:
+        - 'always'
+
+    - name: Initialize NF API Token
+      netfoundry_info:
+        credentials: credentials-cldeng.json
+      register: netfoundry_organization
+      tags:
+        - 'always'
+
+  tasks:
+    - name: Include netfoundry role
+      include_role:
+        name: netfoundry
+        apply:
+          tags:
+            - 'netfoundry'
+      tags:
+        - 'netfoundry'
+
+    - name: Include infrastructure in ocp role
+      include_role:
+        name: ocp
+        apply:
+          tags:
+            - 'ocp'
+      tags:
+        - 'ocp'
+    
+    - name: Include tests role
+      include_role:
+        name: tests
+        apply:
+          tags:
+            - 'test'
+      tags:
+        - 'test'
+ 

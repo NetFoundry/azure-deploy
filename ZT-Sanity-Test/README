@@ -1,0 +1,15 @@
+##Installing Packages in Testing Environmet
+/usr/bin/python3 -m pip install --upgrade pip
+pip install netfoundry --upgrade
+pip install ansible
+pip install oci
+ansible-galaxy collection install netfoundry.platform
+ansible-galaxy collection install -f oracle.oci
+
+
+##Create API Key in OCI
+1. Go to Api Keys under user profile
+2. Add API Key and download it to your ~/.oci/ folder
+3. Create config file and copy info from the key configuration process.
+
+Delete in oci: using name when environment variable OCI_USE_NAME_AS_IDENTIFIER is set

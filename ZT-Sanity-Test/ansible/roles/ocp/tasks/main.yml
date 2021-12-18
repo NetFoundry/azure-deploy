@@ -1,0 +1,27 @@
+---
+
+- name: Ensure the NetFoundry API token initialized
+  assert:
+    that:
+      - netfoundry_organization is defined and netfoundry_organization
+    fail_msg: >-
+      'netfoundry api token needs to initilized' MUST be supplied
+      in order to apply this role.
+  tags:
+    - always
+
+- name: Collect the NetFoundry Network Info
+  netfoundry_info:
+    network: "{{ network_prefix }}" 
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  tags: 
+    - get
+
+- include_tasks: network.yml
+  tags:
+    - vnc
+- include_tasks: instance.yml
+  tags:
+    - instance

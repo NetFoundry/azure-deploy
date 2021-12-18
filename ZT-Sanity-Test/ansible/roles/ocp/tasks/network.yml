@@ -1,0 +1,134 @@
+---
+################################
+# Create oci network resources #
+################################
+
+- name: Create vcn in oci
+  oci_network_vcn:
+    compartment_id: "{{ oci_compartment_id }}"
+    cidr_block: 10.10.0.0/16
+    display_name: "{{ network_prefix }}"
+    dns_label: "{{ network_prefix }}01"
+    freeform_tags: "{{ oci_tag }}"
+    is_ipv6_enabled: False
+    region: "{{ oci_regions[0].region }}"
+  register: oci_ashburn_network_details
+  tags: create
+
+- name: Create internet gateway in oci
+  oci_network_internet_gateway:
+    compartment_id: "{{ oci_compartment_id }}"
+    is_enabled: true
+    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    freeform_tags: "{{ oci_tag }}"
+  register: oci_ashburn_igw_details
+  tags: create
+
+- name: Create routing table in oci
+  oci_network_route_table:
+    compartment_id: "{{ oci_compartment_id }}"
+    route_rules:
+    - network_entity_id: "{{ oci_ashburn_igw_details.internet_gateway.id }}"
+      destination: 0.0.0.0/0
+      destination_type: CIDR_BLOCK
+      description: internet route
+    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    freeform_tags: "{{ oci_tag }}"
+  register: oci_ashburn_rt_details
+  tags: create
+
+- name: Create subnet in oci
+  oci_network_subnet:
+    cidr_block: 10.10.0.0/24
+    compartment_id: "{{ oci_compartment_id }}"
+    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    freeform_tags: "{{ oci_tag }}"
+    route_table_id: "{{ oci_ashburn_rt_details.route_table.id }}"
+  register: oci_ashburn_subnet_details
+  tags: create
+
+- name: Create security group in oci
+  oci_network_security_group:
+    compartment_id: "{{ oci_compartment_id }}"
+    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    freeform_tags: "{{ oci_tag }}"
+  register: oci_ashburn_sg_details
+  tags: create
+
+- name: Add rules to security group in oci
+  oci_network_security_group_security_rule_actions:
+    network_security_group_id: "{{ oci_ashburn_sg_details.network_security_group.id }}"
+    action: add
+    security_rules:
+    - direction: EGRESS
+      protocol: all
+      destination: 0.0.0.0/0
+      destination_type: CIDR_BLOCK
+      is_stateless: false
+    - direction: INGRESS
+      protocol: all
+      is_stateless: false
+      source: 10.10.0.0/16
+      source_type: CIDR_BLOCK
+  register: oci_ashburn_sg_rule_details
+  tags: create
+
+- name: Print sg details
+  debug: 
+    var: oci_ashburn_sg_rule_details
+  tags: create
+
+################################
+# Delete oci network resources #
+################################
+
+- name: Delete security group in oci
+  oci_network_security_group:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete
+
+- name: Delete subnet in oci
+  oci_network_subnet:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete
+
+- name: Delete routing table in oci
+  oci_network_route_table:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete
+
+- name: Delete internet gateway in oci
+  oci_network_internet_gateway:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete
+
+- name: Delete vcn in oci using name
+  oci_network_vcn:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete
+
+      
+

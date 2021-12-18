@@ -1,0 +1,106 @@
+---
+- set_fact:
+    app_catalog_listing_id: "ocid1.appcataloglisting.oc1..aaaaaaaaf4ixpn4pxjmers6bc6kw7fzj3ub6dm32vi6azn2v6jcfwwwfea5q"
+  tags: create
+
+- name: Get all the resource versions of the listing
+  oci_compute_app_catalog_listing_resource_version_facts:
+    listing_id: "{{ app_catalog_listing_id }}"
+  register: all_resource_versions_result
+  tags: create
+
+- set_fact:
+    resource_versions: "{{ all_resource_versions_result.app_catalog_listing_resource_versions }}"
+    latest_resource_version: "{{ all_resource_versions_result.app_catalog_listing_resource_versions[0].listing_resource_version }}"
+    app_catalog_image_id: "{{ all_resource_versions_result.app_catalog_listing_resource_versions[0].listing_resource_id }}"
+  tags: create
+
+- name: Create an agreement for the listing
+  oci_compute_app_catalog_listing_resource_version_agreement_facts:
+    listing_id: "{{ app_catalog_listing_id }}"
+    resource_version: "{{ latest_resource_version }}"
+  register: agreement_result
+  tags: create
+
+- set_fact:
+    agreement: "{{ agreement_result.app_catalog_listing_resource_version_agreement }}"
+  tags: create
+
+- name: Create subscription if it does not exist
+  oci_compute_app_catalog_subscription:
+    compartment_id: "{{ oci_compartment_id }}"
+    eula_link: "{{ agreement.eula_link }}"
+    listing_id: "{{ app_catalog_listing_id }}"
+    listing_resource_version: "{{ latest_resource_version }}"
+    oracle_terms_of_use_link: "{{ agreement.oracle_terms_of_use_link }}"
+    signature: "{{ agreement.signature }}"
+    time_retrieved: "{{ agreement.time_retrieved }}"
+  register: create_subscription_result
+  tags: create
+
+ ########################
+ # Create ocp instances #
+ ########################
+
+- name: Provision hosted edge router in OCP
+  netfoundry_router:
+    name: "{{ item }}"
+    attributes: 
+    - "#azure"
+    tunnelerEnabled: True
+    rotateKey: True
+    network: "{{ netfoundry_network.network }}"
+  register: ocp_er_response
+  loop: 
+    - "{{ network_prefix }}-ocper01"
+  tags: 
+    - create
+
+- set_fact:
+    userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
+  tags: create
+
+- name: Create instance in oci
+  oci_compute_instance:
+    availability_domain: "{{ oci_regions[0].ad1 }}"
+    compartment_id: "{{ oci_compartment_id }}"
+    shape: VM.Standard.E4.Flex
+    region: "{{ oci_regions[0].region }}"
+    create_vnic_details:
+      assign_public_ip: true
+      assign_private_dns_record: true
+      display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+      freeform_tags: "{{ oci_tag }}"
+      nsg_ids: [ "{{ oci_ashburn_sg_details.network_security_group.id }}" ]
+      skip_source_dest_check: true
+      subnet_id: "{{ oci_ashburn_subnet_details.subnet.id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    freeform_tags: "{{ oci_tag }}"
+    metadata:  { "ssh_authorized_keys" : "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjga67wcolSXaD1bswknLrejRYtZ4W55Y6qfoipYfeDVrwVgtalcWcEGPsrqcs3hd/+xSZ0bC6BakO4wpuX38I3uMH0RVOiZlKzgCkVih5hJoAi2YAMCCpV0FhAvKEWIs9HPXEW0Ke5hRkGybi7lkHIfKWwOBOQZTkHCbTR4HdcjrOo2MdTbJK/6EgsJF6Cy9k+F0z8SSKd0C2S0O2VZ49/iF5OcEHeUuyjurJZWdPl3CutQ9dNTgUkOiVfHWRUco7n4wTa/1I/8V0w8dU2F+rHu2UEo1h3humFfyT0nOfsySgLTG+4h90C+INMSungC0QwoVmpJs/TrPnaWRvZ9dJ", 
+                  "user_data" : "{{ userdata_withkey | b64encode }}" } 
+    shape_config:
+      ocpus: 2
+      memory_in_gbs: 4
+      baseline_ocpu_utilization: BASELINE_1_1
+    source_details:
+      source_type: image
+      image_id: "{{ app_catalog_image_id }}"
+  register: oci_ashburn_vm_details
+  tags: 
+    - create
+
+- debug:
+    msg: "{{ oci_ashburn_vm_details.instance.primary_public_ip }}"
+  tags: create
+
+ ########################
+ # Delete ocp instances #
+ ########################
+
+- name: Delete instance in oci using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
+  oci_compute_instance:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete

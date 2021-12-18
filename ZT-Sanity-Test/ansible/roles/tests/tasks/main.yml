@@ -1,0 +1,31 @@
+---
+- name: Collect the NF Network Info
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  tags:
+    - get
+
+- set_fact:
+    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[*].{name: name, attributes: attributes, tunnelerEnabled: tunnelerEnabled}') }}"
+  tags:
+    - get
+
+- debug:
+    msg: "{{ endpoints }}"
+  tags:
+    - get
+
+- name: List Cloud Instances
+  oci_compute_instance_facts:
+    compartment_id: "{{ oci_compartment_id }}"
+  register: ocp_instances
+  tags:
+    - get
+
+- debug:
+    msg: "{{ ocp_instances.instances | json_query('[? freeform_tags.Department ==`Cloud Engineering`].{display_name: display_name, primary_private_ip: primary_private_ip, primary_public_ip: primary_public_ip, lifecycle_state: lifecycle_state, freeform_tags: freeform_tags, availability_domain: availability_domain}') }}"
+  tags:
+    - get
