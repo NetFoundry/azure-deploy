@@ -47,6 +47,15 @@ pipeline {
           cat ~/.ssh/id_rsa
           ls ${WORKSPACE}
         '''
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          mkdir ~/.oci
+          echo "[DEFAULT]" >|  ~/.oci/config
+          echo "user=ocid1.user.oc1..aaaaaaaacqrvvp6z3ynwel6yiybefugcgu6us3fx6jc4w4js2cf2tv4fgvpq" >>  ~/.oci/config
+          echo "fingerprint=fa:48:3e:09:44:0b:79:fe:99:09:73:b4:07:c8:a6:ba" >>  ~/.oci/config
+          echo "tenancy=ocid1.tenancy.oc1..aaaaaaaaa7t4qscet3bg5aygjrjdxakahwguwnpxyrosib3rhza7rdrfkdxa" >>  ~/.oci/config
+          echo "region=us-ashburn-1" >>  ~/.oci/config
+        '''
       }
     }
     stage('Deploy Resources in NETFOUNDRY') {
