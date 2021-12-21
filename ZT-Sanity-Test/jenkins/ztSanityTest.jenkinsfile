@@ -12,9 +12,15 @@ pipeline {
     parallelsAlwaysFailFast()
   }
   parameters {
-    booleanParam(name: 'DEPLOY_RESOURCES', defaultValue: true, description: 'Deploy Network, Client, Server to use for traffic generation and termination')
-    booleanParam(name: 'DESTROY_RESOURCES', defaultValue: true, description: 'Destroy Network, Client, Server to use for traffic generation and termination')
+    booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
+    booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Destroy NetFoundry Network, Routers')
+    booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Destroy NetFoundry Network, Routers')
+    booleanParam(name: 'DEPLOY_RESOURCES_OCP', defaultValue: true, description: 'Deploy Cloud Network, Edge Routers')
+    booleanParam(name: 'CREATE_HOSTS_FILE', defaultValue: true, description: 'Create hosts.ini file for ssh connections')
+    booleanParam(name: 'DESTROY_RESOURCES_ALL', defaultValue: true, description: 'Destroy ALL Resources')
     booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
+    booleanParam(name: 'TEST_CASE02', defaultValue: true, description: 'Test Case 02')
+    booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
   }
     stages {
     stage('Set up WORKSPACE') {
@@ -22,12 +28,17 @@ pipeline {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
-            writeFile file: 'MEC-test/credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
-        } 
+          writeFile file: '${WORKSPACE}/credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
+        }
+        withCredentials([file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')]) {
+          writeFile file: '${WORKSPACE}/oci.pem', text: readFile(OCI_API_KEY)
+        }
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
           /usr/bin/python3 -m pip install --upgrade pip
           pip install netfoundry
+          pip install oci 
+          ansible-galaxy collection install netfoundry.platform
           ansible-galaxy collection install oracle.oci
         '''
         sh ''' #!/bin/bash
@@ -37,20 +48,44 @@ pipeline {
         '''
       }
     }
-    stage('Deploy Resources in Azure and on MEC') {
-      when { expression { params.DEPLOY_RESOURCES }}
-      environment {
-        // OCP Details
-        // pem file import
-      }
+    stage('Deploy Resources in NETFOUNDRY') {
+      when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
-        withCredentials([
-                file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')
-              ]) {
-           sh ''' #!/bin/bash
+          sh ''' #!/bin/bash
             set -Eeuxo pipefail
-            eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create
-            '''
+            eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+          '''
+        }
+      }
+    }
+    stage('Deploy Resources in OCP') {
+      when { expression { params.DEPLOY_RESOURCES_OCP }}
+      steps {
+          sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
+          '''
+        }
+      }
+    }
+    stage('Configure Services in NETFOUNDRY') {
+      when { expression { params.CONFIGURE_SERVICES_NETFOUNDRY }}
+      steps {
+          sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+          '''
+        }
+      }
+    }
+    stage('Create hosts.ini file for ssh connections') {
+      when { expression { params.CREATE_HOSTS_FILE }}
+      steps {
+          sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,test,get,pretask --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
+            ls ${WORKSPACE}
+          '''
         }
       }
     }
@@ -60,29 +95,43 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy
-        eval ansible-playbook  MEC-test/test_cases.yml -i MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy
+        eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
-    stage('Destroy All Resource built in Azure and on MEC') {
-      when { expression { params.DESTROY_RESOURCES }}
-      environment {
-        // OCP Details
-        AZURE_TENANT = "25445e86-2ae6-4434-b116-25c66c27168d"
-        AZURE_SUBSCRIPTION_ID = "53d234e8-b7ac-4f09-a517-508ed55e4cae"
-      }
+    stage('Test Case 02') {
+      when { expression { params.TEST_CASE01 }}
       steps {
-        withCredentials([usernamePassword(credentialsId: 'Azure-MEC-Test-User', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_SECRET')]) {
-          sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags delete
-            '''
-        }
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Test Case 03') {
+      when { expression { params.TEST_CASE01 }}
+      steps {
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Destroy All Resources') {
+      when { expression { params.DESTROY_RESOURCES_ALL }}
+      steps {
+        // delete instances in OCP first
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+        '''
+        // delete all other resources
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
+        '''
       }
     }
   }
