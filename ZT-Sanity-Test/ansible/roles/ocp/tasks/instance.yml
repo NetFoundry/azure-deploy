@@ -52,7 +52,7 @@
     network: "{{ netfoundry_network.network }}"
   register: ocp_er_response
   loop: 
-    - "{{ network_prefix }}-ocper01"
+    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
   tags: 
     - create
 
