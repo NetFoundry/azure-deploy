@@ -3,9 +3,9 @@
 # Initial Setup #
 #################
 - name: Network Check
-  hosts: localhost
+  hosts: "{{ virtual_machines }}"
   gather_facts: no
-  connection: local
+  connection: "{{ remote_conn }}"
   environment:
     OCI_USE_NAME_AS_IDENTIFIER: "1"
   collections:
@@ -20,6 +20,7 @@
         public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
         oci_api_pem: "{{ lookup('file', '~/.oci/oci-12-06-19-21.pem') }}"
         oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
+        oci_tag: {'Department': 'Cloud Engineering'}
         network_prefix: zititestnet
         network_version: '7.3.52'
         datacenter:
@@ -28,7 +29,7 @@
             - us-ashburn-1
             - us-phoenix-1
       tags:
-        - 'always'
+        - 'pretask'
 
     - name: Initialize NF API Token
       netfoundry_info:

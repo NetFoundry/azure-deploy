@@ -44,7 +44,9 @@ pipeline {
         // pem file import
       }
       steps {
-        withCredentials([usernamePassword(credentialsId: '', usernameVariable: '', passwordVariable: '')]) {
+        withCredentials([
+                file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')
+              ]) {
            sh ''' #!/bin/bash
             set -Eeuxo pipefail
             eval  ansible-playbook MEC-test/infrastucture_setup.yml --tags create

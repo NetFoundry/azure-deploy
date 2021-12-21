@@ -13,3 +13,23 @@ ansible-galaxy collection install -f oracle.oci
 3. Create config file and copy info from the key configuration process.
 
 Delete in oci: using name when environment variable OCI_USE_NAME_AS_IDENTIFIER is set
+
+To create NF Network, Cloud Network and Instances
+ansible-playbook local.yml --tags always,netfoundry,ocp,create,pretask --skip-tags delete,get,service -e virtual_machines=localhost -e remote_conn=local
+
+To create services
+ansible-playbook local.yml --tags always,netfoundry,service,create,pretask --skip-tags delete,get,ocp,network -e virtual_machines=localhost -e remote_conn=local
+
+To create hosts file
+ansible-playbook local.yml --tags always,test,get,pretask --skip-tags delete,ocp,create,netfoundry -e virtual_machines=localhost -e remote_conn=local
+
+To run tests on edge routers
+ansible-playbook local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,delete,get,ocp,create,netfoundry -e virtual_machines=customer-edge-routers -i hosts.ini -u ziggy -e remote_conn=ssh
+
+To delete OCP instance
+ansible-playbook local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+
+To delete NetFoundry and OCP Networks
+ansible-playbook local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
+if network fails
+ansible-playbook local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local

@@ -1,0 +1,56 @@
+---
+- name: Restart Router Process 
+  become: True
+  shell: /usr/bin/systemctl restart ziti-router
+  register: router_status
+  ignore_errors: yes
+  tags:
+    - router
+
+- name: Pause for 60 seconds minutes to complete router restart
+  pause:
+    seconds: 60
+  tags:
+    - router
+
+- name: Check Router Process Status
+  shell: /usr/bin/systemctl status ziti-router
+  register: router_status
+  ignore_errors: yes
+  failed_when: "'Active: active' not in router_status.stdout"
+  tags:
+    - test1
+
+- debug:
+    msg: "{{ router_status.stdout_lines }}"
+  tags:
+    - test1
+
+- name: Check Services
+  become: True
+  shell: /usr/sbin/iptables -S  NF-INTERCEPT
+  register: router_services
+  ignore_errors: yes
+  failed_when: (network_prefix|string + '-tcp' not in router_services.stdout) and
+               (network_prefix|string + '-udp' not in router_services.stdout)
+  tags:
+    - test2
+
+- debug:
+    msg: "{{ router_services.stdout_lines }}"
+  tags:
+    - test2
+
+- name: Check Router Process Logs
+  shell: /usr/bin/journalctl -u ziti-router.service --since "10 minutes ago"
+  register: router_logs
+  ignore_errors: yes
+  failed_when: ("'panic' in router_logs.stdout") or
+               ("'ERROR' in router_logs.stdout")
+  tags:
+    - test3
+
+- debug:
+    msg: "{{ router_logs.stdout_lines }}"
+  tags:
+    - test3

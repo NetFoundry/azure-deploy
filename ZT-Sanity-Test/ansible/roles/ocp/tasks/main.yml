@@ -17,7 +17,7 @@
     session: "{{ netfoundry_organization.session }}"
   register: netfoundry_network
   tags: 
-    - get
+    - always
 
 - include_tasks: network.yml
   tags:

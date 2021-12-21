@@ -1,5 +1,4 @@
 ---
-oci_tag: {'Department': 'Cloud Engineering'}
 oci_regions: 
 - region: us-ashburn-1
   ad1: iTps:US-ASHBURN-AD-1
