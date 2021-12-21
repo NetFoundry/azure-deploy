@@ -55,6 +55,8 @@ pipeline {
           echo "fingerprint=fa:48:3e:09:44:0b:79:fe:99:09:73:b4:07:c8:a6:ba" >>  ~/.oci/config
           echo "tenancy=ocid1.tenancy.oc1..aaaaaaaaa7t4qscet3bg5aygjrjdxakahwguwnpxyrosib3rhza7rdrfkdxa" >>  ~/.oci/config
           echo "region=us-ashburn-1" >>  ~/.oci/config
+          echo "key_file=${WORKSPACE}/oci.pem" >>  ~/.oci/config
+
         '''
       }
     }
