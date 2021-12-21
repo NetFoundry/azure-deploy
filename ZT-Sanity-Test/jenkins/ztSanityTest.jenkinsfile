@@ -22,7 +22,7 @@ pipeline {
     booleanParam(name: 'TEST_CASE02', defaultValue: true, description: 'Test Case 02')
     booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
   }
-    stages {
+  stages {
     stage('Set up WORKSPACE') {
       steps {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
@@ -143,4 +143,15 @@ pipeline {
       }
     }
   }
+  post {
+        // Clean after run
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                               [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
+    }
 }
