@@ -17,8 +17,8 @@
 
     - name: Set variables used in this playbook
       set_fact:
+        workspace: "{{ lookup('env', 'WORKSPACE') | default('.', True) }}"
         public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-        oci_api_pem: "{{ lookup('file', './oci.pem') }}"
         oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
         oci_tag: {'Department': 'Cloud Engineering'}
         network_prefix: zititestnet
@@ -31,10 +31,21 @@
       tags:
         - 'pretask'
 
+    - name: Set path to oci pem file
+      set_fact:
+        oci_api_pem: "{{ lookup('file', workspace|string + '/oci.pem')|join(' ') }}"
+      tags:
+        - 'pretask'
+
     - name: Initialize NF API Token
       netfoundry_info:
         credentials: credentials-cldeng.json
       register: netfoundry_organization
+      tags:
+        - 'always'
+
+    - debug:
+        msg: "{{ workspace }}"
       tags:
         - 'always'
 

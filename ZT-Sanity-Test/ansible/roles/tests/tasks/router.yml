@@ -42,7 +42,7 @@
     - test2
 
 - name: Check Router Process Logs
-  shell: /usr/bin/journalctl -u ziti-router.service --since "10 minutes ago"
+  shell: /usr/bin/journalctl -u ziti-router.service --since "2 minutes ago"
   register: router_logs
   ignore_errors: yes
   failed_when: ("'panic' in router_logs.stdout") or

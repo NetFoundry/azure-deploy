@@ -36,7 +36,7 @@
 
 - name: Update hosts.ini file
   ini_file:
-    path: hosts.ini
+    path: "{{ workspace }}/hosts.ini"
     section: customer-edge-routers
     option: "{{ item.primary_public_ip }}"
     allow_no_value: True

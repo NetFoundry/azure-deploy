@@ -8,7 +8,7 @@
       'netfoundry api token needs to initilized' MUST be supplied
       in order to apply this role.
   tags:
-    - always
+    - instance
 
 - name: Collect the NetFoundry Network Info
   netfoundry_info:
@@ -17,7 +17,7 @@
     session: "{{ netfoundry_organization.session }}"
   register: netfoundry_network
   tags: 
-    - always
+    - instance
 
 - include_tasks: network.yml
   tags:
