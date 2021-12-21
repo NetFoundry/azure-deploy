@@ -51,42 +51,38 @@ pipeline {
     stage('Deploy Resources in NETFOUNDRY') {
       when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
-          sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
-          '''
-        }
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+        '''
       }
     }
     stage('Deploy Resources in OCP') {
       when { expression { params.DEPLOY_RESOURCES_OCP }}
       steps {
-          sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
-          '''
-        }
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
+        '''
       }
     }
     stage('Configure Services in NETFOUNDRY') {
       when { expression { params.CONFIGURE_SERVICES_NETFOUNDRY }}
       steps {
-          sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
           '''
-        }
       }
     }
     stage('Create hosts.ini file for ssh connections') {
       when { expression { params.CREATE_HOSTS_FILE }}
       steps {
-          sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
-            ls ${WORKSPACE}
-          '''
-        }
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
+          ls ${WORKSPACE}
+        '''
       }
     }
     stage('Test Case 01') {
