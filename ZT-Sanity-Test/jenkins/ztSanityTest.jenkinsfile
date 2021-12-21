@@ -28,10 +28,10 @@ pipeline {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
-          writeFile file: '${WORKSPACE}/credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
+          writeFile file: 'credentials.json', text: readFile(NETFOUNDRY_CREDS_FILE)
         }
         withCredentials([file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')]) {
-          writeFile file: '${WORKSPACE}/oci.pem', text: readFile(OCI_API_KEY)
+          writeFile file: 'oci.pem', text: readFile(OCI_API_KEY)
         }
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
