@@ -149,6 +149,14 @@ pipeline {
           eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
         '''
       }
+      cleanWs (
+          deleteDirs: false,
+          patterns: [
+                      [pattern: '.ini', type: 'INCLUDE'],
+                      [pattern: 'credentials', type: 'INCLUDE'],
+                      [pattern: '.pem', type: 'INCLUDE']
+                    ]
+        )
     }
   }
 }
