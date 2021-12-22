@@ -26,11 +26,8 @@
     - "@{{ endpoints[0].name }}"
     attributes: 
     - "{{ endpoints[0].attributes[0] }}"
-    clientHosts: 
-      - "192.168.100.111"
-    clientPorts:
-      - "5050"
-      - "700-800"
+    clientHosts: ["192.168.100.111"]
+    clientPorts: ["5050", "700-800"]
     clientProtocols: UDP
     network: "{{ netfoundry_network.network }}"
   tags:
@@ -43,11 +40,8 @@
     - "@{{ endpoints[0].name }}"
     attributes: 
     - "{{ endpoints[0].attributes[0] }}"
-    clientHosts: 
-      - "10.1.1.5"
-    clientPorts: 
-      - "8080"
-      - "500-600"
+    clientHosts: ["10.1.1.5"]
+    clientPorts: ["8080", "500-600"]
     clientProtocols: TCP
     network: "{{ netfoundry_network.network }}"  
   tags:
