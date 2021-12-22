@@ -18,7 +18,6 @@
     - name: Set variables used in this playbook
       set_fact:
         workspace: "{{ lookup('env', 'WORKSPACE') | default('.', True) }}"
-        public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
         oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
         oci_tag: {'Department': 'Cloud Engineering'}
         network_prefix: zititestnet
@@ -36,6 +35,13 @@
         oci_api_pem: "{{ lookup('file', workspace|string + '/oci.pem')|join(' ') }}"
       tags:
         - 'pretask'
+
+    - name: Set path to ssh pub key file
+      set_fact:
+        public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      tags:
+        - 'pretask'
+        - 'create'
 
     - name: Initialize NF API Token
       netfoundry_info:
