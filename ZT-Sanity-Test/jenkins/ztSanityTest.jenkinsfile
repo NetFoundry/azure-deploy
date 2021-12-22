@@ -29,7 +29,8 @@ pipeline {
           deleteDirs: false,
           patterns: [
                       [pattern: '**/*.ini', type: 'INCLUDE'],
-                      [pattern: '**/*.pem', type: 'INCLUDE']
+                      [pattern: '**/*.pem', type: 'INCLUDE'],
+                      [pattern: '**/id_rsa', type: 'EXCLUDE']
                     ]
         )
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
@@ -156,7 +157,8 @@ pipeline {
           deleteDirs: false,
           patterns: [
                       [pattern: '**/*.ini', type: 'INCLUDE'],
-                      [pattern: '**/*.pem', type: 'INCLUDE']
+                      [pattern: '**/*.pem', type: 'INCLUDE'],
+                      [pattern: '**/id_rsa', type: 'EXCLUDE']
                     ]
         )
       }
