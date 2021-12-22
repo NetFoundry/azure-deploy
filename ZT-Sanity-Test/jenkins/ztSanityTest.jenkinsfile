@@ -8,8 +8,7 @@ pipeline {
     }
   }
   options {
-    disableConcurrentBuilds()
-    parallelsAlwaysFailFast()
+    skipDefaultCheckout(true)
   }
   parameters {
     booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
@@ -25,6 +24,8 @@ pipeline {
   stages {
     stage('Set up WORKSPACE') {
       steps {
+        // Clean before run
+        cleanWs()
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
@@ -143,15 +144,4 @@ pipeline {
       }
     }
   }
-  post {
-        // Clean after run
-        always {
-            cleanWs(cleanWhenNotBuilt: false,
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true,
-                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
-                               [pattern: '.propsfile', type: 'EXCLUDE']])
-        }
-    }
 }
