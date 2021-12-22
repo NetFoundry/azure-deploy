@@ -23,7 +23,7 @@ pipeline {
     booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
   }
   environment { 
-    NETWORK_PREFIX=$GIT_BRANCH
+    NETWORK_PREFIX="${GIT_BRANCH}"
   }
   stages {
     stage('Set up WORKSPACE') {
