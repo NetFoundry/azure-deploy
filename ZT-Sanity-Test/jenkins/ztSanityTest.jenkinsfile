@@ -27,8 +27,10 @@ pipeline {
       steps {
         cleanWs (
           deleteDirs: false,
-          patterns: [[pattern: '.init', type: 'INCLUDE'],
-                      [pattern: 'credentials', type: 'INCLUDE']])
+          patterns: [
+                      [pattern: '.init', type: 'INCLUDE'],
+                      [pattern: 'credentials', type: 'INCLUDE']
+                    ]
         )
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
