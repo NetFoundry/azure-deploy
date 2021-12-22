@@ -57,7 +57,7 @@ pipeline {
               ln -s ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
           else
               ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
-              cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
+              cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa
           fi
           cat ~/.ssh/id_rsa
           ls ${WORKSPACE}
