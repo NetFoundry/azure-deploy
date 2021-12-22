@@ -33,6 +33,8 @@
     - 700:800
     clientProtocols: 
     - UDP
+    serverProtocols:
+    - UDP
     network: "{{ netfoundry_network.network }}"
   tags:
   - create
@@ -50,6 +52,8 @@
     - 8080
     - 500:600
     clientProtocols: 
+    - TCP
+    serverProtocols:
     - TCP
     network: "{{ netfoundry_network.network }}"  
   tags:
