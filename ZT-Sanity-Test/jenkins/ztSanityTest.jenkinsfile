@@ -30,7 +30,8 @@ pipeline {
           patterns: [
                       [pattern: '**/*.ini', type: 'INCLUDE'],
                       [pattern: '**/*.pem', type: 'INCLUDE'],
-                      [pattern: '**/id_rsa', type: 'EXCLUDE']
+                      [pattern: '**/id_rsa', type: 'EXCLUDE'],
+                      [pattern: '**/*.pub', type: 'EXCLUDE']
                     ]
         )
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
@@ -55,9 +56,11 @@ pipeline {
           if [[ -f "$FILE" ]]; then
               echo "$FILE exists."
               ln -s ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
+              ln -s ${WORKSPACE}/id_rsa.pub ~/.ssh/id_rsa.pub
           else
               ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
               cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa
+              cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa.pub
           fi
           cat ~/.ssh/id_rsa
           ls ${WORKSPACE}
@@ -160,7 +163,8 @@ pipeline {
           patterns: [
                       [pattern: '**/*.ini', type: 'INCLUDE'],
                       [pattern: '**/*.pem', type: 'INCLUDE'],
-                      [pattern: '**/id_rsa', type: 'INCLUDE']
+                      [pattern: '**/id_rsa', type: 'INCLUDE'],
+                      [pattern: '**/*.pub', type: 'INCLUDE']
                     ]
         )
       }
