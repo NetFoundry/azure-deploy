@@ -8,7 +8,8 @@ pipeline {
     }
   }
   options {
-    skipDefaultCheckout(true)
+    disableConcurrentBuilds()
+    parallelsAlwaysFailFast()
   }
   parameters {
     booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
@@ -24,8 +25,6 @@ pipeline {
   stages {
     stage('Set up WORKSPACE') {
       steps {
-        // Clean before run
-        cleanWs()
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
@@ -59,6 +58,13 @@ pipeline {
           echo "key_file=${WORKSPACE}/oci.pem" >>  ~/.oci/config
 
         '''
+      }
+    }
+    stage('Delete hosts.init file') {
+      if (fileExists('hosts.init')) {
+          new File('hosts.init').delete()
+      } else {
+          println "hosts.init file not found"
       }
     }
     stage('Deploy Resources in NETFOUNDRY') {
