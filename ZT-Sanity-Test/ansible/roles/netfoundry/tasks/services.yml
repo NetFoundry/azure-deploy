@@ -19,34 +19,36 @@
   tags:
     - always
 
-- name: Netcat udp service
-  netfoundry_service_simple:
+- name: Netcat udp service 
+  netfoundry_service_advanced:
     name: "{{ netfoundry_network.network.name }}-udp"
     endpoints: 
     - "@{{ endpoints[0].name }}"
     attributes: 
     - "{{ endpoints[0].attributes[0] }}"
-    clientHostName: 192.168.100.111
-    clientPortRange: 5050
-    serverHostName: 192.168.100.111
-    serverPortRange: 5050
-    serverProtocol: UDP
+    clientHosts: 
+      - "192.168.100.111"
+    clientPorts: : 
+      - "5050"
+      - "700-800"
+    clientProtocols: UDP
     network: "{{ netfoundry_network.network }}"
   tags:
   - create
 
-- name: Netcat tcp service
-  netfoundry_service_simple:
+- name: Netcat tcp service 
+  netfoundry_service_advanced:
     name: "{{ netfoundry_network.network.name }}-tcp"
     endpoints: 
     - "@{{ endpoints[0].name }}"
     attributes: 
     - "{{ endpoints[0].attributes[0] }}"
-    clientHostName: 10.1.1.5
-    clientPortRange: 8080
-    serverHostName: 10.1.1.5
-    serverPortRange: 8080
-    serverProtocol: TCP
+    clientHosts: 
+      - "10.1.1.5"
+    clientPorts: 
+      - "8080"
+      - "500-600"
+    clientProtocols: TCP
     network: "{{ netfoundry_network.network }}"  
   tags:
   - create
