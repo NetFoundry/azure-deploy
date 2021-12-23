@@ -50,6 +50,13 @@
       tags:
         - 'always'
 
+    - name: Renew a session if expiring within 30 minutes
+      netfoundry_info:
+        session: "{{ netfoundry_organization.session }}"
+      register: netfoundry_organization
+      tags:
+        - 'always'
+
     - debug:
         msg: "{{ workspace }}"
       tags:
@@ -61,6 +68,8 @@
         name: netfoundry
         apply:
           tags:
+
+
             - 'netfoundry'
       tags:
         - 'netfoundry'
