@@ -12,7 +12,7 @@
     state: PROVISIONED
     wait: 2400
     network_group: "{{ netfoundry_organization.network_group }}"
-  when: network_version != 0.0.0
+  when: network_version != "0.0.0"
   tags: 
     - create
 
@@ -24,7 +24,7 @@
     state: PROVISIONED
     wait: 2400
     network_group: "{{ netfoundry_organization.network_group }}"
-  when: network_version == 0.0.0
+  when: network_version == "0.0.0"
   tags: 
     - create
 
