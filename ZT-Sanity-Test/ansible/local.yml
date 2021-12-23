@@ -21,7 +21,7 @@
         oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
         oci_tag: {'Department': 'Cloud Engineering'}
         network_prefix:  "{{ lookup('env', 'NETWORK_PREFIX') | default('zititestnet', True) }}"
-        network_version: '7.3.52'
+        network_version: "{{ lookup('env', 'NETWORK_VERSION') | default('', True) }}"
         datacenter:
           provider: OCP
           regions: 

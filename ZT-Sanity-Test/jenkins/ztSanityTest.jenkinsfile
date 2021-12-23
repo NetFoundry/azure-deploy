@@ -13,17 +13,20 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
-    booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Destroy NetFoundry Network, Routers')
-    booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Destroy NetFoundry Network, Routers')
+
+    validatingString(name: "NETWORK_VERSION", defaultValue: "", regex: /^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/, failedValidationMessage: "Validation failed!", description: "NetFoundry Network Version as versioned in MOP")
+    booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: false, description: 'Destroy NetFoundry Network, Routers')
+    booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Configure NetFoundry Services')
     booleanParam(name: 'DEPLOY_RESOURCES_OCP', defaultValue: true, description: 'Deploy Cloud Network, Edge Routers')
     booleanParam(name: 'CREATE_HOSTS_FILE', defaultValue: true, description: 'Create hosts.ini file for ssh connections')
-    booleanParam(name: 'DESTROY_RESOURCES_ALL', defaultValue: true, description: 'Destroy ALL Resources')
+    booleanParam(name: 'DESTROY_RESOURCES_ALL', defaultValue: false, description: 'Destroy ALL Resources')
     booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
     booleanParam(name: 'TEST_CASE02', defaultValue: true, description: 'Test Case 02')
     booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
   }
   environment { 
     NETWORK_PREFIX="${GIT_BRANCH}"
+    NETWORK_VERSION="${param.NETWORK_VERSION}"
   }
   stages {
     stage('Set up WORKSPACE') {
