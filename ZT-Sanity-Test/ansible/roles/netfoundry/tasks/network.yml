@@ -12,6 +12,19 @@
     state: PROVISIONED
     wait: 2400
     network_group: "{{ netfoundry_organization.network_group }}"
+  when: network_version != 0.0.0
+  tags: 
+    - create
+
+- name: Create netfoundry network
+  netfoundry_network:
+    name: "{{ network_prefix }}"
+    size: small
+    datacenter: us-east-2
+    state: PROVISIONED
+    wait: 2400
+    network_group: "{{ netfoundry_organization.network_group }}"
+  when: network_version == 0.0.0
   tags: 
     - create
 
