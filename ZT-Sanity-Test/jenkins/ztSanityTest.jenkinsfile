@@ -13,7 +13,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
-    validatingString(name: "NETWORK_VERSION", defaultValue: "", regex: /^((([0-9]+)\.([0-9]+)\.([0-9]+)$/, failedValidationMessage: "Validation failed!", description: "NetFoundry Network Version as versioned in MOP")
+    string(name: "NETWORK_VERSION", defaultValue: "", regex: /^((([0-9]+)\.([0-9]+)\.([0-9]+)$/, failedValidationMessage: "Validation failed!", description: "NetFoundry Network Version as versioned in MOP")
     booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: false, description: 'Destroy NetFoundry Network, Routers')
     booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Configure NetFoundry Services')
     booleanParam(name: 'DEPLOY_RESOURCES_OCP', defaultValue: true, description: 'Deploy Cloud Network, Edge Routers')
