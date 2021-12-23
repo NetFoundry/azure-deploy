@@ -3,7 +3,7 @@
 # Deploy NF Network
 #
 
-- name: Create netfoundry network
+- name: Create netfoundry network - custom version
   netfoundry_network:
     name: "{{ network_prefix }}"
     size: small
@@ -16,7 +16,7 @@
   tags: 
     - create
 
-- name: Create netfoundry network
+- name: Create netfoundry network - default version
   netfoundry_network:
     name: "{{ network_prefix }}"
     size: small
