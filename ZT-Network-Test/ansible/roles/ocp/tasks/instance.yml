@@ -46,10 +46,12 @@
   netfoundry_router:
     name: "{{ item }}"
     attributes: 
-    - "#azure"
+    - "#{{ network_prefix }}-{{ oci_regions[0].region }}"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
+    state: PROVISIONED
+    wait: 600
   register: ocp_er_response
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
