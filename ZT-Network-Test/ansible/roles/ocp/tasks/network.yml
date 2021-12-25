@@ -8,7 +8,7 @@
     compartment_id: "{{ oci_compartment_id }}"
     cidr_block: 10.10.0.0/16
     display_name: "{{ network_prefix }}"
-    dns_label: "{{ network_prefix }}01"
+    dns_label: "{{ network_prefix }}"
     freeform_tags: "{{ oci_tag }}"
     is_ipv6_enabled: False
     region: "{{ oci_regions[0].region }}"
