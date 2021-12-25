@@ -43,7 +43,7 @@ pipeline {
         // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
         checkout scm
         withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
-          writeFile file: 'ZT-Sanity-Test/ansible/credentials-cldeng.json', text: readFile(NETFOUNDRY_CREDS_FILE)
+          writeFile file: 'ZT-Network-Test/ansible/credentials-cldeng.json', text: readFile(NETFOUNDRY_CREDS_FILE)
         }
         withCredentials([file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')]) {
           writeFile file: 'oci.pem', text: readFile(OCI_API_KEY)
@@ -89,7 +89,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
         '''
       }
     }
@@ -98,7 +98,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
         '''
       }
     }
@@ -107,7 +107,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
           '''
       }
     }
@@ -116,7 +116,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
           ls ${WORKSPACE}
         '''
       }
@@ -127,7 +127,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -137,7 +137,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -147,7 +147,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -157,12 +157,12 @@ pipeline {
         // delete instances in OCP first
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
         '''
         // delete all other resources
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Sanity-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
         '''
       cleanWs (
           deleteDirs: false,
