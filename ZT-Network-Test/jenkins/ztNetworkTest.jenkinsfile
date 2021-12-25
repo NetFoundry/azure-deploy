@@ -69,6 +69,7 @@ pipeline {
               cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa.pub
           fi
           cat ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa.pub
           ls ${WORKSPACE}
         '''
         sh ''' #!/bin/bash
