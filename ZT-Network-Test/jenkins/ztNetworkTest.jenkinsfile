@@ -97,7 +97,12 @@ pipeline {
             '''
           } catch(err) {
             echo "Caught: ${err}"
-            // when error try again to create nf network resource
+            // when error try deleting nf network resource
+            sh ''' #!/bin/bash
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+            '''
+            // then try again to create nf network resource
             sh ''' #!/bin/bash
               set -Eeuxo pipefail
               eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
