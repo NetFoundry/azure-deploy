@@ -196,14 +196,13 @@ pipeline {
             '''
           } catch(err) {
             echo "Caught: ${err}"
-            // when error try again to delete nf network resource
-            sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
-            '''
-          } finally {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
-            echo "Continue..."
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              // when error try again to delete nf network resource
+              sh ''' #!/bin/bash
+                set -Eeuxo pipefail
+                eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+              '''
+            } 
           }
         }
         // clean up workspace
