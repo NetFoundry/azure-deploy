@@ -200,15 +200,14 @@ pipeline {
         }
         // clean up workspace
         cleanWs (
-            deleteDirs: false,
-            patterns: [
-                        [pattern: '**/*.ini', type: 'INCLUDE'],
-                        [pattern: '**/*.pem', type: 'INCLUDE'],
-                        [pattern: '**/id_rsa', type: 'INCLUDE'],
-                        [pattern: '**/*.pub', type: 'INCLUDE']
-                      ]
-          )
-        }
+          deleteDirs: false,
+          patterns: [
+                      [pattern: '**/*.ini', type: 'INCLUDE'],
+                      [pattern: '**/*.pem', type: 'INCLUDE'],
+                      [pattern: '**/id_rsa', type: 'INCLUDE'],
+                      [pattern: '**/*.pub', type: 'INCLUDE']
+                    ]
+        )
       }
     }
   }
