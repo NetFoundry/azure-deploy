@@ -201,6 +201,8 @@ pipeline {
               set -Eeuxo pipefail
               eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
             '''
+          } finally {
+            echo "Continue..."
           }
         }
         // clean up workspace
