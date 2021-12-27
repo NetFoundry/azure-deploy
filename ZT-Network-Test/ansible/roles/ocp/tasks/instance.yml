@@ -79,8 +79,8 @@
     name: "{{ item.name }}"
     network: "{{ netfoundry_network.network }}"
     state: DELETED
+  loop: "{{ edge_routers_for_deletion }}"
   when: edge_routers_for_deletion != []
-  loop: edge_routers_for_deletion
   tags: 
     - create
 
