@@ -51,7 +51,7 @@ pipeline {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
           /usr/bin/python3 -m pip install --upgrade pip
-          pip install netfoundry
+          pip install netfoundry --upgrade
           pip install oci 
           ansible-galaxy collection install netfoundry.platform
           ansible-galaxy collection install oracle.oci

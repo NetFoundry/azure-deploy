@@ -52,7 +52,37 @@
     network: "{{ netfoundry_network.network }}"
     state: PROVISIONED
     wait: 600
+  ignore_errors: yes
   register: ocp_er_response
+  loop: 
+    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  tags: 
+    - create
+
+- name: Delete hosted edge router in OCP
+  netfoundry_router:
+    name: "{{ item }}"
+    network: "{{ netfoundry_network.network }}"
+    state: DELETED
+  when: ocp_er_response.failed
+  register: ocp_er_delete_response
+  loop: 
+    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  tags: 
+    - create
+
+- name: Re-Provision hosted edge router in OCP
+  netfoundry_router:
+    name: "{{ item }}"
+    attributes: 
+    - "#{{ network_prefix }}-{{ oci_regions[0].region }}"
+    tunnelerEnabled: True
+    rotateKey: True
+    network: "{{ netfoundry_network.network }}"
+    state: PROVISIONED
+    wait: 600
+  register: ocp_er_response
+  when: ocp_er_delete_response.changed
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
   tags: 
