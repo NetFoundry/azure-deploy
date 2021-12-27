@@ -102,7 +102,7 @@
     - create
     
 - set_fact:
-    er_ocp_list: "{{ ocp_er_response.results | json_query('[].{name: name, user_data: `#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration ` + message.registrationKey|string}') }}"
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[].{name: message.name, user_data: `#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration ` + message.registrationKey|string}') }}"
     ##userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
   tags: create
 
