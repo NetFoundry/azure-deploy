@@ -69,10 +69,10 @@
     - create
 
 - set_fact:
-    edge_routers_for_deletion:  "{{ lookup('item.state', 'PROVISIONING') | list }}"
+    edge_routers_for_deletion:  "{{ query('item.state', 'PROVISIONING') | list }}"
   loop: netfoundry_network.network.customer_edge_routers
   tags: 
-      - create
+    - create
 
 - name: Delete Edge Routers for OCP
   netfoundry_router:
