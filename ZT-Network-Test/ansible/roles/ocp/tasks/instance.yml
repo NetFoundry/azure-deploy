@@ -65,7 +65,7 @@
     network: "{{ netfoundry_network.network }}"
     state: DELETED
   when: ocp_er_response.failed
-  register: ocp_er_delete_response
+  register: "'FAILED' in ocp_er_response.stderr"
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
   tags: 
