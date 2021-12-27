@@ -102,7 +102,7 @@
     - create
     
 - set_fact:
-    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, user_data: `#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ` + message.registrationKey]}') }}"
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, regKey: message.registrationKey}') }}"
     ##userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
   tags: create
 
@@ -123,7 +123,7 @@
     display_name: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
     metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
-                  "user_data" : "{{ item.user_data | b64encode }}" } 
+                  "user_data" : "{{ '#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.regKey|string + ']' | join('') | b64encode }}" } 
     shape_config:
       ocpus: 2
       memory_in_gbs: 4
