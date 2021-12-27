@@ -47,6 +47,7 @@
     name: "{{ item }}"
     attributes: 
     - "#{{ network_prefix }}-{{ oci_regions[0].region }}"
+    - "ocp"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
@@ -55,7 +56,6 @@
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
   ignore_errors: yes
-  register: ocp_er_response
   tags: 
     - create
 
@@ -97,13 +97,13 @@
     wait: 600
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
-  when: ocp_er_delete_response.changed
   register: ocp_er_response
   tags: 
     - create
     
 - set_fact:
-    userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[].{name: name, user_data: `#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration `+ message.registrationKey|string) }}"
+    ##userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
   tags: create
 
 - name: Create instance in oci
@@ -115,15 +115,15 @@
     create_vnic_details:
       assign_public_ip: true
       assign_private_dns_record: true
-      display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+      display_name: "{{ item.name }}"
       freeform_tags: "{{ oci_tag }}"
       nsg_ids: [ "{{ oci_ashburn_sg_details.network_security_group.id }}" ]
       skip_source_dest_check: true
       subnet_id: "{{ oci_ashburn_subnet_details.subnet.id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    display_name: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
     metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
-                  "user_data" : "{{ userdata_withkey | b64encode }}" } 
+                  "user_data" : "{{ item.user_data | b64encode }}" } 
     shape_config:
       ocpus: 2
       memory_in_gbs: 4
@@ -131,6 +131,7 @@
     source_details:
       source_type: image
       image_id: "{{ app_catalog_image_id }}"
+  loop: "{{ er_ocp_list }}"
   register: oci_ashburn_vm_details
   tags: 
     - create
