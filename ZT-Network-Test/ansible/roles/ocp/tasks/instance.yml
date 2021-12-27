@@ -52,10 +52,10 @@
     network: "{{ netfoundry_network.network }}"
     state: PROVISIONED
     wait: 600
-  ignore_errors: yes
-  register: ocp_er_response
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  ignore_errors: yes
+  register: ocp_er_response
   tags: 
     - create
 
@@ -81,6 +81,7 @@
     state: DELETED
   loop: "{{ edge_routers_for_deletion }}"
   when: edge_routers_for_deletion != []
+  register: ocp_er_delete_response
   tags: 
     - create
 
@@ -94,13 +95,13 @@
     network: "{{ netfoundry_network.network }}"
     state: PROVISIONED
     wait: 600
-  register: ocp_er_response
-  when: ocp_er_delete_response.changed
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  when: ocp_er_delete_response.changed
+  register: ocp_er_response
   tags: 
     - create
-
+    
 - set_fact:
     userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
   tags: create
