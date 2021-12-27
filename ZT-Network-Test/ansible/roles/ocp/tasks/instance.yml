@@ -78,9 +78,8 @@
   netfoundry_router:
     name: "{{ item.name }}"
     network: "{{ netfoundry_network.network }}"
-    state: DELETE
-  register: edge_router_for_deletion
-  when: edge_routers_for_deletion
+    state: DELETED
+  when: edge_routers_for_deletion != []
   loop: edge_routers_for_deletion
   tags: 
     - create
