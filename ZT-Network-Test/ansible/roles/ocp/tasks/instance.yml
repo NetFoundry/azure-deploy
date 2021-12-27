@@ -123,7 +123,7 @@
     display_name: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
     metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
-                  "user_data" : "{{ '#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.regKey|string + ']' | join('') | b64encode }}" } 
+                  "user_data" : "{{ '#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, item.regKey]'| b64encode }}" } 
     shape_config:
       ocpus: 2
       memory_in_gbs: 4
