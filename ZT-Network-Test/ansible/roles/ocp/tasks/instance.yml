@@ -53,21 +53,35 @@
     state: PROVISIONED
     wait: 600
   ignore_errors: yes
-  register: ocp_er_response
   loop: 
     - "{{ network_prefix }}-{{ oci_regions[0].region }}"
   tags: 
     - create
 
-- name: Delete hosted edge router in OCP
+- name: Collect the NF OCI ER Info
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  ignore_errors: yes
+  tags:
+    - create
+
+- set_fact:
+    edge_routers_for_deletion:  "{{ lookup('item.state', 'PROVISIONING') | list }}"
+  loop: netfoundry_network.network.customer_edge_routers
+  tags: 
+      - create
+
+- name: Delete Edge Routers for OCP
   netfoundry_router:
-    name: "{{ item }}"
+    name: "{{ item.name }}"
     network: "{{ netfoundry_network.network }}"
-    state: DELETED
-  when: "'FAILED' in ocp_er_response.stderr"
-  register: ocp_er_delete_response
-  loop: 
-    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    state: DELETE
+  register: edge_router_for_deletion
+  when: edge_routers_for_deletion
+  loop: edge_routers_for_deletion
   tags: 
     - create
 
