@@ -1,4 +1,8 @@
 ---
+ ##############################
+ # Accept EULA for Markeplace #
+ ##############################
+
 - set_fact:
     app_catalog_listing_id: "ocid1.appcataloglisting.oc1..aaaaaaaaf4ixpn4pxjmers6bc6kw7fzj3ub6dm32vi6azn2v6jcfwwwfea5q"
   tags: create
@@ -42,6 +46,9 @@
  # Create ocp instances #
  ########################
 
+#
+# On NetFoundry Network First
+#
 - name: Provision hosted edge router in OCP
   netfoundry_router:
     name: "{{ item }}"
@@ -69,11 +76,17 @@
   tags:
     - create
 
+#
+# In case edge router gets hung in the provisioning state
+#
 - set_fact:
     edge_routers_for_deletion:  "{{ netfoundry_network.network.customer_edge_routers | json_query('[? status == `PROVISIONING`].{name: name}') }}"
   tags: 
     - create
 
+#
+# If it does, delete and re-provision
+#
 - name: Delete Edge Routers for OCP
   netfoundry_router:
     name: "{{ item.name }}"
@@ -106,6 +119,9 @@
     er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, regKey: message.registrationKey}') }}"
   tags: create
 
+#
+# Then create the corresponding VMs in OCP
+#
 - name: Create instance in oci
   oci_compute_instance:
     availability_domain: "{{ oci_regions[0].ad1 }}"
@@ -136,6 +152,9 @@
   tags: 
     - create
 
+#
+# Print public IPs
+#
 - debug:
     msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.display_name, public_ip: instance.primary_public_ip}') }}"
   tags: create
