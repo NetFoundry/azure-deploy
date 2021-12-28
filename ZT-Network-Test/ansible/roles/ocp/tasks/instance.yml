@@ -123,7 +123,7 @@
     display_name: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
     metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
-                  "user_data" : "{{ '#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, item.regKey]'| b64encode }}" } 
+                  "user_data" : "{{ ('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.regKey + ']') | b64encode }}" } 
     shape_config:
       ocpus: 2
       memory_in_gbs: 4
@@ -137,7 +137,7 @@
     - create
 
 - debug:
-    msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.name, public_ip: instance.primary_public_ip}') }}"
+    msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.display_name, public_ip: instance.primary_public_ip}') }}"
   tags: create
 
  ########################
