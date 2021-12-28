@@ -1,5 +1,7 @@
 ---
-
+###
+### TODO update the loop of instances to have more than one
+###
 - name: Ensure the NetFoundry API token initialized
   assert:
     that:
@@ -23,6 +25,7 @@
 - include_tasks: network.yml
   tags:
     - vnc
+
 - include_tasks: instance.yml
   when: netfoundry_network
   tags:

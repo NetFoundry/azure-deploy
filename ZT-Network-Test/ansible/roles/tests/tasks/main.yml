@@ -1,4 +1,7 @@
 ---
+###
+### TODO add packet tests but need to finish the instance loop to have more than one edge router installed.
+###
 - name: Collect the NF Network Info
   netfoundry_info:
     network: "{{ network_prefix }}"

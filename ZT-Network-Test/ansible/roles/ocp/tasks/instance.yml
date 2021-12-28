@@ -46,8 +46,8 @@
   netfoundry_router:
     name: "{{ item }}"
     attributes: 
-    - "#{{ network_prefix }}-{{ oci_regions[0].region }}"
-    - "ocp"
+    - "#{{ oci_regions[0].region }}"
+    - "#ocp"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
@@ -89,7 +89,8 @@
   netfoundry_router:
     name: "{{ item }}"
     attributes: 
-    - "#{{ network_prefix }}-{{ oci_regions[0].region }}"
+    - "#{{ oci_regions[0].region }}"
+    - "#ocp"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
@@ -103,7 +104,6 @@
     
 - set_fact:
     er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, regKey: message.registrationKey}') }}"
-    ##userdata_withkey: "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, {{ ocp_er_response.results[0].message.registrationKey }}]"
   tags: create
 
 - name: Create instance in oci
