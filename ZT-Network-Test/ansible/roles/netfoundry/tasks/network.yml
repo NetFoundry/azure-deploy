@@ -1,0 +1,38 @@
+---
+#
+# Deploy NF Network
+#
+
+- name: Create netfoundry network - custom version
+  netfoundry_network:
+    name: "{{ network_prefix }}"
+    size: small
+    version: "{{ network_version }}"
+    datacenter: us-east-2
+    state: PROVISIONED
+    wait: 2400
+    network_group: "{{ netfoundry_organization.network_group }}"
+  when: network_version != "0.0.0"
+  tags: 
+    - create
+
+- name: Create netfoundry network - default version
+  netfoundry_network:
+    name: "{{ network_prefix }}"
+    size: small
+    datacenter: us-east-2
+    state: PROVISIONED
+    wait: 2400
+    network_group: "{{ netfoundry_organization.network_group }}"
+  when: network_version == "0.0.0"
+  tags: 
+    - create
+
+- name: Delete netfoundry network
+  netfoundry_network:
+    name: "{{ network_prefix }}"
+    state: DELETED
+    wait: 600
+    network_group: "{{ netfoundry_organization.network_group }}"
+  tags: 
+    - delete

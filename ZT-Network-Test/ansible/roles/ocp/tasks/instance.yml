@@ -1,0 +1,172 @@
+---
+ ##############################
+ # Accept EULA for Markeplace #
+ ##############################
+
+- set_fact:
+    app_catalog_listing_id: "ocid1.appcataloglisting.oc1..aaaaaaaaf4ixpn4pxjmers6bc6kw7fzj3ub6dm32vi6azn2v6jcfwwwfea5q"
+  tags: create
+
+- name: Get all the resource versions of the listing
+  oci_compute_app_catalog_listing_resource_version_facts:
+    listing_id: "{{ app_catalog_listing_id }}"
+  register: all_resource_versions_result
+  tags: create
+
+- set_fact:
+    resource_versions: "{{ all_resource_versions_result.app_catalog_listing_resource_versions }}"
+    latest_resource_version: "{{ all_resource_versions_result.app_catalog_listing_resource_versions[0].listing_resource_version }}"
+    app_catalog_image_id: "{{ all_resource_versions_result.app_catalog_listing_resource_versions[0].listing_resource_id }}"
+  tags: create
+
+- name: Create an agreement for the listing
+  oci_compute_app_catalog_listing_resource_version_agreement_facts:
+    listing_id: "{{ app_catalog_listing_id }}"
+    resource_version: "{{ latest_resource_version }}"
+  register: agreement_result
+  tags: create
+
+- set_fact:
+    agreement: "{{ agreement_result.app_catalog_listing_resource_version_agreement }}"
+  tags: create
+
+- name: Create subscription if it does not exist
+  oci_compute_app_catalog_subscription:
+    compartment_id: "{{ oci_compartment_id }}"
+    eula_link: "{{ agreement.eula_link }}"
+    listing_id: "{{ app_catalog_listing_id }}"
+    listing_resource_version: "{{ latest_resource_version }}"
+    oracle_terms_of_use_link: "{{ agreement.oracle_terms_of_use_link }}"
+    signature: "{{ agreement.signature }}"
+    time_retrieved: "{{ agreement.time_retrieved }}"
+  register: create_subscription_result
+  tags: create
+
+ ########################
+ # Create ocp instances #
+ ########################
+
+#
+# On NetFoundry Network First
+#
+- name: Provision hosted edge router in OCP
+  netfoundry_router:
+    name: "{{ item }}"
+    attributes: 
+    - "#{{ oci_regions[0].region }}"
+    - "#ocp"
+    tunnelerEnabled: True
+    rotateKey: True
+    network: "{{ netfoundry_network.network }}"
+    state: PROVISIONED
+    wait: 600
+  loop: 
+    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  ignore_errors: yes
+  tags: 
+    - create
+
+- name: Collect the NF OCI ER Info
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  ignore_errors: yes
+  tags:
+    - create
+
+#
+# In case edge router gets hung in the provisioning state
+#
+- set_fact:
+    edge_routers_for_deletion:  "{{ netfoundry_network.network.customer_edge_routers | json_query('[? status == `PROVISIONING`].{name: name}') }}"
+  tags: 
+    - create
+
+#
+# If it does, delete and re-provision
+#
+- name: Delete Edge Routers for OCP
+  netfoundry_router:
+    name: "{{ item.name }}"
+    network: "{{ netfoundry_network.network }}"
+    state: DELETED
+  loop: "{{ edge_routers_for_deletion }}"
+  when: edge_routers_for_deletion != []
+  register: ocp_er_delete_response
+  tags: 
+    - create
+
+- name: Re-Provision hosted edge router in OCP
+  netfoundry_router:
+    name: "{{ item }}"
+    attributes: 
+    - "#{{ oci_regions[0].region }}"
+    - "#ocp"
+    tunnelerEnabled: True
+    rotateKey: True
+    network: "{{ netfoundry_network.network }}"
+    state: PROVISIONED
+    wait: 600
+  loop: 
+    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  register: ocp_er_response
+  tags: 
+    - create
+    
+- set_fact:
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, regKey: message.registrationKey}') }}"
+  tags: create
+
+#
+# Then create the corresponding VMs in OCP
+#
+- name: Create instance in oci
+  oci_compute_instance:
+    availability_domain: "{{ oci_regions[0].ad1 }}"
+    compartment_id: "{{ oci_compartment_id }}"
+    shape: VM.Standard.E4.Flex
+    region: "{{ oci_regions[0].region }}"
+    create_vnic_details:
+      assign_public_ip: true
+      assign_private_dns_record: true
+      display_name: "{{ item.name }}"
+      freeform_tags: "{{ oci_tag }}"
+      nsg_ids: [ "{{ oci_ashburn_sg_details.network_security_group.id }}" ]
+      skip_source_dest_check: true
+      subnet_id: "{{ oci_ashburn_subnet_details.subnet.id }}"
+    display_name: "{{ item.name }}"
+    freeform_tags: "{{ oci_tag }}"
+    metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
+                  "user_data" : "{{ ('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.regKey + ']') | b64encode }}" } 
+    shape_config:
+      ocpus: 2
+      memory_in_gbs: 4
+      baseline_ocpu_utilization: BASELINE_1_1
+    source_details:
+      source_type: image
+      image_id: "{{ app_catalog_image_id }}"
+  loop: "{{ er_ocp_list }}"
+  register: oci_ashburn_vms_detail
+  tags: 
+    - create
+
+#
+# Print public IPs
+#
+- debug:
+    msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.display_name, public_ip: instance.primary_public_ip}') }}"
+  tags: create
+
+ ########################
+ # Delete ocp instances #
+ ########################
+
+- name: Delete instance in oci using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
+  oci_compute_instance:
+    compartment_id: "{{ oci_compartment_id }}"
+    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
+    region: "{{ oci_regions[0].region }}"
+    state: absent
+  tags: delete

@@ -1,0 +1,67 @@
+---
+
+- name: Collect the Network Info
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  tags:
+    - always
+
+- set_fact:
+    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[*].{name: name, attributes: attributes, tunnelerEnabled: tunnelerEnabled}') }}"
+  tags:
+    - always
+
+- debug:
+    msg: "{{ endpoints }}"
+  tags:
+    - always
+
+- name: Netcat udp service 
+  netfoundry_service_advanced:
+    name: "{{ netfoundry_network.network.name }}-udp"
+    endpoints: 
+    - "@{{ endpoints[0].name }}"
+    attributes: 
+    - "{{ endpoints[0].attributes[0] }}"
+    clientHosts: 
+    - 192.168.100.111
+    clientPorts: 
+    - 5050
+    - 700:800
+    clientProtocols: 
+    - udp
+    network: "{{ netfoundry_network.network }}"
+  tags:
+  - create
+
+- name: Netcat tcp service 
+  netfoundry_service_advanced:
+    name: "{{ netfoundry_network.network.name }}-tcp"
+    endpoints: 
+    - "@{{ endpoints[0].name }}"
+    attributes: 
+    - "{{ endpoints[0].attributes[0] }}"
+    clientHosts: 
+    - 10.1.1.5
+    clientPorts: 
+    - 8080
+    - 500:600
+    clientProtocols: 
+    - tcp
+    network: "{{ netfoundry_network.network }}"  
+  tags:
+  - create
+
+- name: Create AppWAN01
+  netfoundry_appwan:
+    name: "{{ netfoundry_network.network.name }}-appwan01"
+    endpoints:
+    - "@{{ endpoints[0].name }}"
+    services: 
+    - "{{ endpoints[0].attributes[0] }}"
+    network: "{{ netfoundry_network.network }}"
+  tags:
+  - create

@@ -1,0 +1,94 @@
+---
+#################
+# Initial Setup #
+#################
+- name: Network Check
+  hosts: "{{ virtual_machines }}"
+  gather_facts: no
+  connection: "{{ remote_conn }}"
+  environment:
+    OCI_USE_NAME_AS_IDENTIFIER: "1"
+  collections:
+    - netfoundry.platform
+    - community.general
+    - oracle.oci
+
+  pre_tasks:
+
+    - name: Set variables used in this playbook
+      set_fact:
+        workspace: "{{ lookup('env', 'WORKSPACE') | default('.', True) }}"
+        oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
+        oci_tag: {'Department': 'Cloud Engineering'}
+        network_prefix:  "{{ lookup('env', 'NETWORK_PREFIX')[-15:] | regex_replace('_|#|-|/','') | lower() | default('zititestnet', True) }}"
+        network_version: "{{ lookup('env', 'NETWORK_VERSION') | default('0.0.0', True) }}"
+        datacenter:
+          provider: OCP
+          regions: 
+            - us-ashburn-1
+            - us-phoenix-1
+      tags:
+        - 'pretask'
+
+    - name: Set path to oci pem file
+      set_fact:
+        oci_api_pem: "{{ lookup('file', workspace|string + '/oci.pem', errors='warn') |  default('~/.oci/oci.pem', True) }}"
+      tags:
+        - 'pretask'
+
+    - name: Set path to ssh pub key file
+      set_fact:
+        public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      tags:
+        - 'pretask'
+        - 'create'
+
+    - name: Initialize NF API Token
+      netfoundry_info:
+        credentials: credentials-cldeng.json
+      register: netfoundry_organization
+      tags:
+        - 'always'
+
+    - name: Renew a session if expiring within 30 minutes
+      netfoundry_info:
+        session: "{{ netfoundry_organization.session }}"
+      register: netfoundry_organization
+      tags:
+        - 'always'
+
+    - debug:
+        msg: "{{ workspace }}"
+      tags:
+        - 'always'
+
+  tasks:
+    - name: Include netfoundry role
+      include_role:
+        name: netfoundry
+        apply:
+          tags:
+
+
+            - 'netfoundry'
+      tags:
+        - 'netfoundry'
+
+    - name: Include infrastructure in ocp role
+      include_role:
+        name: ocp
+        apply:
+          tags:
+            - 'ocp'
+      tags:
+        - 'ocp'
+    
+    - name: Include tests role
+      include_role:
+        name: tests
+        apply:
+          tags:
+            - 'test'
+      tags:
+        - 'test'
+ 

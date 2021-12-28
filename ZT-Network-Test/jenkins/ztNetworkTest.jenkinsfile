@@ -1,0 +1,221 @@
+pipeline {
+  agent {
+    docker {
+        image "netfoundry/jenkins-slave-edge:latest"
+        registryCredentialsId 'dockerhub'
+        registryUrl 'https://index.docker.io/v1/'
+        alwaysPull true
+    }
+  }
+  options {
+    disableConcurrentBuilds()
+    parallelsAlwaysFailFast()
+  }
+  parameters {
+    booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
+    //string(name: "NETWORK_VERSION", defaultValue: "0.0.0", description: "NetFoundry Network Version as versioned in MOP")
+    validatingString(name: "NETWORK_VERSION", defaultValue: "0.0.0", regex: /^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/, failedValidationMessage: "Validation failed!", description: "NetFoundry Network Version as versioned in MOP")
+    booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Configure NetFoundry Services')
+    booleanParam(name: 'DEPLOY_RESOURCES_OCP', defaultValue: true, description: 'Deploy Cloud Network, Edge Routers')
+    booleanParam(name: 'CREATE_HOSTS_FILE', defaultValue: true, description: 'Create hosts.ini file for ssh connections')
+    booleanParam(name: 'DESTROY_RESOURCES_OCP', defaultValue: false, description: 'Destroy OCP Resources')
+    booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: false, description: 'Destroy NETFOUNDRY Resources')
+    booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
+    booleanParam(name: 'TEST_CASE02', defaultValue: true, description: 'Test Case 02')
+    booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
+  }
+  environment { 
+    NETWORK_PREFIX="${GIT_BRANCH}"
+    NETWORK_VERSION="${params.NETWORK_VERSION}"
+  }
+  stages {
+    stage('Set up WORKSPACE') {
+      steps {
+        cleanWs (
+          deleteDirs: false,
+          patterns: [
+                      [pattern: '**/*.ini', type: 'INCLUDE'],
+                      [pattern: '**/*.pem', type: 'INCLUDE'],
+                      [pattern: '**/id_rsa', type: 'EXCLUDE'],
+                      [pattern: '**/*.pub', type: 'EXCLUDE']
+                    ]
+        )
+        // all stages use the same container and WORKSPACE in that running container, and so only one checkout is necessary
+        checkout scm
+        withCredentials([file(credentialsId: 'cldeng-creds-prod', variable: 'NETFOUNDRY_CREDS_FILE')]) {
+          writeFile file: 'ZT-Network-Test/ansible/credentials-cldeng.json', text: readFile(NETFOUNDRY_CREDS_FILE)
+        }
+        withCredentials([file(credentialsId: 'OCI_API_KEY', variable: 'OCI_API_KEY')]) {
+          writeFile file: 'oci.pem', text: readFile(OCI_API_KEY)
+        }
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          /usr/bin/python3 -m pip install --upgrade pip
+          pip install netfoundry --upgrade
+          pip install oci 
+          ansible-galaxy collection install netfoundry.platform
+          ansible-galaxy collection install oracle.oci
+        '''
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          FILE=${WORKSPACE}/id_rsa
+          if [[ -f "$FILE" ]]; then
+              echo "$FILE exists."
+              ln -s ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
+              ln -s ${WORKSPACE}/id_rsa.pub ~/.ssh/id_rsa.pub
+          else
+              ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
+              cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa
+              cp ~/.ssh/id_rsa.pub ${WORKSPACE}/id_rsa.pub
+          fi
+          cat ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa.pub
+          ls ${WORKSPACE}
+        '''
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          mkdir ~/.oci
+          echo "[DEFAULT]" >|  ~/.oci/config
+          echo "user=ocid1.user.oc1..aaaaaaaacqrvvp6z3ynwel6yiybefugcgu6us3fx6jc4w4js2cf2tv4fgvpq" >>  ~/.oci/config
+          echo "fingerprint=fa:48:3e:09:44:0b:79:fe:99:09:73:b4:07:c8:a6:ba" >>  ~/.oci/config
+          echo "tenancy=ocid1.tenancy.oc1..aaaaaaaaa7t4qscet3bg5aygjrjdxakahwguwnpxyrosib3rhza7rdrfkdxa" >>  ~/.oci/config
+          echo "region=us-ashburn-1" >>  ~/.oci/config
+          echo "key_file=${WORKSPACE}/oci.pem" >>  ~/.oci/config
+
+        '''
+      }
+    }
+    stage('Deploy Resources in NETFOUNDRY') {
+      when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
+      steps {
+        script {
+          try {
+            // when try to create nf network resource
+            sh ''' #!/bin/bash
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+            '''
+          } catch(err) {
+            echo "Caught: ${err}"
+            // when error try deleting nf network resource
+            sh ''' #!/bin/bash
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+            '''
+            // then try again to create nf network resource
+            sh ''' #!/bin/bash
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+            '''
+          }
+        }
+      }
+    }
+    stage('Deploy Resources in OCP') {
+      when { expression { params.DEPLOY_RESOURCES_OCP }}
+      steps {
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local -vvv
+        '''
+      }
+    }
+    stage('Configure Services in NETFOUNDRY') {
+      when { expression { params.CONFIGURE_SERVICES_NETFOUNDRY }}
+      steps {
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+          '''
+      }
+    }
+    stage('Create hosts.ini file for ssh connections') {
+      when { expression { params.CREATE_HOSTS_FILE }}
+      steps {
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
+          ls ${WORKSPACE}
+        '''
+      }
+    }
+    stage('Test Case 01') {
+      when { expression { params.TEST_CASE01 }}
+      steps {
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Test Case 02') {
+      when { expression { params.TEST_CASE01 }}
+      steps {
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Test Case 03') {
+      when { expression { params.TEST_CASE01 }}
+      steps {
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Destroy OCP Resources') {
+      when { expression { params.DESTROY_RESOURCES_OCP }}
+      steps {
+        // delete instances in OCP
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+        '''
+        // delete vcn in OCP
+        sh ''' #!/bin/bash
+          set -Eeuxo pipefail
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+        '''
+      }
+    }
+    stage('Destroy NETFOUNDRY Resources') {
+      when { expression { params.DESTROY_RESOURCES_NETFOUNDRY }}
+      steps {
+        script {
+          try {
+            // try to delete nf network resource
+            sh ''' #!/bin/bash
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+            '''
+          } catch(err) {
+            echo "Caught: ${err}"
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              // when error try again to delete nf network resource
+              sh ''' #!/bin/bash
+                set -Eeuxo pipefail
+                eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+              '''
+            } 
+          }
+        }
+        // clean up workspace
+        cleanWs (
+          deleteDirs: false,
+          patterns: [
+                      [pattern: '**/*.ini', type: 'INCLUDE'],
+                      [pattern: '**/*.pem', type: 'INCLUDE'],
+                      [pattern: '**/id_rsa', type: 'INCLUDE'],
+                      [pattern: '**/*.pub', type: 'INCLUDE']
+                    ]
+        )
+      }
+    }
+  }
+}
