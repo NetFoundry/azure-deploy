@@ -132,12 +132,12 @@
       source_type: image
       image_id: "{{ app_catalog_image_id }}"
   loop: "{{ er_ocp_list }}"
-  register: oci_ashburn_vm_details
+  register: oci_ashburn_vms_detail
   tags: 
     - create
 
 - debug:
-    msg: "{{ oci_ashburn_vm_details.instance.primary_public_ip }}"
+    msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.name, public_ip: instance.primary_public_ip}') }}"
   tags: create
 
  ########################
