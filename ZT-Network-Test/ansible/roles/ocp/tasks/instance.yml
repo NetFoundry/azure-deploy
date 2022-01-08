@@ -1,7 +1,7 @@
 ---
- ##############################
- # Accept EULA for Markeplace #
- ##############################
+##############################
+# Accept EULA for Markeplace #
+##############################
 
 - set_fact:
     app_catalog_listing_id: "ocid1.appcataloglisting.oc1..aaaaaaaaf4ixpn4pxjmers6bc6kw7fzj3ub6dm32vi6azn2v6jcfwwwfea5q"
@@ -42,27 +42,36 @@
   register: create_subscription_result
   tags: create
 
- ########################
- # Create ocp instances #
- ########################
+########################
+# Create ocp instances #
+########################
 
-#
-# On NetFoundry Network First
-#
+###############################
+# On NetFoundry Network First #
+###############################
 - name: Provision hosted edge router in OCP
   netfoundry_router:
-    name: "{{ item }}"
+    name: "{{ '.'.join([network_prefix, item.1]) }}"
     attributes: 
-    - "#{{ oci_regions[0].region }}"
-    - "#ocp"
+      - "#{{ item.1 }}"
+      - "#{{ item.0.name }}"
+      - "#ocp"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
     state: PROVISIONED
     wait: 600
-  loop: 
-    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  with_subelements: 
+    - "{{ oci_regions }}"
+    - az
   ignore_errors: yes
+  register: ocp_er_response
+  tags: 
+    - create
+
+- name: Create the list of routers and their details to deploy in OCI
+  set_fact:
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, region: message.attributes, regKey: message.registrationKey}') }}"
   tags: 
     - create
 
@@ -74,19 +83,20 @@
   register: netfoundry_network
   ignore_errors: yes
   tags:
-    - create
+    - create  
 
-#
-# In case edge router gets hung in the provisioning state
-#
-- set_fact:
+###########################################################
+# In case edge router gets hung in the provisioning state #
+###########################################################
+- name: Check if any routers are still in Provisioning State
+  set_fact:
     edge_routers_for_deletion:  "{{ netfoundry_network.network.customer_edge_routers | json_query('[? status == `PROVISIONING`].{name: name}') }}"
   tags: 
     - create
 
-#
-# If it does, delete and re-provision
-#
+#######################################
+# If it does, delete and re-provision #
+#######################################
 - name: Delete Edge Routers for OCP
   netfoundry_router:
     name: "{{ item.name }}"
@@ -100,46 +110,67 @@
 
 - name: Re-Provision hosted edge router in OCP
   netfoundry_router:
-    name: "{{ item }}"
+    name: "{{ '.'.join([network_prefix, item.1]) }}"
     attributes: 
-    - "#{{ oci_regions[0].region }}"
-    - "#ocp"
+      - "#{{ item.1 }}"
+      - "#{{ item.0.name }}"
+      - "#ocp"
     tunnelerEnabled: True
     rotateKey: True
     network: "{{ netfoundry_network.network }}"
     state: PROVISIONED
     wait: 600
-  loop: 
-    - "{{ network_prefix }}-{{ oci_regions[0].region }}"
+  with_subelements: 
+    - "{{ oci_regions }}"
+    - az
+  when: edge_routers_for_deletion != []
   register: ocp_er_response
   tags: 
     - create
     
-- set_fact:
-    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, regKey: message.registrationKey}') }}"
-  tags: create
+################################################################
+# Region needs to be extracted from the edge router attributes #
+################################################################
+- name: Update the list of routers and their details to deploy in OCI
+  set_fact:
+    er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, region: message.attributes, regKey: message.registrationKey}') }}"
+  when: edge_routers_for_deletion != []
+  tags: 
+    - create
 
-#
-# Then create the corresponding VMs in OCP
-#
+- name: Change the region parameter to a string from a list
+  set_fact:
+    name: "{{ item.name }}"
+    region: "{{ (item.region | map('regex_replace', '#', '') | list | intersect(oci_regions | json_query('[*].name'))).0 }}"
+    az: "{{ (item.region | map('regex_replace', '#', '') | list | intersect(oci_regions | json_query('[*].az') | flatten)).0 }}"
+    regKey: "{{ item.regKey }}"
+  loop: "{{ er_ocp_list }}"
+  when: "{{ item.name is not none }}"
+  register: updated_er_ocp_list
+  tags:
+    - create
+
+############################################
+# Then create the corresponding VMs in OCP #
+############################################
 - name: Create instance in oci
   oci_compute_instance:
-    availability_domain: "{{ oci_regions[0].ad1 }}"
+    availability_domain: "{{ 'iTps:' + item.ansible_facts.az }}"
     compartment_id: "{{ oci_compartment_id }}"
     shape: VM.Standard.E4.Flex
-    region: "{{ oci_regions[0].region }}"
+    region: "{{ item.ansible_facts.region }}"
     create_vnic_details:
       assign_public_ip: true
       assign_private_dns_record: true
-      display_name: "{{ item.name }}"
+      display_name: "{{ item.ansible_facts.name }}"
       freeform_tags: "{{ oci_tag }}"
-      nsg_ids: [ "{{ oci_ashburn_sg_details.network_security_group.id }}" ]
+      nsg_ids: [ "{{ oci_sg_details.results | map(attribute='network_security_group') | selectattr('display_name', 'search', network_prefix+'-'+item.ansible_facts.region) |  json_query('[0].id') }}" ]
       skip_source_dest_check: true
-      subnet_id: "{{ oci_ashburn_subnet_details.subnet.id }}"
-    display_name: "{{ item.name }}"
+      subnet_id: "{{ oci_subnet_details.results | map(attribute='subnet') | selectattr('display_name', 'search', network_prefix+'-'+item.ansible_facts.region) |  json_query('[0].id') }}"
+    display_name: "{{ item.ansible_facts.name }}"
     freeform_tags: "{{ oci_tag }}"
     metadata:  { "ssh_authorized_keys" : "{{ public_ssh_key }}", 
-                  "user_data" : "{{ ('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.regKey + ']') | b64encode }}" } 
+                  "user_data" : "{{ ('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ' + item.ansible_facts.regKey + ']') | b64encode }}" } 
     shape_config:
       ocpus: 2
       memory_in_gbs: 4
@@ -147,17 +178,33 @@
     source_details:
       source_type: image
       image_id: "{{ app_catalog_image_id }}"
-  loop: "{{ er_ocp_list }}"
-  register: oci_ashburn_vms_detail
+    wait: yes
+    state: present
+  loop: "{{ updated_er_ocp_list.results }}"
+  ignore_errors: yes
+  when: item.ansible_facts is defined
+  register: oci_vms_details
   tags: 
     - create
 
-#
-# Print public IPs
-#
-- debug:
-    msg: "{{ oci_ashburn_vms_detail.results | json_query('[*].{name: instance.display_name, public_ip: instance.primary_public_ip}') }}"
-  tags: create
+####################
+# Print public IPs #
+####################
+
+- name: List Cloud Instances
+  oci_compute_instance_facts:
+    compartment_id: "{{ oci_compartment_id }}"
+    region: "{{ item.name }}"
+  register: ocp_created_instances
+  loop: "{{ oci_regions }}"
+  tags:
+    - create
+
+- name: Filter the instances created by this script
+  debug: 
+    msg: "{{ ocp_created_instances.results | map(attribute='instances') | flatten | json_query('[? freeform_tags.Department == `Cloud Engineering` && lifecycle_state == `RUNNING` ].{display_name: display_name, primary_private_ip: primary_private_ip, primary_public_ip: primary_public_ip, lifecycle_state: lifecycle_state, freeform_tags: freeform_tags, availability_domain: availability_domain}') }}"
+  tags:
+    - create
 
  ########################
  # Delete ocp instances #
@@ -166,7 +213,25 @@
 - name: Delete instance in oci using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
   oci_compute_instance:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ '.'.join([network_prefix, item.1])  }}"
+    region: "{{ item.0.name }}"
+    wait: yes
     state: absent
-  tags: delete
+  with_subelements: 
+    - "{{ oci_regions }}"
+    - az
+  tags: 
+    - delete
+
+- name: Delete the corresponding ERs on NF Network
+  netfoundry_router:
+    name: "{{ '.'.join([network_prefix, item.1]) }}"
+    network: "{{ netfoundry_network.network }}"
+    state: DELETED
+    wait: 600
+  with_subelements: 
+    - "{{ oci_regions }}"
+    - az
+  ignore_errors: yes
+  tags: 
+    - delete

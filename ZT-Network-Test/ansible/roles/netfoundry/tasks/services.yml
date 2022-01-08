@@ -1,5 +1,4 @@
 ---
-
 - name: Collect the Network Info
   netfoundry_info:
     network: "{{ network_prefix }}"
@@ -7,25 +6,38 @@
     session: "{{ netfoundry_organization.session }}"
   register: netfoundry_network
   tags:
-    - always
+    - create
 
+######################################################################################
+# Find all with the tunnel option enabled and create a list (router type endpoints)  #
+# Also, update router endpoints with the same attributes, bc they are not by defualt #
+######################################################################################
 - set_fact:
-    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[*].{name: name, attributes: attributes, tunnelerEnabled: tunnelerEnabled}') }}"
+    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[? tunnelerEnabled == `true`].{name: name, attributes: attributes}') }}"
   tags:
-    - always
+    - create
 
-- debug:
-    msg: "{{ endpoints }}"
-  tags:
-    - always
+- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
+  netfoundry_endpoint:
+    name: "{{ item.name }}"
+    attributes: "{{ item.attributes }}"
+    network: "{{ netfoundry_network.network }}"
+    state: PROVISIONED
+    wait: 60
+  loop: "{{ endpoints }}"
+  tags: 
+    - create
 
-- name: Netcat udp service 
+###################################
+# Configure Services and AppWans  #
+###################################
+- name: Netcat udp service per region for one az
   netfoundry_service_advanced:
-    name: "{{ netfoundry_network.network.name }}-udp"
+    name: "udp-{{ item.name }}"
     endpoints: 
-    - "@{{ endpoints[0].name }}"
+    - "@{{ item.name }}"
     attributes: 
-    - "{{ endpoints[0].attributes[0] }}"
+    - "#{{ item.name | split('.') | last }}"
     clientHosts: 
     - 192.168.100.111
     clientPorts: 
@@ -34,16 +46,18 @@
     clientProtocols: 
     - udp
     network: "{{ netfoundry_network.network }}"
+  loop: "{{ endpoints }}"
+  when: item.name is regex("1")
   tags:
-  - create
+    - create
 
-- name: Netcat tcp service 
+- name: Netcat tcp service per region for one az
   netfoundry_service_advanced:
-    name: "{{ netfoundry_network.network.name }}-tcp"
+    name: "tcp-{{ item.name }}"
     endpoints: 
-    - "@{{ endpoints[0].name }}"
+    - "@{{ item.name }}"
     attributes: 
-    - "{{ endpoints[0].attributes[0] }}"
+    - "#{{ item.name | split('.') | last }}"
     clientHosts: 
     - 10.1.1.5
     clientPorts: 
@@ -51,17 +65,37 @@
     - 500:600
     clientProtocols: 
     - tcp
-    network: "{{ netfoundry_network.network }}"  
-  tags:
-  - create
-
-- name: Create AppWAN01
-  netfoundry_appwan:
-    name: "{{ netfoundry_network.network.name }}-appwan01"
-    endpoints:
-    - "@{{ endpoints[0].name }}"
-    services: 
-    - "{{ endpoints[0].attributes[0] }}"
     network: "{{ netfoundry_network.network }}"
+  loop: "{{ endpoints }}"
+  when: item.name is regex("1")
   tags:
-  - create
+    - create
+
+- name: Collect the Network Info
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  tags:
+    - create
+
+#####################################################################################
+# Find all with the tunnel option enabled and create a list (router type endpoints) #
+#####################################################################################
+- set_fact:
+    services: "{{ netfoundry_network.network.services | json_query('[*].{name: name, srvc_attributes: attributes, endp_attributes: model.bindEndpointAttributes }') }}"
+  tags:
+    - create
+
+- name: Create AppWan per service hosting az in a region
+  netfoundry_appwan:
+    name: "appwan.{{ item | map('regex_replace', '#', '') }}"
+    endpoints:
+      - "{{ (endpoints | json_query('[*].attributes') | flatten | unique | intersect(list_sorted) | difference(item) | list).0 }}"
+    services: 
+      - "{{ item }}"
+    network: "{{ netfoundry_network.network }}"
+  loop: "{{ services | json_query('[*].srvc_attributes') | flatten | unique }}"
+  tags:
+    - create

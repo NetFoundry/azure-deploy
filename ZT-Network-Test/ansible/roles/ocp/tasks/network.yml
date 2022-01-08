@@ -6,66 +6,82 @@
 - name: Create vcn in oci
   oci_network_vcn:
     compartment_id: "{{ oci_compartment_id }}"
-    cidr_block: 10.10.0.0/16
-    display_name: "{{ network_prefix }}"
-    dns_label: "{{ network_prefix }}"
+    cidr_block: "{{ item.cidr }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    dns_label: "{{ ''.join([network_prefix, item.name])[-17:] | regex_replace('_|#|-|/','') | lower() }}"
     freeform_tags: "{{ oci_tag }}"
     is_ipv6_enabled: False
-    region: "{{ oci_regions[0].region }}"
-  register: oci_ashburn_network_details
+    region: "{{ item.name }}"
+    wait: yes
+    state: present
+  register: oci_network_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 - name: Create internet gateway in oci
   oci_network_internet_gateway:
     compartment_id: "{{ oci_compartment_id }}"
     is_enabled: true
-    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
-  register: oci_ashburn_igw_details
+    wait: yes
+    state: present
+  register: oci_igw_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 - name: Create routing table in oci
   oci_network_route_table:
     compartment_id: "{{ oci_compartment_id }}"
     route_rules:
-    - network_entity_id: "{{ oci_ashburn_igw_details.internet_gateway.id }}"
+    - network_entity_id: "{{ oci_igw_details.results | map(attribute='internet_gateway') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
       destination: 0.0.0.0/0
       destination_type: CIDR_BLOCK
       description: internet route
-    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
-  register: oci_ashburn_rt_details
+    wait: yes
+    state: present
+  register: oci_rt_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 - name: Create subnet in oci
   oci_network_subnet:
-    cidr_block: 10.10.0.0/24
+    cidr_block: "{{ item.subnet }}"
     compartment_id: "{{ oci_compartment_id }}"
-    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
-    route_table_id: "{{ oci_ashburn_rt_details.route_table.id }}"
-  register: oci_ashburn_subnet_details
+    route_table_id: "{{ oci_rt_details.results | map(attribute='route_table') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    region: "{{ item.name }}"
+    wait: yes
+    state: present
+  register: oci_subnet_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 - name: Create security group in oci
   oci_network_security_group:
     compartment_id: "{{ oci_compartment_id }}"
-    vcn_id: "{{ oci_ashburn_network_details.vcn.id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
     freeform_tags: "{{ oci_tag }}"
-  register: oci_ashburn_sg_details
+    wait: yes
+    state: present
+  register: oci_sg_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 - name: Add rules to security group in oci
   oci_network_security_group_security_rule_actions:
-    network_security_group_id: "{{ oci_ashburn_sg_details.network_security_group.id }}"
+    network_security_group_id: "{{ oci_sg_details.results | map(attribute='network_security_group') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
+    region: "{{ item.name }}"
     action: add
     security_rules:
     - direction: EGRESS
@@ -76,14 +92,10 @@
     - direction: INGRESS
       protocol: all
       is_stateless: false
-      source: 10.10.0.0/16
+      source: "{{ item.cidr }}"
       source_type: CIDR_BLOCK
-  register: oci_ashburn_sg_rule_details
-  tags: create
-
-- name: Print sg details
-  debug: 
-    var: oci_ashburn_sg_rule_details
+  register: oci_sg_rule_details
+  loop: "{{ oci_regions }}"
   tags: create
 
 ################################
@@ -93,41 +105,51 @@
 - name: Delete security group in oci
   oci_network_security_group:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
+    wait: yes
     state: absent
+  loop: "{{ oci_regions }}"
   tags: delete
 
 - name: Delete subnet in oci
   oci_network_subnet:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
+    wait: yes
     state: absent
+  loop: "{{ oci_regions }}"
   tags: delete
 
 - name: Delete routing table in oci
   oci_network_route_table:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
+    wait: yes
     state: absent
+  loop: "{{ oci_regions }}"
   tags: delete
 
 - name: Delete internet gateway in oci
   oci_network_internet_gateway:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}-{{ oci_regions[0].region }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
+    wait: yes
     state: absent
+  loop: "{{ oci_regions }}"
   tags: delete
 
 - name: Delete vcn in oci using name
   oci_network_vcn:
     compartment_id: "{{ oci_compartment_id }}"
-    display_name: "{{ network_prefix }}"
-    region: "{{ oci_regions[0].region }}"
+    display_name: "{{ network_prefix }}-{{ item.name }}"
+    region: "{{ item.name }}"
+    wait: yes
     state: absent
+  loop: "{{ oci_regions }}"
   tags: delete
 
       

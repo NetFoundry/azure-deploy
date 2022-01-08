@@ -37,4 +37,5 @@ ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test3,pretask
 
 Destroy All Resources
 ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
 ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
