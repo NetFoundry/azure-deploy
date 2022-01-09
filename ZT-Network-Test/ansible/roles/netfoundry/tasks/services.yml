@@ -1,13 +1,4 @@
 ---
-- name: Collect the Network Info
-  netfoundry_info:
-    network: "{{ network_prefix }}"
-    inventory: True
-    session: "{{ netfoundry_organization.session }}"
-  register: netfoundry_network
-  tags:
-    - create
-
 ######################################################################################
 # Find all with the tunnel option enabled and create a list (router type endpoints)  #
 # Also, update router endpoints with the same attributes, bc they are not by defualt #
@@ -17,16 +8,14 @@
   tags:
     - create
 
-- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
-  netfoundry_endpoint:
-    name: "{{ item.name }}"
-    attributes: "{{ item.attributes }}"
-    network: "{{ netfoundry_network.network }}"
-    state: PROVISIONED
-    wait: 60
-  loop: "{{ endpoints }}"
-  tags: 
-    - create
+#- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
+#  netfoundry_endpoint:
+#    name: "{{ item.name }}"
+#    attributes: "{{ item.attributes }}"
+#    network: "{{ netfoundry_network.network }}"
+#  loop: "{{ endpoints }}"
+#  tags: 
+#    - create
 
 ###################################
 # Configure Services and AppWans  #
@@ -48,6 +37,7 @@
     network: "{{ netfoundry_network.network }}"
   loop: "{{ endpoints }}"
   when: item.name is regex("1")
+  retries: 2
   tags:
     - create
 
@@ -68,10 +58,11 @@
     network: "{{ netfoundry_network.network }}"
   loop: "{{ endpoints }}"
   when: item.name is regex("1")
+  retries: 2
   tags:
     - create
 
-- name: Collect the Network Info
+- name: Collect the Network Info again after addition of services
   netfoundry_info:
     network: "{{ network_prefix }}"
     inventory: True
@@ -90,12 +81,11 @@
 
 - name: Create AppWan per service hosting az in a region
   netfoundry_appwan:
-    name: "appwan.{{ item | map('regex_replace', '#', '') }}"
-    endpoints:
-      - "{{ (endpoints | json_query('[*].attributes') | flatten | unique | intersect(list_sorted) | difference(item) | list).0 }}"
-    services: 
-      - "{{ item }}"
+    name: "appwan.{{ item | regex_replace('#', '') }}"
+    endpoints: "{{ endpoints | json_query('[*].attributes') | flatten | unique | difference(item) | select('search','1') }}"
+    services: "{{ item }}"
     network: "{{ netfoundry_network.network }}"
   loop: "{{ services | json_query('[*].srvc_attributes') | flatten | unique }}"
+  retries: 2
   tags:
     - create

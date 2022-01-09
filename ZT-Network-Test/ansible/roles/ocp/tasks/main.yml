@@ -3,25 +3,6 @@
 # Ensure the session the netwfoundry token is initilized for the instacne creation #
 # tasks, wchich include tasks to create Edge Routers on the NetFoundry Network.    #
 ####################################################################################
-- name: Ensure the NetFoundry API token initialized
-  assert:
-    that:
-      - netfoundry_organization is defined and netfoundry_organization
-    fail_msg: >-
-      'netfoundry api token needs to initilized' MUST be supplied
-      in order to apply this role.
-  tags:
-    - instance
-
-- name: Collect the NetFoundry Network Info
-  netfoundry_info:
-    network: "{{ network_prefix }}" 
-    inventory: True
-    session: "{{ netfoundry_organization.session }}"
-  ignore_errors: yes
-  register: netfoundry_network
-  tags: 
-    - instance
 
 - include_tasks: network.yml
   tags:

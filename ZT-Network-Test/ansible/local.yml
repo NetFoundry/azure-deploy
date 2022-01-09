@@ -43,7 +43,7 @@
         - 'pretask'
         - 'create'
 
-    - name: Initialize NF API Token
+    - name: Start one hour NF API Session Token
       netfoundry_info:
         credentials: credentials-cldeng.json
       register: netfoundry_organization
@@ -51,11 +51,21 @@
         - 'always'
 
     - name: Renew a session if expiring within 30 minutes
-      netfoundry_info:
+      netfoundry.platform.netfoundry_info:
         session: "{{ netfoundry_organization.session }}"
       register: netfoundry_organization
       tags:
         - 'always'
+    
+    - name: Collect the Network Info and register it as variable
+      netfoundry_info:
+        network: "{{ network_prefix }}"
+        inventory: True
+        session: "{{ netfoundry_organization.session }}"
+      ignore_errors: True
+      register: netfoundry_network
+      tags:
+        - always
 
     - debug:
         msg: "{{ workspace }}"
