@@ -31,8 +31,8 @@
   shell: /usr/sbin/iptables -S  NF-INTERCEPT
   register: router_services
   ignore_errors: yes
-  failed_when: (network_prefix|string + '-tcp' not in router_services.stdout) and
-               (network_prefix|string + '-udp' not in router_services.stdout)
+  failed_when: ('tcp-'+network_prefix|string not in router_services.stdout) and
+               ('udp-'+network_prefix|string not in router_services.stdout)
   tags:
     - test2
 

@@ -8,14 +8,18 @@
   tags:
     - create
 
-#- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
-#  netfoundry_endpoint:
-#    name: "{{ item.name }}"
-#    attributes: "{{ item.attributes }}"
-#    network: "{{ netfoundry_network.network }}"
-#  loop: "{{ endpoints }}"
-#  tags: 
-#    - create
+- debug: 
+    msg: "{{ endpoints }}"
+
+- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
+  netfoundry_endpoint:
+    name: "{{ item.name }}"
+    attributes: "{{ item.attributes }}"
+    network: "{{ netfoundry_network.network }}"
+  ignore_errors: yes
+  loop: "{{ endpoints }}"
+  tags: 
+    - create
 
 ###################################
 # Configure Services and AppWans  #
