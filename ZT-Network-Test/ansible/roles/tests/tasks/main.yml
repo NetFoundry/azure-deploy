@@ -4,3 +4,8 @@
   when: virtual_machines == 'ocp.customer-edge-routers'
   tags:
     - router
+
+- include_tasks: packet.yml
+  when: virtual_machines == 'ocp.clients'
+  tags:
+    - packet

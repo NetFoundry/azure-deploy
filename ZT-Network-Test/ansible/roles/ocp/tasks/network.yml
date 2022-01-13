@@ -9,7 +9,7 @@
     cidr_block: "{{ item.cidr }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
     dns_label: "{{ ''.join([network_prefix, item.name])[-17:] | regex_replace('_|#|-|/','') | lower() }}"
-    freeform_tags: "{{ oci_tag }}"
+    freeform_tags: "{{ oci_tag | combine({'Region': item.name}) }}"
     is_ipv6_enabled: False
     region: "{{ item.name }}"
     wait: yes
@@ -25,7 +25,7 @@
     vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
     region: "{{ item.name }}"
-    freeform_tags: "{{ oci_tag }}"
+    freeform_tags: "{{ oci_tag  | combine({'Region': item.name}) }}"
     wait: yes
     state: present
   register: oci_igw_details
@@ -43,7 +43,7 @@
     vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
     region: "{{ item.name }}"
-    freeform_tags: "{{ oci_tag }}"
+    freeform_tags: "{{ oci_tag | combine({'Region': item.name}) }}"
     wait: yes
     state: present
   register: oci_rt_details
@@ -56,7 +56,7 @@
     compartment_id: "{{ oci_compartment_id }}"
     vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
-    freeform_tags: "{{ oci_tag }}"
+    freeform_tags: "{{ oci_tag | combine({'Region': item.name}) }}"
     route_table_id: "{{ oci_rt_details.results | map(attribute='route_table') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     region: "{{ item.name }}"
     wait: yes
@@ -71,7 +71,7 @@
     vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
     region: "{{ item.name }}"
-    freeform_tags: "{{ oci_tag }}"
+    freeform_tags: "{{ oci_tag | combine({'Region': item.name}) }}"
     wait: yes
     state: present
   register: oci_sg_details

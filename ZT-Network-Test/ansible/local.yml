@@ -54,6 +54,7 @@
       netfoundry.platform.netfoundry_info:
         session: "{{ netfoundry_organization.session }}"
       register: netfoundry_organization
+      retries: 2
       tags:
         - 'always'
     

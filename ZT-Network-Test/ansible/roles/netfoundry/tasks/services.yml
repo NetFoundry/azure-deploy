@@ -8,16 +8,26 @@
   tags:
     - create
 
-- debug: 
-    msg: "{{ endpoints }}"
-
 - name: Update endpoints type router with the same atributes as hosted edge routers of the same name
   netfoundry_endpoint:
     name: "{{ item.name }}"
     attributes: "{{ item.attributes }}"
     network: "{{ netfoundry_network.network }}"
-  ignore_errors: yes
   loop: "{{ endpoints }}"
+  tags: 
+    - create
+
+- name: Match host IP with region
+  set_fact:
+    host: '{{ lookup("ini", "{{ item }} section=ocp.clients.private file=tests.ini") }}'
+    region: "{{ item |  regex_replace('2', '1') }}"
+  register: client_hosts
+  loop: "{{ endpoints | map(attribute='attributes') | flatten | map('regex_replace', '#', '') | unique }}"
+  tags: 
+    - create
+
+- debug:
+    msg: "{{ client_hosts.results }}"
   tags: 
     - create
 
@@ -26,43 +36,43 @@
 ###################################
 - name: Netcat udp service per region for one az
   netfoundry_service_advanced:
-    name: "udp-{{ item.name }}"
+    name: "udp.{{network_prefix}}.{{ item.ansible_facts.region }}"
     endpoints: 
-    - "@{{ item.name }}"
+    - "#{{ item.ansible_facts.region }}"
     attributes: 
-    - "#{{ item.name | split('.') | last }}"
+    - "#{{ item.ansible_facts.region }}"
     clientHosts: 
-    - 192.168.100.111
+    - "{{ item.ansible_facts.host }}"
     clientPorts: 
     - 5050
     - 700:800
     clientProtocols: 
     - udp
     network: "{{ netfoundry_network.network }}"
-  loop: "{{ endpoints }}"
-  when: item.name is regex("1")
+  loop: "{{ client_hosts.results }}"
   retries: 2
+  when: "{{ item.ansible_facts.host != [] }}"
   tags:
     - create
 
 - name: Netcat tcp service per region for one az
   netfoundry_service_advanced:
-    name: "tcp-{{ item.name }}"
+    name: "tcp.{{network_prefix}}.{{ item.ansible_facts.region }}"
     endpoints: 
-    - "@{{ item.name }}"
+    - "#{{ item.ansible_facts.region }}"
     attributes: 
-    - "#{{ item.name | split('.') | last }}"
+    - "#{{ item.ansible_facts.region }}"
     clientHosts: 
-    - 10.1.1.5
+    - "{{ item.ansible_facts.host }}"
     clientPorts: 
     - 8080
     - 500:600
     clientProtocols: 
     - tcp
     network: "{{ netfoundry_network.network }}"
-  loop: "{{ endpoints }}"
-  when: item.name is regex("1")
+  loop: "{{ client_hosts.results }}"
   retries: 2
+  when: "{{ item.ansible_facts.host != [] }}"
   tags:
     - create
 
@@ -86,7 +96,7 @@
 - name: Create AppWan per service hosting az in a region
   netfoundry_appwan:
     name: "appwan.{{ item | regex_replace('#', '') }}"
-    endpoints: "{{ endpoints | json_query('[*].attributes') | flatten | unique | difference(item) | select('search','1') }}"
+    endpoints: "{{ endpoints | json_query('[*].attributes') | flatten | unique | difference(item) | select('search', item[-3:]) }}"
     services: "{{ item }}"
     network: "{{ netfoundry_network.network }}"
   loop: "{{ services | json_query('[*].srvc_attributes') | flatten | unique }}"

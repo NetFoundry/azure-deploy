@@ -13,16 +13,15 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'DEPLOY_RESOURCES_NETFOUNDRY', defaultValue: true, description: 'Deploy NetFoundry Network, Fabric Routers')
-    //string(name: "NETWORK_VERSION", defaultValue: "0.0.0", description: "NetFoundry Network Version as versioned in MOP")
     validatingString(name: "NETWORK_VERSION", defaultValue: "0.0.0", regex: /^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/, failedValidationMessage: "Validation failed!", description: "NetFoundry Network Version as versioned in MOP")
     booleanParam(name: 'CONFIGURE_SERVICES_NETFOUNDRY', defaultValue: true, description: 'Configure NetFoundry Services')
     booleanParam(name: 'DEPLOY_RESOURCES_OCP', defaultValue: true, description: 'Deploy Cloud Network, Edge Routers')
-    booleanParam(name: 'CREATE_HOSTS_FILE', defaultValue: true, description: 'Create hosts.ini file for ssh connections')
     booleanParam(name: 'DESTROY_RESOURCES_OCP', defaultValue: false, description: 'Destroy OCP Resources')
     booleanParam(name: 'DESTROY_RESOURCES_NETFOUNDRY', defaultValue: false, description: 'Destroy NETFOUNDRY Resources')
-    booleanParam(name: 'TEST_CASE01', defaultValue: true, description: 'Test Case 01')
-    booleanParam(name: 'TEST_CASE02', defaultValue: true, description: 'Test Case 02')
-    booleanParam(name: 'TEST_CASE03', defaultValue: true, description: 'Test Case 03')
+    booleanParam(name: 'ROUTER_TC01', defaultValue: true, description: 'Router Test Case 01')
+    booleanParam(name: 'ROUTER_TC02', defaultValue: true, description: 'Router Test Case 02')
+    booleanParam(name: 'ROUTER_TC03', defaultValue: true, description: 'Router Test Case 03')
+    booleanParam(name: 'PACKET_TC45', defaultValue: true, description: 'Packet Test Case 01 and 02')
   }
   environment { 
     NETWORK_PREFIX="${GIT_BRANCH}"
@@ -129,43 +128,44 @@ pipeline {
           '''
       }
     }
-    stage('Create hosts.ini file for ssh connections') {
-      when { expression { params.CREATE_HOSTS_FILE }}
-      steps {
-        sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,get,pretask,always --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
-          ls ${WORKSPACE}
-        '''
-      }
-    }
-    stage('Test Case 01') {
-      when { expression { params.TEST_CASE01 }}
+    stage('Router Test Case 01') {
+      when { expression { params.ROUTER_TC01 }}
       steps {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,packet,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
-    stage('Test Case 02') {
-      when { expression { params.TEST_CASE01 }}
+    stage('Router Test Case 02') {
+      when { expression { params.ROUTER_TC02 }}
       steps {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,packet,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
-    stage('Test Case 03') {
-      when { expression { params.TEST_CASE01 }}
+    stage('Router Test Case 03') {
+      when { expression { params.ROUTER_TC03 }}
       steps {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,packet,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        '''
+      }
+    }
+    stage('Packet Test Case 01 and 02') {
+      when { expression { params.PACKET_TC45 }}
+      steps {
+        sh ''' #!/bin/bash
+        set -Eeuxo pipefail
+        eval export ANSIBLE_HOST_KEY_CHECKING=False
+        eval ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh -e ${WORKSPACE}/tests.ini
+
         '''
       }
     }
