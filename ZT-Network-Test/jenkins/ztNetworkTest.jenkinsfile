@@ -115,7 +115,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local -vvv
+          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
         '''
       }
     }
@@ -124,7 +124,7 @@ pipeline {
       steps {
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local -vvvv
+          ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local -vvvvv
           '''
       }
     }
