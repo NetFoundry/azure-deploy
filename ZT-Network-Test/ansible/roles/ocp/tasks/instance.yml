@@ -242,7 +242,7 @@
 
 - name: Update tests.ini file - with client private IPs
   ini_file:
-    path: "{{ workspace }}/tests.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/tests.ini"
     section: ocp.clients.private
     option: "{{ item.freeform_tags.AZ }}"
     value: "{{ item.primary_private_ip }}"
@@ -326,7 +326,7 @@
 
 - name: Update hosts.ini file - with client private IPs
   ini_file:
-    path: "{{ workspace }}/tests.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/tests.ini"
     section: ocp.clients.private
     state: absent
   tags:
