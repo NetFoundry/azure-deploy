@@ -318,7 +318,7 @@
 
 - name: Update hosts.ini file - client public IPs
   ini_file:
-    path: "{{ workspace }}/tests.ini"
+    path: "{{ workspace }}/hosts.ini"
     section: ocp.clients
     state: absent
   tags:
