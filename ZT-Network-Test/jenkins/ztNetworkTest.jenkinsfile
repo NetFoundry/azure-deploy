@@ -70,6 +70,7 @@ pipeline {
           cat ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa.pub
           ls ${WORKSPACE}
+          ls ${WORKSPACE}/ZT-Network-Test/ansible
         '''
         sh ''' #!/bin/bash
           set -Eeuxo pipefail
