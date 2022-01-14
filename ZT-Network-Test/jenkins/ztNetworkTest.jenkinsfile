@@ -89,17 +89,16 @@ pipeline {
     stage('Deploy Resources in NETFOUNDRY') {
       when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
-          // when try to create nf network resource
-          ansiColor('xterm') {
-              ansiblePlaybook( 
-                  tags: 'always,netfoundry,create,pretask',
-                  skippedTags: 'delete,service,ocp,test',
-                  extraVars: [
-                    virtual_machines: 'localhost', 
-                    remote_conn: 'local'
-                  ],
-                  colorized: true) 
-          }
+        // when try to create nf network resource
+        ansiColor('xterm') {
+            ansiblePlaybook( 
+                tags: 'always,netfoundry,create,pretask',
+                skippedTags: 'delete,service,ocp,test',
+                extraVars: [
+                  virtual_machines: 'localhost', 
+                  remote_conn: 'local'
+                ],
+                colorized: true) 
         }
       }
     }
