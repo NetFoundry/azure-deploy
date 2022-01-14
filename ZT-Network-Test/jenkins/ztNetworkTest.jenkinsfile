@@ -143,6 +143,7 @@ pipeline {
               skippedTags: 'test2,test3,always,netfoundry,ocp',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
+              credentialsId: '~/.ssh/id_rsa',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
@@ -165,6 +166,7 @@ pipeline {
               skippedTags: 'test1,test3,always,netfoundry,ocp',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
+              credentialsId: '~/.ssh/id_rsa',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
@@ -187,6 +189,7 @@ pipeline {
               skippedTags: 'test1,test2,always,netfoundry,ocp',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
+              credentialsId: '~/.ssh/id_rsa',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
@@ -209,6 +212,7 @@ pipeline {
               skippedTags: 'router,always,netfoundry,ocp',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
+              credentialsId: '~/.ssh/id_rsa',
               extraVars: [
                 virtual_machines: 'ocp.clients', 
                 remote_conn: 'ssh'
