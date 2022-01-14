@@ -165,7 +165,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e \${WORKSPACE}/ZT-Network-Test/ansible/tests.ini
+        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e ZT-Network-Test/ansible/tests.ini
         '''
       }
     }
