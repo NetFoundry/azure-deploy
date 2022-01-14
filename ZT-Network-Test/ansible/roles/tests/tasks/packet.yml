@@ -3,8 +3,9 @@
 # Setup: UDP and TCP Listeners #
 ################################
 - name: Check if nc is running and kill it
-  shell: /usr/bin/kill $(pidof nc)
-  ignore_errors: yes
+  shell: | 
+  if [ $(pidof nc) ]; then
+    /usr/bin/kill $(pidof nc)
   tags:
     - listen
 
