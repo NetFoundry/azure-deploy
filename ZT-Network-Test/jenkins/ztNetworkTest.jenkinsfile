@@ -48,39 +48,39 @@ pipeline {
           writeFile file: 'oci.pem', text: readFile(OCI_API_KEY)
         }
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          /usr/bin/python3 -m pip install --upgrade pip
-          pip install netfoundry --upgrade
-          pip install oci 
-          ansible-galaxy collection install netfoundry.platform
-          ansible-galaxy collection install oracle.oci
+        set -Eeuxo pipefail
+        /usr/bin/python3 -m pip install --upgrade pip
+        pip install netfoundry --upgrade
+        pip install oci 
+        ansible-galaxy collection install netfoundry.platform
+        ansible-galaxy collection install oracle.oci
         '''
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          FILE=${WORKSPACE}/id_rsa
-          if [[ -f "$FILE" ]]; then
-              echo "$FILE exists."
-              ln -s ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
-              ln -s ${WORKSPACE}/id_rsa.pub ~/.ssh/id_rsa.pub
-          else
-              ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
-              cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa
-              cp ~/.ssh/id_rsa.pub ${WORKSPACE}/id_rsa.pub
-          fi
-          cat ~/.ssh/id_rsa
-          cat ~/.ssh/id_rsa.pub
-          ls ${WORKSPACE}
-          ls ${WORKSPACE}/ZT-Network-Test/ansible
+        set -Eeuxo pipefail
+        FILE=${WORKSPACE}/id_rsa
+        if [[ -f "$FILE" ]]; then
+            echo "$FILE exists."
+            ln -s ${WORKSPACE}/id_rsa ~/.ssh/id_rsa
+            ln -s ${WORKSPACE}/id_rsa.pub ~/.ssh/id_rsa.pub
+        else
+            ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 0>&-
+            cp ~/.ssh/id_rsa ${WORKSPACE}/id_rsa
+            cp ~/.ssh/id_rsa.pub ${WORKSPACE}/id_rsa.pub
+        fi
+        cat ~/.ssh/id_rsa
+        cat ~/.ssh/id_rsa.pub
+        ls ${WORKSPACE}
+        ls ${WORKSPACE}/ZT-Network-Test/ansible
         '''
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          mkdir ~/.oci
-          echo "[DEFAULT]" >|  ~/.oci/config
-          echo "user=ocid1.user.oc1..aaaaaaaacqrvvp6z3ynwel6yiybefugcgu6us3fx6jc4w4js2cf2tv4fgvpq" >>  ~/.oci/config
-          echo "fingerprint=fa:48:3e:09:44:0b:79:fe:99:09:73:b4:07:c8:a6:ba" >>  ~/.oci/config
-          echo "tenancy=ocid1.tenancy.oc1..aaaaaaaaa7t4qscet3bg5aygjrjdxakahwguwnpxyrosib3rhza7rdrfkdxa" >>  ~/.oci/config
-          echo "region=us-ashburn-1" >>  ~/.oci/config
-          echo "key_file=${WORKSPACE}/oci.pem" >>  ~/.oci/config
+        set -Eeuxo pipefail
+        mkdir ~/.oci
+        echo "[DEFAULT]" >|  ~/.oci/config
+        echo "user=ocid1.user.oc1..aaaaaaaacqrvvp6z3ynwel6yiybefugcgu6us3fx6jc4w4js2cf2tv4fgvpq" >>  ~/.oci/config
+        echo "fingerprint=fa:48:3e:09:44:0b:79:fe:99:09:73:b4:07:c8:a6:ba" >>  ~/.oci/config
+        echo "tenancy=ocid1.tenancy.oc1..aaaaaaaaa7t4qscet3bg5aygjrjdxakahwguwnpxyrosib3rhza7rdrfkdxa" >>  ~/.oci/config
+        echo "region=us-ashburn-1" >>  ~/.oci/config
+        echo "key_file=${WORKSPACE}/oci.pem" >>  ~/.oci/config
 
         '''
       }
@@ -92,20 +92,20 @@ pipeline {
           try {
             // when try to create nf network resource
             sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
             '''
           } catch(err) {
             echo "Caught: ${err}"
             // when error try deleting nf network resource
             sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
             '''
             // then try again to create nf network resource
             sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
             '''
           }
         }
@@ -115,8 +115,8 @@ pipeline {
       when { expression { params.DEPLOY_RESOURCES_OCP }}
       steps {
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
+        set -Eeuxo pipefail
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
         '''
       }
     }
@@ -124,9 +124,9 @@ pipeline {
       when { expression { params.CONFIGURE_SERVICES_NETFOUNDRY }}
       steps {
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
-          '''
+        set -Eeuxo pipefail
+        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+        '''
       }
     }
     stage('Router Test Case 01') {
@@ -174,13 +174,13 @@ pipeline {
       steps {
         // delete instances in OCP
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+        set -Eeuxo pipefail
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
         '''
         // delete vcn in OCP
         sh ''' #!/bin/bash
-          set -Eeuxo pipefail
-          eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+        set -Eeuxo pipefail
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
         '''
       }
     }
@@ -191,16 +191,17 @@ pipeline {
           try {
             // try to delete nf network resource
             sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
+            set -Eeuxo pipefail
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
             '''
           } catch(err) {
             echo "Caught: ${err}"
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               // when error try again to delete nf network resource
               sh ''' #!/bin/bash
-                set -Eeuxo pipefail
-                eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
+              set -Eeuxo pipefail
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
+              '''
             } 
           }
         }
