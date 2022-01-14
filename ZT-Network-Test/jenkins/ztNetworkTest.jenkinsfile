@@ -211,9 +211,9 @@ pipeline {
               becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.clients', 
-                remote_conn: 'ssh',
-                'ZT-Network-Test/ansible/tests.ini'
+                remote_conn: 'ssh'
               ],
+              additionalParameters: 'ZT-Network-Test/ansible/tests.ini',
               colorized: true
             )
           }
