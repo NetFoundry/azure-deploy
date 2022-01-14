@@ -100,7 +100,7 @@ pipeline {
             // when error try deleting nf network resource
             sh ''' #!/bin/bash
               set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
             '''
             // then try again to create nf network resource
             sh ''' #!/bin/bash
@@ -135,7 +135,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags get,always,test2,test3,packet,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -145,7 +145,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags get,always,test1,test3,packet,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -155,7 +155,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags get,always,test1,test2,packet,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
         '''
       }
     }
@@ -165,7 +165,7 @@ pipeline {
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
         eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh -e "\${WORKSPACE}/ZT-Network-Test/ansible/tests.ini"
+        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e \${WORKSPACE}/ZT-Network-Test/ansible/tests.ini
         '''
       }
     }
@@ -192,7 +192,7 @@ pipeline {
             // try to delete nf network resource
             sh ''' #!/bin/bash
               set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
+              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
             '''
           } catch(err) {
             echo "Caught: ${err}"
@@ -200,8 +200,7 @@ pipeline {
               // when error try again to delete nf network resource
               sh ''' #!/bin/bash
                 set -Eeuxo pipefail
-                eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,ocp,create,test,service -e virtual_machines=localhost -e remote_conn=local
-              '''
+                eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
             } 
           }
         }

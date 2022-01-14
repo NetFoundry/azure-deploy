@@ -220,7 +220,7 @@
 
 - name: Update hosts.ini file - customer-edge-routers
   ini_file:
-    path: "{{ workspace }}/hosts.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.customer-edge-routers
     option: "{{ item.primary_public_ip }}"
     allow_no_value: True
@@ -231,7 +231,7 @@
 
 - name: Update hosts.ini file - client public IPs
   ini_file:
-    path: "{{ workspace }}/hosts.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.clients
     option: "{{ item.primary_public_ip }}"
     allow_no_value: True
@@ -310,7 +310,7 @@
 
 - name: Update hosts.ini file - customer-edge-routers
   ini_file:
-    path: "{{ workspace }}/hosts.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.customer-edge-routers
     state: absent
   tags:
@@ -318,7 +318,7 @@
 
 - name: Update hosts.ini file - client public IPs
   ini_file:
-    path: "{{ workspace }}/hosts.ini"
+    path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.clients
     state: absent
   tags:

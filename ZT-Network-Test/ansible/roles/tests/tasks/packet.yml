@@ -4,6 +4,7 @@
 ################################
 - name: Check if nc is running and kill it
   shell: /usr/bin/kill $(pidof nc)
+  ignore_errors: yes
   tags:
     - listen
 
@@ -52,7 +53,7 @@
     msg: UDP Test 
   ignore_errors: yes
   loop: "{{ udp_result.results }}"
-  failed_when: item.stdout != "18
+  failed_when: item.stdout != "18"
   tags:
   - packet-test1
 
