@@ -4,8 +4,8 @@
 ################################
 - name: Check if nc is running and kill it
   shell: | 
-  if [ $(pidof nc) ]; then
-    /usr/bin/kill $(pidof nc)
+    if [ $(pidof nc) ]; then
+      /usr/bin/kill $(pidof nc)
   tags:
     - listen
 
