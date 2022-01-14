@@ -89,25 +89,16 @@ pipeline {
     stage('Deploy Resources in NETFOUNDRY') {
       when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
-        script {
-          try {
-            // when try to create nf network resource
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
-            '''
-          } catch(err) {
-            echo "Caught: ${err}"
-            // when error try deleting nf network resource
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
-            '''
-            // then try again to create nf network resource
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
-            '''
+          // when try to create nf network resource
+          ansiColor('xterm') {
+              ansiblePlaybook( 
+                  tags: 'always,netfoundry,create,pretask',
+                  skippedTags: 'delete,service,ocp,test',
+                  extraVars: [
+                    virtual_machines: 'localhost', 
+                    remote_conn: 'local'
+                  ],
+                  colorized: true) 
           }
         }
       }
