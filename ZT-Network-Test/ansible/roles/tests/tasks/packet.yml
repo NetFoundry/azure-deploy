@@ -24,11 +24,6 @@
   tags:
     - listen
 
-- set_fact:
-    client_hosts: '{{ lookup("ini", ".* section=ocp.clients.private file=tests.ini re=True") | split(",")}}'
-  tags: 
-    - create
-
 ############################
 # TC1: UDP both directions #
 ############################
@@ -37,14 +32,14 @@
     sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
     sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
     sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
-  loop: "{{ client_hosts }}"
+  loop: '{{ lookup("ini", ".* section=ocp.clients.private file=tests.ini re=True") | split(",") }}'
   tags:
   - packet-test1
 
 - name: Check netcat output file to confirm the udp transfer
   shell: sh -c 'grep -w "nc_udp_out" -e "testUDP" | wc -l'
   register: udp_result
-  loop: "{{ client_hosts }}"
+  loop: '{{ lookup("ini", ".* section=ocp.clients.private file=tests.ini re=True") | split(",") }}'
   tags:
   - packet-test1
   
@@ -66,14 +61,14 @@
     sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
     sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
     sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
-  loop: "{{ client_hosts }}"
+  loop: '{{ lookup("ini", ".* section=ocp.clients.private file=tests.ini re=True") | split(",") }}'
   tags:
   - packet-test2
 
 - name: Check netcat output file to confirm the tcp transfer
   shell: sh -c 'grep -w "nc_tcp_out" -e "testTCP" | wc -l'
   register: tcp_result
-  loop: "{{ client_hosts }}"
+  loop: '{{ lookup("ini", ".* section=ocp.clients.private file=tests.ini re=True") | split(",") }}'
   tags:
   - packet-test2
 
