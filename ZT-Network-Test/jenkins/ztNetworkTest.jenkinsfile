@@ -90,17 +90,16 @@ pipeline {
       when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
         // when try to create nf network resource
-        ansiColor('xterm') {
-            ansiblePlaybook( 
-                playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
-                tags: 'always,netfoundry,create,pretask',
-                skippedTags: 'delete,service,ocp,test',
-                extraVars: [
-                  virtual_machines: 'localhost', 
-                  remote_conn: 'local'
-                ],
-                colorized: true) 
-        }
+        ansiblePlaybook( 
+          playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+          tags: 'always,netfoundry,create,pretask',
+          skippedTags: 'delete,service,ocp,test',
+          extraVars: [
+            virtual_machines: 'localhost', 
+            remote_conn: 'local'
+          ],
+          colorized: true
+        ) 
       }
     }
     stage('Deploy Resources in OCP') {
