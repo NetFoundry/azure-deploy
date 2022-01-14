@@ -142,13 +142,12 @@ pipeline {
               tags: 'test,router,test1,pretask',
               skippedTags: 'test2,test3,always,netfoundry,ocp',
               disableHostKeyChecking : true,
-              becomeUser: 'ziggy',
               credentialsId: '~/.ssh/id_rsa',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
-              additionalParameters: '-u ziggy',
+              additionalParameters: '--user ziggy',
               colorized: true
             ) 
           }
@@ -172,7 +171,7 @@ pipeline {
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
-              additionalParameters: '-u ziggy',
+              additionalParameters: '--user ziggy',
               colorized: true
             ) 
           }
@@ -196,7 +195,7 @@ pipeline {
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
-              additionalParameters: '-u ziggy',
+              additionalParameters: '--user ziggy',
               colorized: true
             )
           }
@@ -220,7 +219,7 @@ pipeline {
                 virtual_machines: 'ocp.clients', 
                 remote_conn: 'ssh'
               ],
-              additionalParameters: '-u ziggy -e ZT-Network-Test/ansible/tests.ini',
+              additionalParameters: '--user ziggy --extra-vars ZT-Network-Test/ansible/tests.ini',
               colorized: true
             )
           }
