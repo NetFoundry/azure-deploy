@@ -142,9 +142,10 @@ pipeline {
               tags: 'test,router,test1,pretask',
               skippedTags: 'test2,test3,always,netfoundry,ocp',
               hostKeyChecking: false,
+              becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
-                remote_conn: 'remote_conn=ssh'
+                remote_conn: 'ssh'
               ],
               colorized: true
             ) 
@@ -157,11 +158,19 @@ pipeline {
       steps {
         script {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval export ANSIBLE_HOST_KEY_CHECKING=False
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
-            '''
+            ansiblePlaybook( 
+              playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+              inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+              tags: 'test,router,test2,pretask',
+              skippedTags: 'test1,test3,always,netfoundry,ocp',
+              hostKeyChecking: false,
+              becomeUser: 'ziggy',
+              extraVars: [
+                virtual_machines: 'ocp.customer-edge-routers', 
+                remote_conn: 'ssh'
+              ],
+              colorized: true
+            ) 
           }
         }
       }
@@ -171,11 +180,19 @@ pipeline {
       steps {
         script {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval export ANSIBLE_HOST_KEY_CHECKING=False
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
-            '''
+            ansiblePlaybook( 
+              playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+              inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+              tags: 'test,router,test3,pretask',
+              skippedTags: 'test1,test2,always,netfoundry,ocp',
+              hostKeyChecking: false,
+              becomeUser: 'ziggy',
+              extraVars: [
+                virtual_machines: 'ocp.customer-edge-routers', 
+                remote_conn: 'ssh'
+              ],
+              colorized: true
+            )
           }
         }
       }
@@ -185,11 +202,20 @@ pipeline {
       steps {
         script {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval export ANSIBLE_HOST_KEY_CHECKING=False
-            eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e ZT-Network-Test/ansible/tests.ini
-            '''
+            ansiblePlaybook( 
+              playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+              inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+              tags: 'test,packet,listen,packet-test1,packet-test2,pretask',
+              skippedTags: 'router,always,netfoundry,ocp',
+              hostKeyChecking: false,
+              becomeUser: 'ziggy',
+              extraVars: [
+                virtual_machines: 'ocp.clients', 
+                remote_conn: 'ssh',
+                'ZT-Network-Test/ansible/tests.ini'
+              ],
+              colorized: true
+            )
           }
         }
       }
@@ -198,15 +224,27 @@ pipeline {
       when { expression { params.DESTROY_RESOURCES_OCP }}
       steps {
         // delete instances in OCP
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
-        '''
+        ansiblePlaybook( 
+          playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+          tags: 'always,delete,pretask,ocp,instance',
+          skippedTags: 'get,vnc,create,test,netfoundry',
+          extraVars: [
+            virtual_machines: 'localhost', 
+            remote_conn: 'local'
+          ],
+          colorized: true
+        ) 
         // delete vcn in OCP
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
-        '''
+        ansiblePlaybook( 
+          playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+          tags: 'always,delete,pretask,ocp,vnc',
+          skippedTags: 'get,instance,create,test,netfoundry',
+          extraVars: [
+            virtual_machines: 'localhost', 
+            remote_conn: 'local'
+          ],
+          colorized: true
+        )
       }
     }
     stage('Destroy NETFOUNDRY Resources') {
@@ -214,19 +252,30 @@ pipeline {
       steps {
         script {
           try {
-            // try to delete nf network resource
-            sh ''' #!/bin/bash
-            set -Eeuxo pipefail
-            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
-            '''
+            ansiblePlaybook( 
+              playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+              tags: 'always,delete,pretask,netfoundry,network',
+              skippedTags: 'get,service,create,test,ocp',
+              extraVars: [
+                virtual_machines: 'localhost', 
+                remote_conn: 'local'
+              ],
+              colorized: true
+            )
           } catch(err) {
             echo "Caught: ${err}"
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               // when error try again to delete nf network resource
-              sh ''' #!/bin/bash
-              set -Eeuxo pipefail
-              eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
-              '''
+              ansiblePlaybook( 
+                playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+                tags: 'always,delete,pretask,netfoundry,network',
+                skippedTags: 'get,service,create,test,ocp',
+                extraVars: [
+                  virtual_machines: 'localhost', 
+                  remote_conn: 'local'
+                ],
+                colorized: true
+              )
             } 
           }
         }
