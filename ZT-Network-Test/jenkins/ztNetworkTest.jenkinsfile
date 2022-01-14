@@ -72,7 +72,6 @@ pipeline {
         ls ${WORKSPACE}
         ls ${WORKSPACE}/ZT-Network-Test/ansible
         ls ~/.ansible/
-        cat ~/.ansible/
         '''
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
