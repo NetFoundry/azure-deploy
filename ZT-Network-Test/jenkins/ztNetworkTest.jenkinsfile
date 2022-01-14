@@ -148,6 +148,7 @@ pipeline {
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
+              additionalParameters: '-u ziggy',
               colorized: true
             ) 
           }
@@ -171,6 +172,7 @@ pipeline {
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
+              additionalParameters: '-u ziggy',
               colorized: true
             ) 
           }
@@ -194,6 +196,7 @@ pipeline {
                 virtual_machines: 'ocp.customer-edge-routers', 
                 remote_conn: 'ssh'
               ],
+              additionalParameters: '-u ziggy',
               colorized: true
             )
           }
@@ -217,7 +220,7 @@ pipeline {
                 virtual_machines: 'ocp.clients', 
                 remote_conn: 'ssh'
               ],
-              additionalParameters: 'ZT-Network-Test/ansible/tests.ini',
+              additionalParameters: '-u ziggy -e ZT-Network-Test/ansible/tests.ini',
               colorized: true
             )
           }
