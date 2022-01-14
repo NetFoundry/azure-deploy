@@ -25,7 +25,7 @@
     - listen
 
 - set_fact:
-    client_hosts: "{{ lookup(\"ini\", \".* section=ocp.clients.private file=tests.ini re=True\") | split(\",\") }}"
+    client_hosts: "{{ lookup(\"ini\", \".* section=ocp.clients.private file=tests.ini re=True\").split(\",\") }}"
   tags: 
     - create
 
