@@ -89,7 +89,6 @@ pipeline {
     stage('Deploy Resources in NETFOUNDRY') {
       when { expression { params.DEPLOY_RESOURCES_NETFOUNDRY }}
       steps {
-        // when try to create nf network resource
         ansiblePlaybook( 
           playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
           tags: 'always,netfoundry,create,pretask',
@@ -105,19 +104,31 @@ pipeline {
     stage('Deploy Resources in OCP') {
       when { expression { params.DEPLOY_RESOURCES_OCP }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
-        '''
+        ansiblePlaybook( 
+          playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+          tags: 'always,ocp,create,pretask',
+          skippedTags: 'delete,get,netfoundry,test',
+          extraVars: [
+            virtual_machines: 'localhost', 
+            remote_conn: 'local'
+          ],
+          colorized: true
+        ) 
       }
     }
     stage('Configure Services in NETFOUNDRY') {
       when { expression { params.CONFIGURE_SERVICES_NETFOUNDRY }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
-        '''
+        ansiblePlaybook( 
+          playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+          tags: 'always,netfoundry,create,pretask',
+          skippedTags: 'delete,network,ocp,test',
+          extraVars: [
+            virtual_machines: 'localhost', 
+            remote_conn: 'local'
+          ],
+          colorized: true
+        ) 
       }
     }
     stage('Router Test Case 01') {
