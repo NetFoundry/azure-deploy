@@ -141,7 +141,7 @@ pipeline {
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,router,test1,pretask',
               skippedTags: 'test2,test3,always,netfoundry,ocp',
-              hostKeyChecking: false,
+              disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
@@ -163,7 +163,7 @@ pipeline {
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,router,test2,pretask',
               skippedTags: 'test1,test3,always,netfoundry,ocp',
-              hostKeyChecking: false,
+              disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
@@ -185,7 +185,7 @@ pipeline {
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,router,test3,pretask',
               skippedTags: 'test1,test2,always,netfoundry,ocp',
-              hostKeyChecking: false,
+              disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.customer-edge-routers', 
@@ -207,7 +207,7 @@ pipeline {
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,packet,listen,packet-test1,packet-test2,pretask',
               skippedTags: 'router,always,netfoundry,ocp',
-              hostKeyChecking: false,
+              disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               extraVars: [
                 virtual_machines: 'ocp.clients', 
