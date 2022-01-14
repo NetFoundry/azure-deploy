@@ -8,6 +8,7 @@
   connection: "{{ remote_conn }}"
   environment:
     OCI_USE_NAME_AS_IDENTIFIER: "1"
+    ANSIBLE_FORCE_COLOR: "1"
   collections:
     - netfoundry.platform
     - community.general

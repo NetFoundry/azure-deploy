@@ -71,6 +71,8 @@ pipeline {
         cat ~/.ssh/id_rsa.pub
         ls ${WORKSPACE}
         ls ${WORKSPACE}/ZT-Network-Test/ansible
+        ls ~/.ansible/
+        cat ~/.ansible/
         '''
         sh ''' #!/bin/bash
         set -Eeuxo pipefail
@@ -132,41 +134,57 @@ pipeline {
     stage('Router Test Case 01') {
       when { expression { params.ROUTER_TC01 }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
-        '''
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval export ANSIBLE_HOST_KEY_CHECKING=False
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
+            '''
+          }
+        }
       }
     }
     stage('Router Test Case 02') {
       when { expression { params.ROUTER_TC02 }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
-        '''
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval export ANSIBLE_HOST_KEY_CHECKING=False
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
+            '''
+          }
+        }
       }
     }
     stage('Router Test Case 03') {
       when { expression { params.ROUTER_TC03 }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
-        '''
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval export ANSIBLE_HOST_KEY_CHECKING=False
+            eval  ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
+            '''
+          }
+        }
       }
     }
     stage('Packet Test Case 01 and 02') {
       when { expression { params.PACKET_TC45 }}
       steps {
-        sh ''' #!/bin/bash
-        set -Eeuxo pipefail
-        eval export ANSIBLE_HOST_KEY_CHECKING=False
-        eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e ZT-Network-Test/ansible/tests.ini
-        '''
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh ''' #!/bin/bash
+            set -Eeuxo pipefail
+            eval export ANSIBLE_HOST_KEY_CHECKING=False
+            eval ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e ZT-Network-Test/ansible/tests.ini
+            '''
+          }
+        }
       }
     }
     stage('Destroy OCP Resources') {

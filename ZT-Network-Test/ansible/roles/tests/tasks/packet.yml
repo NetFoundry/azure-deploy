@@ -51,7 +51,6 @@
 - name: Verify the right count of words transferred for UDP
   debug: 
     msg: UDP Test 
-  ignore_errors: yes
   loop: "{{ udp_result.results }}"
   failed_when: item.stdout != "18"
   tags:
@@ -80,7 +79,6 @@
 - name: Verify the right count of words transferred for TCP
   debug: 
     msg: TCP Test 
-  ignore_errors: yes
   loop: "{{ tcp_result.results }}"
   failed_when: item.stdout != "24"
   tags:

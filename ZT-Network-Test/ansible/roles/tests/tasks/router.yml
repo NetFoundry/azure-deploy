@@ -20,7 +20,6 @@
 - name: Check Router Process Status
   shell: /usr/bin/systemctl status ziti-router
   register: router_status
-  ignore_errors: yes
   failed_when: "'Active: active' not in router_status.stdout"
   tags:
     - test1
@@ -34,7 +33,6 @@
   become: True
   shell: /usr/sbin/iptables -S  NF-INTERCEPT
   register: router_services
-  ignore_errors: yes
   failed_when: ('tcp.' + network_prefix|string not in router_services.stdout) or
                ('udp.' + network_prefix|string not in router_services.stdout)
   tags:
@@ -56,6 +54,5 @@
     msg: "{{ item }}"
   loop: "{{ router_logs.stdout_lines }}"
   failed_when: "'error' in item"
-  ignore_errors: yes
   tags:
     - test3
