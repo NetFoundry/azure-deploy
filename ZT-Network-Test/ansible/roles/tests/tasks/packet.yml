@@ -3,7 +3,7 @@
 # Setup: UDP and TCP Listeners #
 ################################
 - name: Check if nc is running and kill it
-  shell: if pidof /usr/bin/nc >& /dev/null; then  /usr/bin/kill $(pidof /usr/bin/nc); fi
+  shell: sh -c 'if [ "$(pidof /usr/bin/nc)" ]; then  /usr/bin/kill $(pidof /usr/bin/nc); fi'
   tags:
     - listen
 
