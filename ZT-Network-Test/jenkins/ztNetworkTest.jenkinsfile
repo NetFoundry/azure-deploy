@@ -219,7 +219,7 @@ pipeline {
                 virtual_machines: 'ocp.clients', 
                 remote_conn: 'ssh'
               ],
-              extras: '--user ziggy --extra-vars ZT-Network-Test/ansible/tests.ini',
+              extras: '--user ziggy --extra-vars ZT-Network-Test/ansible/tests.ini -v',
               colorized: true
             )
           }

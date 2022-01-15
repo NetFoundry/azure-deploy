@@ -49,14 +49,6 @@
   loop: "{{ client_hosts }}"
   tags:
   - packet-test1
-  
-- name: Verify the right count of words transferred for UDP
-  debug: 
-    msg: UDP Test 
-  loop: "{{ udp_result.results }}"
-  failed_when: item.stdout != "18"
-  tags:
-  - packet-test1
 
 ############################
 # TC2: TCP both directions #
@@ -77,6 +69,17 @@
   loop: "{{ client_hosts }}"
   tags:
   - packet-test2
+
+#########################
+# Results Verification  #
+#########################
+- name: Verify the right count of words transferred for UDP
+  debug: 
+    msg: UDP Test 
+  loop: "{{ udp_result.results }}"
+  failed_when: item.stdout != "18"
+  tags:
+  - packet-test1
 
 - name: Verify the right count of words transferred for TCP
   debug: 
