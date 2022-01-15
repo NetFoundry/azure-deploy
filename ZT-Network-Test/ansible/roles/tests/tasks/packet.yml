@@ -6,6 +6,7 @@
   shell: | 
     if [ $(pidof nc) ]; then
       /usr/bin/kill $(pidof nc)
+    fi
   tags:
     - listen
 
