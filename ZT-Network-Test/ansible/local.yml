@@ -20,7 +20,7 @@
         workspace: "{{ lookup('env', 'WORKSPACE') | default('.', True) }}"
         oci_compartment_id: ocid1.compartment.oc1..aaaaaaaapp7nygatdfqgpnxxncbuugrfbmuergecbn6x5mrbghat5qww5k3q
         oci_tag: {'Department': 'Cloud Engineering'}
-        network_prefix:  "{{ lookup('env', 'NETWORK_PREFIX')[-15:] | regex_replace('_|#|-|/','') | lower() | default('zititestnet', True) }}"
+        network_prefix:  "{{ lookup('env', 'NETWORK_PREFIX')[-15:] | regex_replace('^a-zA-Z0-9','') | lower() | default('zititestnet', True) }}"
         network_version: "{{ lookup('env', 'NETWORK_VERSION') | default('0.0.0', True) }}"
         datacenter:
           provider: OCP
