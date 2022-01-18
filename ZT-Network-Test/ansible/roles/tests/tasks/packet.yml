@@ -1,0 +1,87 @@
+---
+################################
+# Setup: UDP and TCP Listeners #
+################################
+- name: Check if nc is running and kill it
+  shell: sh -c 'if [ "$(pidof /usr/bin/nc)" ]; then  /usr/bin/kill $(pidof /usr/bin/nc); fi'
+  tags:
+    - listen
+
+- name:  Test Setup | Run nc in listen udp mode on clients
+  shell: "{{ item }}"
+  loop:
+    - sudo ufw disable
+    - nohup nc -luk 5050 1>nc_udp_out &
+  tags:
+    - listen
+
+- name: Test Setup | Run nc in listen tcp mode on clients
+  shell: "{{ item }}"
+  loop:
+    - sudo ufw disable
+    - nohup nc -lk 8080 1>nc_tcp_out &
+  tags:
+    - listen
+
+- set_fact:
+    client_hosts: "{{ lookup(\"ini\", \".* section=ocp.clients.private file=tests.ini re=True\").split(\",\") }}"
+  tags: 
+    - create
+
+############################
+# TC1: UDP both directions #
+############################
+- name:  Test | Run udp echo transfer
+  shell: |
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
+  loop: "{{ client_hosts }}"
+  tags:
+  - packet-test1
+
+- name: Check netcat output file to confirm the udp transfer
+  shell: sh -c 'grep -w "nc_udp_out" -e "testUDP" | wc -l'
+  register: udp_result
+  loop: "{{ client_hosts }}"
+  tags:
+  - packet-test1
+
+############################
+# TC2: TCP both directions #
+############################
+- name:  Test | Run tcp echo transfer
+  shell: |
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
+  loop: "{{ client_hosts }}"
+  tags:
+  - packet-test2
+
+- name: Check netcat output file to confirm the tcp transfer
+  shell: sh -c 'grep -w "nc_tcp_out" -e "testTCP" | wc -l'
+  register: tcp_result
+  loop: "{{ client_hosts }}"
+  tags:
+  - packet-test2
+
+#########################
+# Results Verification  #
+#########################
+- name: Verify the right count of words transferred for UDP
+  debug: 
+    msg: UDP Test 
+  loop: "{{ udp_result.results }}"
+  failed_when: item.stdout != "18"
+  tags:
+  - packet-test1
+
+- name: Verify the right count of words transferred for TCP
+  debug: 
+    msg: TCP Test 
+  loop: "{{ tcp_result.results }}"
+  failed_when: item.stdout != "24"
+  tags:
+  - packet-test2

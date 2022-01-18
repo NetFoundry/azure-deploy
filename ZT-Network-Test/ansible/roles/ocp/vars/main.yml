@@ -1,8 +1,14 @@
 ---
-oci_regions: 
-- region: us-ashburn-1
-  ad1: iTps:US-ASHBURN-AD-1
-  ad2: iTps:US-ASHBURN-AD-2
-- region: us-phoenix-1
-  ad1:  iTps:US-PHOENIX-AD-1
-  ad2:  iTps:US-PHOENIX-AD-2
+oci_regions:
+  - name: us-ashburn-1
+    cidr: 10.10.0.0/16
+    subnet: 10.10.0.0/24
+    az:
+      - us-ashburn-ad-1
+      - us-ashburn-ad-2
+  - name: us-phoenix-1
+    cidr: 10.11.0.0/16
+    subnet: 10.11.0.0/24
+    az:  
+      - phx-ad-1
+      - phx-ad-2

@@ -1,4 +1,8 @@
 ---
+##########################################################################################################
+# Ziti Router Tests. Verify the router is up and active, iptables are configured properly with services, #
+# and check for errors and panics in router logs.                                                        #
+##########################################################################################################
 - name: Restart Router Process 
   become: True
   shell: /usr/bin/systemctl restart ziti-router
@@ -16,7 +20,6 @@
 - name: Check Router Process Status
   shell: /usr/bin/systemctl status ziti-router
   register: router_status
-  ignore_errors: yes
   failed_when: "'Active: active' not in router_status.stdout"
   tags:
     - test1
@@ -30,9 +33,8 @@
   become: True
   shell: /usr/sbin/iptables -S  NF-INTERCEPT
   register: router_services
-  ignore_errors: yes
-  failed_when: (network_prefix|string + '-tcp' not in router_services.stdout) and
-               (network_prefix|string + '-udp' not in router_services.stdout)
+  failed_when: ('tcp.' + network_prefix|string not in router_services.stdout) or
+               ('udp.' + network_prefix|string not in router_services.stdout)
   tags:
     - test2
 
@@ -41,16 +43,16 @@
   tags:
     - test2
 
-- name: Check Router Process Logs
-  shell: /usr/bin/journalctl -u ziti-router.service --since "2 minutes ago"
+- name: Save Router Process Logs
+  shell: /usr/bin/journalctl -u ziti-router.service --since "2 minutes ago" --output=json | jq .MESSAGE
   register: router_logs
-  ignore_errors: yes
-  failed_when: ("'panic' in router_logs.stdout") or
-               ("'ERROR' in router_logs.stdout")
   tags:
     - test3
 
-- debug:
-    msg: "{{ router_logs.stdout_lines }}"
+- name: Anylyze the router logs for errors and panics
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ router_logs.stdout_lines }}"
+  failed_when: "'error' in item"
   tags:
     - test3

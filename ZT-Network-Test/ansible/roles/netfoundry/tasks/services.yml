@@ -1,67 +1,105 @@
 ---
-
-- name: Collect the Network Info
-  netfoundry_info:
-    network: "{{ network_prefix }}"
-    inventory: True
-    session: "{{ netfoundry_organization.session }}"
-  register: netfoundry_network
-  tags:
-    - always
-
+######################################################################################
+# Find all with the tunnel option enabled and create a list (router type endpoints)  #
+# Also, update router endpoints with the same attributes, bc they are not by defualt #
+######################################################################################
 - set_fact:
-    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[*].{name: name, attributes: attributes, tunnelerEnabled: tunnelerEnabled}') }}"
+    endpoints: "{{ netfoundry_network.network.customer_edge_routers | json_query('[? tunnelerEnabled == `true`].{name: name, attributes: attributes}') }}"
   tags:
-    - always
+    - create
+
+- name: Update endpoints type router with the same atributes as hosted edge routers of the same name
+  netfoundry_endpoint:
+    name: "{{ item.name }}"
+    attributes: "{{ item.attributes }}"
+    network: "{{ netfoundry_network.network }}"
+  loop: "{{ endpoints }}"
+  tags: 
+    - create
+
+- name: Match host IP with region
+  set_fact:
+    host: '{{ lookup("ini", "{{ item }} section=ocp.clients.private file=tests.ini") }}'
+    region: "{{ item |  regex_replace('2', '1') }}"
+  register: client_hosts
+  loop: "{{ endpoints | map(attribute='attributes') | flatten | map('regex_replace', '#', '') | unique }}"
+  tags: 
+    - create
 
 - debug:
-    msg: "{{ endpoints }}"
-  tags:
-    - always
+    msg: "{{ client_hosts.results }}"
+  tags: 
+    - create
 
-- name: Netcat udp service 
+###################################
+# Configure Services and AppWans  #
+###################################
+- name: Netcat udp service per region for one az
   netfoundry_service_advanced:
-    name: "{{ netfoundry_network.network.name }}-udp"
+    name: "udp.{{network_prefix}}.{{ item.ansible_facts.region }}"
     endpoints: 
-    - "@{{ endpoints[0].name }}"
+    - "#{{ item.ansible_facts.region }}"
     attributes: 
-    - "{{ endpoints[0].attributes[0] }}"
+    - "#{{ item.ansible_facts.region }}"
     clientHosts: 
-    - 192.168.100.111
+    - "{{ item.ansible_facts.host }}"
     clientPorts: 
     - 5050
     - 700:800
     clientProtocols: 
     - udp
     network: "{{ netfoundry_network.network }}"
+  loop: "{{ client_hosts.results }}"
+  retries: 2
+  when: "{{ item.ansible_facts.host != [] }}"
   tags:
-  - create
+    - create
 
-- name: Netcat tcp service 
+- name: Netcat tcp service per region for one az
   netfoundry_service_advanced:
-    name: "{{ netfoundry_network.network.name }}-tcp"
+    name: "tcp.{{network_prefix}}.{{ item.ansible_facts.region }}"
     endpoints: 
-    - "@{{ endpoints[0].name }}"
+    - "#{{ item.ansible_facts.region }}"
     attributes: 
-    - "{{ endpoints[0].attributes[0] }}"
+    - "#{{ item.ansible_facts.region }}"
     clientHosts: 
-    - 10.1.1.5
+    - "{{ item.ansible_facts.host }}"
     clientPorts: 
     - 8080
     - 500:600
     clientProtocols: 
     - tcp
-    network: "{{ netfoundry_network.network }}"  
-  tags:
-  - create
-
-- name: Create AppWAN01
-  netfoundry_appwan:
-    name: "{{ netfoundry_network.network.name }}-appwan01"
-    endpoints:
-    - "@{{ endpoints[0].name }}"
-    services: 
-    - "{{ endpoints[0].attributes[0] }}"
     network: "{{ netfoundry_network.network }}"
+  loop: "{{ client_hosts.results }}"
+  retries: 2
+  when: "{{ item.ansible_facts.host != [] }}"
   tags:
-  - create
+    - create
+
+- name: Collect the Network Info again after addition of services
+  netfoundry_info:
+    network: "{{ network_prefix }}"
+    inventory: True
+    session: "{{ netfoundry_organization.session }}"
+  register: netfoundry_network
+  tags:
+    - create
+
+#####################################################################################
+# Find all with the tunnel option enabled and create a list (router type endpoints) #
+#####################################################################################
+- set_fact:
+    services: "{{ netfoundry_network.network.services | json_query('[*].{name: name, srvc_attributes: attributes, endp_attributes: model.bindEndpointAttributes }') }}"
+  tags:
+    - create
+
+- name: Create AppWan per service hosting az in a region
+  netfoundry_appwan:
+    name: "appwan.{{ item | regex_replace('#', '') }}"
+    endpoints: "{{ endpoints | json_query('[*].attributes') | flatten | unique | difference(item) | select('search', item[-3:]) }}"
+    services: "{{ item }}"
+    network: "{{ netfoundry_network.network }}"
+  loop: "{{ services | json_query('[*].srvc_attributes') | flatten | unique }}"
+  retries: 2
+  tags:
+    - create

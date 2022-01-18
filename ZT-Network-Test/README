@@ -15,26 +15,29 @@ ansible-galaxy collection install -f oracle.oci
 Delete in oci: using name when environment variable OCI_USE_NAME_AS_IDENTIFIER is set
 
 Deploy Resources in NETFOUNDRY
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,service,ocp,test -e virtual_machines=localhost -e remote_conn=local
 
 Deploy Resources in OCP
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,ocp,create,pretask --skip-tags delete,get,netfoundry,test -e virtual_machines=localhost -e remote_conn=local
 
 Configure Services in NETFOUNDRY
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,netfoundry,create,pretask --skip-tags delete,network,ocp,test -e virtual_machines=localhost -e remote_conn=local
 
-Create hosts.ini file for ssh connections
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,test,get,pretask --skip-tags ocp,netfoundry,router -e virtual_machines=localhost -e remote_conn=local
-
+Router Tests
 Test Case 01
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test1,pretask --skip-tags test2,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
 
 Test Case 02
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test2,pretask --skip-tags test1,test3,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
 
 Test Case 03
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=customer-edge-routers -i ${WORKSPACE}/hosts.ini -u ziggy -e remote_conn=ssh
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,router,test3,pretask --skip-tags test1,test2,always,netfoundry,ocp -e virtual_machines=ocp.customer-edge-routers -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh
+
+Packet Tests
+Test Case 01 and 02
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags test,packet,listen,packet-test1,packet-test2,pretask --skip-tags router,always,netfoundry,ocp -e virtual_machines=ocp.clients -i ${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini -u ziggy -e remote_conn=ssh -e \${WORKSPACE}/ZT-Network-Test/ansible/tests.ini
 
 Destroy All Resources
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
-ansible-playbook ${WORKSPACE}/ansible/local.yml --tags always,delete,pretask,ocp,vnc,netfoundry,network --skip-tags get,instance,create,test,service -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,instance --skip-tags get,vnc,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,ocp,vnc --skip-tags get,instance,create,test,netfoundry -e virtual_machines=localhost -e remote_conn=local
+ansible-playbook ${WORKSPACE}/ZT-Network-Test/ansible/local.yml --tags always,delete,pretask,netfoundry,network --skip-tags get,service,create,test,ocp -e virtual_machines=localhost -e remote_conn=local
