@@ -136,7 +136,7 @@ pipeline {
         stage('Router Test Case 01') {
           when { expression { params.ROUTER_TC01 }}
           options {
-            timeout(time: 90, unit: "SECONDS")
+            timeout(time: 60, unit: "SECONDS")
           }
           steps {
             script {
@@ -162,7 +162,7 @@ pipeline {
         stage('Router Test Case 02') {
           when { expression { params.ROUTER_TC02 }}
           options {
-            timeout(time: 90, unit: "SECONDS")
+            timeout(time: 120, unit: "SECONDS")
           }
           steps {
             script {
