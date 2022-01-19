@@ -1,5 +1,4 @@
 ---
-
 - include_tasks: router.yml
   when: virtual_machines == 'ocp.customer-edge-routers'
   tags:

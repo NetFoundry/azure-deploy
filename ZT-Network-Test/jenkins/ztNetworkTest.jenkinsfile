@@ -131,7 +131,86 @@ pipeline {
         ) 
       }
     }
-    stage('Router Test Case 01') {
+    stage('Router and Packet Tests before router restart'){
+      parallel {
+        stage('Router Test Case 01') {
+          when { expression { params.ROUTER_TC01 }}
+          steps {
+            sleep 60
+            script {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                ansiblePlaybook( 
+                  playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+                  inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+                  tags: 'test,router,test1,pretask',
+                  skippedTags: 'test2,test3,always,netfoundry,ocp,skip',
+                  disableHostKeyChecking : true,
+                  credentialsId: '~/.ssh/id_rsa',
+                  extraVars: [
+                    virtual_machines: 'ocp.customer-edge-routers', 
+                    remote_conn: 'ssh'
+                  ],
+                  extras: '--user ziggy',
+                  colorized: true
+                ) 
+              }
+            }
+          }
+        }
+        stage('Router Test Case 02') {
+          when { expression { params.ROUTER_TC02 }} 
+          steps {
+            sleep 60
+            script {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                ansiblePlaybook( 
+                  playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+                  inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+                  tags: 'test,router,test2,pretask',
+                  skippedTags: 'test1,test3,always,netfoundry,ocp,skip',
+                  disableHostKeyChecking : true,
+                  becomeUser: 'ziggy',
+                  credentialsId: '~/.ssh/id_rsa',
+                  extraVars: [
+                    virtual_machines: 'ocp.customer-edge-routers', 
+                    remote_conn: 'ssh'
+                  ],
+                  extras: '--user ziggy',
+                  colorized: true
+                ) 
+              }
+            }
+          }
+        }
+        stage('Packet Test Case 01 and 02') {
+          when { expression { params.PACKET_TC45 }}
+         
+          steps {
+            sleep 60
+            script {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                ansiblePlaybook( 
+                  playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
+                  inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
+                  tags: 'test,packet,listen,packet-test1,packet-test2,pretask',
+                  skippedTags: 'router,always,netfoundry,ocp',
+                  disableHostKeyChecking : true,
+                  becomeUser: 'ziggy',
+                  credentialsId: '~/.ssh/id_rsa',
+                  extraVars: [
+                    virtual_machines: 'ocp.clients', 
+                    remote_conn: 'ssh'
+                  ],
+                  extras: '--user ziggy --extra-vars ZT-Network-Test/ansible/tests.ini -v',
+                  colorized: true
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Router Test Case 01 w/restart') {
       when { expression { params.ROUTER_TC01 }}
       steps {
         script {
@@ -154,7 +233,7 @@ pipeline {
         }
       }
     }
-    stage('Router Test Case 02') {
+    stage('Router Test Case 02 w/restart') {
       when { expression { params.ROUTER_TC02 }}
       steps {
         script {
@@ -178,7 +257,7 @@ pipeline {
         }
       }
     }
-    stage('Router Test Case 03') {
+    stage('Router Test Case 03 w/restart') {
       when { expression { params.ROUTER_TC03 }}
       steps {
         script {
@@ -196,30 +275,6 @@ pipeline {
                 remote_conn: 'ssh'
               ],
               extras: '--user ziggy',
-              colorized: true
-            )
-          }
-        }
-      }
-    }
-    stage('Packet Test Case 01 and 02') {
-      when { expression { params.PACKET_TC45 }}
-      steps {
-        script {
-          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            ansiblePlaybook( 
-              playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
-              inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
-              tags: 'test,packet,listen,packet-test1,packet-test2,pretask',
-              skippedTags: 'router,always,netfoundry,ocp',
-              disableHostKeyChecking : true,
-              becomeUser: 'ziggy',
-              credentialsId: '~/.ssh/id_rsa',
-              extraVars: [
-                virtual_machines: 'ocp.clients', 
-                remote_conn: 'ssh'
-              ],
-              extras: '--user ziggy --extra-vars ZT-Network-Test/ansible/tests.ini -v',
               colorized: true
             )
           }

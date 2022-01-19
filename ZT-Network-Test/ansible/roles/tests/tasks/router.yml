@@ -10,12 +10,14 @@
   ignore_errors: yes
   tags:
     - router
+    - skip
 
 - name: Pause for 60 seconds minutes to complete router restart
   pause:
     seconds: 60
   tags:
     - router
+    - skip
 
 - name: Check Router Process Status
   shell: /usr/bin/systemctl status ziti-router

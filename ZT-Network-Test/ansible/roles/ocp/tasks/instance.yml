@@ -48,7 +48,7 @@
 ###############################
 # On NetFoundry Network First #
 ###############################
-- name: Provision hosted edge router in OCP
+- name: Provision OCP hosted edge router on NF Network
   netfoundry_router:
     name: "{{ '.'.join([network_prefix, item.1]) }}"
     attributes: 
@@ -68,13 +68,13 @@
   tags: 
     - create
 
-- name: Create the list of routers and their details to deploy in OCI
+- name: Create the list of routers and their details to deploy in OCP
   set_fact:
     er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, region: message.attributes, regKey: message.registrationKey}') }}"
   tags: 
     - create
 
-- name: Collect the NF OCI ER Info
+- name: Collect the NF OCP ER Info
   netfoundry_info:
     network: "{{ network_prefix }}"
     inventory: True
@@ -96,7 +96,7 @@
 #######################################
 # If it does, delete and re-provision #
 #######################################
-- name: Delete Edge Routers for OCP
+- name: Delete Edge Routers for OCP on NF Network
   netfoundry_router:
     name: "{{ item.name }}"
     network: "{{ netfoundry_network.network }}"
@@ -107,7 +107,7 @@
   tags: 
     - create
 
-- name: Re-Provision hosted edge router in OCP
+- name: Re-Provision OCP hosted edge router on NF Network
   netfoundry_router:
     name: "{{ '.'.join([network_prefix, item.1]) }}"
     attributes: 
@@ -131,7 +131,7 @@
 # Region needs to be extracted from the edge router attributes #
 # Also, get reg keys                                           #
 ################################################################
-- name: Update the list of routers and their details to deploy in OCI
+- name: Update the list of routers and their details to deploy in OCP
   set_fact:
     er_ocp_list: "{{ ocp_er_response.results | json_query('[*].{name: message.name, region: message.attributes, regKey: message.registrationKey}') }}"
   when: edge_routers_for_deletion != []
@@ -153,7 +153,7 @@
 ############################################
 # Then create the corresponding VMs in OCP #
 ############################################
-- name: Create instance in oci
+- name: Create instance in OCP
   oci_compute_instance:
     availability_domain: "{{ 'iTps:' + item.ansible_facts.az }}"
     compartment_id: "{{ oci_compartment_id }}"
@@ -191,7 +191,7 @@
 # Fill in hosts file with public IPs #
 # and private IPs for clients only   #
 ######################################
-- name: List all cloud instances in ocp
+- name: List all cloud instances in OCP
   oci_compute_instance_facts:
     compartment_id: "{{ oci_compartment_id }}"
     region: "{{ item.name }}"
@@ -206,13 +206,13 @@
   tags:
     - always
 
-- name: Create ocp edge router vm list from az 1
+- name: Create OCP edge router vm list from az 1
   set_fact: 
     customer_edge_routers: "{{ instances | selectattr('name', 'search', '1') | list }}"
   tags:
     - always
 
-- name: Create ocp clients vm list from az 2
+- name: Create OCP clients vm list from az 2
   set_fact: 
     clients: "{{ instances | selectattr('name', 'search', '2') | list }}"
   tags:
@@ -263,7 +263,7 @@
   tags:
     - create
 
-- name: Update route table ion each region using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
+- name: Update route table in each OCP region using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
   oci_network_route_table:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.region }}"
@@ -282,7 +282,7 @@
  ########################
  # Delete ocp instances #
  ########################
-- name: Delete instance in oci using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
+- name: Delete instance in OCP using name (when environment variable OCI_USE_NAME_AS_IDENTIFIER is set)
   oci_compute_instance:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ '.'.join([network_prefix, item.1]) }}"
@@ -308,7 +308,7 @@
   tags: 
     - delete
 
-- name: Update hosts.ini file - customer-edge-routers
+- name: Delete customer-edge-routers from hosts.ini file
   ini_file:
     path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.customer-edge-routers
@@ -316,7 +316,7 @@
   tags:
     - delete
 
-- name: Update hosts.ini file - client public IPs
+- name: Update client public IPs from hosts.ini file
   ini_file:
     path: "{{ workspace }}/ZT-Network-Test/ansible/hosts.ini"
     section: ocp.clients
@@ -324,7 +324,7 @@
   tags:
     - delete
 
-- name: Update hosts.ini file - with client private IPs
+- name: Update with client private IPs from tests.ini file
   ini_file:
     path: "{{ workspace }}/ZT-Network-Test/ansible/tests.ini"
     section: ocp.clients.private

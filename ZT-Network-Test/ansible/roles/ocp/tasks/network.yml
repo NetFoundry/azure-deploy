@@ -3,7 +3,7 @@
 # Create oci network resources #
 ################################
 
-- name: Create vcn in oci
+- name: Create vcn in OCP
   oci_network_vcn:
     compartment_id: "{{ oci_compartment_id }}"
     cidr_block: "{{ item.cidr }}"
@@ -18,7 +18,7 @@
   loop: "{{ oci_regions }}"
   tags: create
 
-- name: Create internet gateway in oci
+- name: Create internet gateway in OCP
   oci_network_internet_gateway:
     compartment_id: "{{ oci_compartment_id }}"
     is_enabled: true
@@ -32,7 +32,7 @@
   loop: "{{ oci_regions }}"
   tags: create
 
-- name: Create routing table in oci
+- name: Create routing table in OCP
   oci_network_route_table:
     compartment_id: "{{ oci_compartment_id }}"
     route_rules:
@@ -50,7 +50,7 @@
   loop: "{{ oci_regions }}"
   tags: create
 
-- name: Create subnet in oci
+- name: Create subnet in OCP
   oci_network_subnet:
     cidr_block: "{{ item.subnet }}"
     compartment_id: "{{ oci_compartment_id }}"
@@ -65,7 +65,7 @@
   loop: "{{ oci_regions }}"
   tags: create
 
-- name: Create security group in oci
+- name: Create security group in OCP
   oci_network_security_group:
     compartment_id: "{{ oci_compartment_id }}"
     vcn_id: "{{ oci_network_details.results | map(attribute='vcn') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
@@ -78,7 +78,7 @@
   loop: "{{ oci_regions }}"
   tags: create
 
-- name: Add rules to security group in oci
+- name: Add rules to security group in OCP
   oci_network_security_group_security_rule_actions:
     network_security_group_id: "{{ oci_sg_details.results | map(attribute='network_security_group') | selectattr('display_name', 'search', network_prefix+'-'+item.name) |  json_query('[0].id') }}"
     region: "{{ item.name }}"
@@ -102,7 +102,7 @@
 # Delete oci network resources #
 ################################
 
-- name: Delete security group in oci
+- name: Delete security group in OCP
   oci_network_security_group:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
@@ -112,7 +112,7 @@
   loop: "{{ oci_regions }}"
   tags: delete
 
-- name: Delete subnet in oci
+- name: Delete subnet in OCP
   oci_network_subnet:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
@@ -122,7 +122,7 @@
   loop: "{{ oci_regions }}"
   tags: delete
 
-- name: Delete routing table in oci
+- name: Delete routing table in OCP
   oci_network_route_table:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
@@ -132,7 +132,7 @@
   loop: "{{ oci_regions }}"
   tags: delete
 
-- name: Delete internet gateway in oci
+- name: Delete internet gateway in OCP
   oci_network_internet_gateway:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
@@ -142,7 +142,7 @@
   loop: "{{ oci_regions }}"
   tags: delete
 
-- name: Delete vcn in oci using name
+- name: Delete vcn in OCP using name
   oci_network_vcn:
     compartment_id: "{{ oci_compartment_id }}"
     display_name: "{{ network_prefix }}-{{ item.name }}"
