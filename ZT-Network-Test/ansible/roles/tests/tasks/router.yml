@@ -35,6 +35,7 @@
   become: True
   shell: /usr/sbin/iptables -S  NF-INTERCEPT
   register: router_services
+  retries: 3
   failed_when: ('tcp.' + network_prefix|string not in router_services.stdout) or
                ('udp.' + network_prefix|string not in router_services.stdout)
   tags:
