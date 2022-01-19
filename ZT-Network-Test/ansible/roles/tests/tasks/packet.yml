@@ -33,9 +33,9 @@
 ############################
 - name:  Test | Run udp echo transfer
   shell: |
-    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
-    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
-    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc "{{ item }}" 5050 -u | exit'
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc -w 60 "{{ item }}" 5050 -u | exit'
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc -w 60 "{{ item }}" 5050 -u | exit'
+    sh -c 'echo "testUDP\ntestUDP\ntestUDP" | nc -w 60 "{{ item }}" 5050 -u | exit'
   loop: "{{ client_hosts }}"
   tags:
   - packet-test1
@@ -52,10 +52,10 @@
 ############################
 - name:  Test | Run tcp echo transfer
   shell: |
-    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
-    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
-    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
-    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc -w 60 "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc -w 60 "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc -w 60 "{{ item }}"  8080 | exit'
+    sh -c 'echo "testTCP\ntestTCP\ntestTCP" | nc -w 60 "{{ item }}"  8080 | exit'
   loop: "{{ client_hosts }}"
   tags:
   - packet-test2
