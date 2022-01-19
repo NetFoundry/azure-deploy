@@ -135,8 +135,8 @@ pipeline {
       parallel {
         stage('Router Test Case 01') {
           when { expression { params.ROUTER_TC01 }}
-          sleep 60
           steps {
+            sleep 60
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 ansiblePlaybook( 
@@ -158,9 +158,9 @@ pipeline {
           }
         }
         stage('Router Test Case 02') {
-          when { expression { params.ROUTER_TC02 }}
-          sleep 60
+          when { expression { params.ROUTER_TC02 }} 
           steps {
+            sleep 60
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 ansiblePlaybook( 
@@ -184,8 +184,9 @@ pipeline {
         }
         stage('Packet Test Case 01 and 02') {
           when { expression { params.PACKET_TC45 }}
-          sleep 60
+         
           steps {
+            sleep 60
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 ansiblePlaybook( 
