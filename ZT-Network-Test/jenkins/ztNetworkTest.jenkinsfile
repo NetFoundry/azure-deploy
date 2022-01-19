@@ -215,7 +215,7 @@ pipeline {
         }
       }
     }
-    stage('Router Test Case 01 w/reload') {
+    stage('Router Test Case 01 w/restart') {
       when { expression { params.ROUTER_TC01 }}
       steps {
         script {
@@ -238,7 +238,7 @@ pipeline {
         }
       }
     }
-    stage('Router Test Case 02 w/reload') {
+    stage('Router Test Case 02 w/restart') {
       when { expression { params.ROUTER_TC02 }}
       steps {
         script {
@@ -262,7 +262,7 @@ pipeline {
         }
       }
     }
-    stage('Router Test Case 03 w/reload') {
+    stage('Router Test Case 03 w/restart') {
       when { expression { params.ROUTER_TC03 }}
       steps {
         script {
