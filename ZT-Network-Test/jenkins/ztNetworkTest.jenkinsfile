@@ -135,6 +135,9 @@ pipeline {
       parallel {
         stage('Router Test Case 01') {
           when { expression { params.ROUTER_TC01 }}
+          options {
+            timeout(time: 60, unit: "SECONDS")
+          }
           steps {
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -158,6 +161,9 @@ pipeline {
         }
         stage('Router Test Case 02') {
           when { expression { params.ROUTER_TC02 }}
+          options {
+            timeout(time: 60, unit: "SECONDS")
+          }
           steps {
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -182,6 +188,9 @@ pipeline {
         }
         stage('Packet Test Case 01 and 02') {
           when { expression { params.PACKET_TC45 }}
+          options {
+            timeout(time: 60, unit: "SECONDS")
+          }
           steps {
             script {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
