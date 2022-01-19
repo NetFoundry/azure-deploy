@@ -140,7 +140,7 @@ pipeline {
               playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,router,test1,pretask',
-              skippedTags: 'test2,test3,always,netfoundry,ocp',
+              skippedTags: 'test2,test3,always,netfoundry,ocp,skip',
               disableHostKeyChecking : true,
               credentialsId: '~/.ssh/id_rsa',
               extraVars: [
@@ -163,7 +163,7 @@ pipeline {
               playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
               tags: 'test,router,test2,pretask',
-              skippedTags: 'test1,test3,always,netfoundry,ocp',
+              skippedTags: 'test1,test3,always,netfoundry,ocp,skip',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               credentialsId: '~/.ssh/id_rsa',
@@ -186,8 +186,8 @@ pipeline {
             ansiblePlaybook( 
               playbook: '${WORKSPACE}/ZT-Network-Test/ansible/local.yml',
               inventory: '${WORKSPACE}/ZT-Network-Test/ansible/hosts.ini',
-              tags: 'test,router,test3,pretask',
-              skippedTags: 'test1,test2,always,netfoundry,ocp',
+              tags: 'test,router,test1,test2,test3,pretask',
+              skippedTags: 'always,netfoundry,ocp',
               disableHostKeyChecking : true,
               becomeUser: 'ziggy',
               credentialsId: '~/.ssh/id_rsa',
