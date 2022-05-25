@@ -50,12 +50,10 @@
             "defaultValue": "Standard_B2s"
         },
         "adminUsername": {
-            "type": "String",
-            "defaultValue": "ziggy"
+            "type": "String"
         },
         "adminPublicKey": {
-            "type": "SecureString",
-            "defaultValue": "centralus"
+            "type": "SecureString"
         },
         "zitiVersion": {
             "type": "String"
