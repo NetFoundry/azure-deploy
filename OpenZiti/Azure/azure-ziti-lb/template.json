@@ -3,40 +3,59 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "centralus"
         },
         "subnetName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "default"
         },
         "virtualNetworkName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "DariuszZttv-vnet"
         },
         "addressPrefixes": {
-            "type": "Array"
+            "type": "Array",
+            "defaultValue": ["10.15.0.0/16"]
         },
         "subnets": {
-            "type": "Array"
+            "type": "Array",
+            "defaultValue": [
+                {
+                    "name": "default",
+                    "properties": {
+                        "addressPrefix": "10.15.0.0/24"
+                    }
+                }
+            ]
         },
         "loadBalancerIP":{
-            "type": "String"
+            "type": "String",
+            "defaultValue": "10.15.0.10"
         },
         "zitiServiceNet": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "10.17.0.0/24"
         },
         "virtualMachineName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "Belb-er"
         },
         "virtualMachineRG": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "DariuszZttv"
         },
         "virtualMachineSize": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "Standard_B2s"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "ziggy"
         },
         "adminPublicKey": {
-            "type": "SecureString"
+            "type": "SecureString",
+            "defaultValue": "centralus"
         },
         "zitiVersion": {
             "type": "String"
