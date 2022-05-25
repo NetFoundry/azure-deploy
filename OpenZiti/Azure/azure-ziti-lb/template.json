@@ -1,0 +1,733 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "String"
+        },
+        "subnetName": {
+            "type": "String"
+        },
+        "virtualNetworkName": {
+            "type": "String"
+        },
+        "addressPrefixes": {
+            "type": "Array"
+        },
+        "subnets": {
+            "type": "Array"
+        },
+        "loadBalancerIP":{
+            "type": "String"
+        },
+        "zitiServiceNet": {
+            "type": "String"
+        },
+        "virtualMachineName": {
+            "type": "String"
+        },
+        "virtualMachineRG": {
+            "type": "String"
+        },
+        "virtualMachineSize": {
+            "type": "String"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "adminPublicKey": {
+            "type": "SecureString"
+        },
+        "zitiVersion": {
+            "type": "String"
+        },
+        "controllerDNS": {
+            "type": "String"
+        },
+        "controllerPassword": {
+            "type": "SecureString"
+        }
+    },
+    "variables": {
+        "networkSecurityGroupName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg1')]",
+        "networkSecurityGroupName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg2')]",
+        "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
+        "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
+        "vnetName": "[concat(parameters('virtualNetworkName'),'-',parameters('location'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "virtualMachineName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01')]",
+        "publicIpAddressName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-ip')]",
+        "networkInterfaceName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-netif')]",
+        "virtualMachineName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02')]",
+        "publicIpAddressName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-ip')]",
+        "networkInterfaceName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-netif')]",
+        "virtualMachineName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03')]",
+        "publicIpAddressName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-ip')]",
+        "networkInterfaceName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-netif')]",
+        "virtualMachineName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04')]",
+        "publicIpAddressName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-ip')]",
+        "networkInterfaceName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-netif')]",
+        "loadbalancerName": "[concat('ZitiLB', parameters('location'))]",
+        "loadbalancerNameFEIP": "[concat(variables('loadbalancerName'),'-FEIP')]",
+        "loadbalancerNameBEAP": "[concat(variables('loadbalancerName'),'-BEAP')]",
+        "loadbalancerNameProbes": "[concat(variables('loadbalancerName'),'-Probes')]",
+        "loadbalancerNameLBRules": "[concat(variables('loadbalancerName'),'-LBRules')]",
+        "lbId": "[resourceId(resourceGroup().name, 'Microsoft.Network/loadBalancers', variables('loadbalancerName'))]",
+        "routeTableName": "[concat('ZitiRT', parameters('location'))]",
+        "cloudInit1": "#cloud-config\nwrite_files:\n- encoding: b64\n  content: IyEvYmluL2Jhc2gKc2V0IC11byBwaXBlZmFpbAoKd2hpbGUgZ2V0b3B0cyB2OmM6cDogZmxhZwpkbwogICAgY2FzZSAiJHtmbGFnfSIgaW4KICAgICAgICB2KSB6aXRpX3ZlcnNpb249JHtPUFRBUkd9OzsKICAgICAgICBjKSB6aXRpX2NvbnRyb2xsZXI9JHtPUFRBUkd9OzsKICAgICAgICBwKSB6aXRpX3Bhc3N3b3JkPSR7T1BUQVJHfTs7CiAgICBlc2FjCmRvbmUKCmV4cG9ydCBaSVRJX0hPTUU9Ii9ob21lL3ppZ2d5Ly56aXRpIgpleHBvcnQgWklUSV9CSU5fUk9PVD0iJHtaSVRJX0hPTUV9L3ppdGktYmluIgpta2RpciAtcCAiJHtaSVRJX0hPTUV9Igpta2RpciAtcCAiJHtaSVRJX0JJTl9ST09UfSIKbWtkaXIgLXAgIiR7WklUSV9CSU5fUk9PVH0vYmluIgpta2RpciAtcCAiL3Vzci9saWIvc3lzdGVtZC9yZXNvbHZlZC5jb25mLmQiCnJlc29sdl9maWxlPSIvdXNyL2xpYi9zeXN0ZW1kL3Jlc29sdmVkLmNvbmYuZC8wMS1uZXRmb3VuZHJ5LmNvbmYiCnRvdWNoICIke3Jlc29sdl9maWxlfSIKZXhwb3J0IFpJVElfVkVSU0lPTj0keml0aV92ZXJzaW9uCmV4cG9ydCBaSVRJX0NPTlRST0xMRVI9JHppdGlfY29udHJvbGxlcgpleHBvcnQgWklUSV9QQVNTV09SRD0keml0aV9wYXNzd29yZApleHBvcnQgRVhURVJOQUxfRE5TPQoKd2dldCBodHRwczovL2dpdGh1Yi5jb20vb3BlbnppdGkveml0aS9yZWxlYXNlcy9kb3dubG9hZC92JHtaSVRJX1ZFUlNJT059L3ppdGktbGludXgtYW1kNjQtJHtaSVRJX1ZFUlNJT059LnRhci5negp0YXIgeGYgeml0aS1saW51eC1hbWQ2NC0ke1pJVElfVkVSU0lPTn0udGFyLmd6IC1DICR7WklUSV9CSU5fUk9PVH0vYmluCmNwICAke1pJVElfQklOX1JPT1R9L2Jpbi96aXRpLyogJHtaSVRJX0JJTl9ST09UfS8Kcm0gLWZSICAke1pJVElfQklOX1JPT1R9L2JpbgoKYWRhcHRlcl9pcD1gL3Vzci9iaW4vaG9zdG5hbWUgLUlgCmV4cG9ydCBFWFRFUk5BTF9ETlM9JGFkYXB0ZXJfaXAKY2F0ID4gIiR7cmVzb2x2X2ZpbGV9IiA8PEhlcmVkb2NGb3JSZXNvbHZDb25mCiNOZXRmb3VuZHJ5IEFkZGVkIGZpbGUKW1Jlc29sdmVdCkROUz0ke2FkYXB0ZXJfaXB9CgpIZXJlZG9jRm9yUmVzb2x2Q29uZgoKL3Vzci9iaW4vc3lzdGVtY3RsIHJlc3RhcnQgc3lzdGVtZC1uZXR3b3JrZAovdXNyL2Jpbi9zeXN0ZW1jdGwgcmVzdGFydCBzeXN0ZW1kLXJlc29sdmVkCgoke1pJVElfQklOX1JPT1R9L3ppdGkgZWRnZSBsb2dpbiAke1pJVElfQ09OVFJPTExFUn06ODQ0MSAtdSBhZG1pbiAtcCAke1pJVElfUEFTU1dPUkR9IC15CgpvdXRwdXRfZmlsZT0iJHtaSVRJX0hPTUV9LyR7SE9TVE5BTUV9LnlhbWwiCiIke1pJVElfQklOX1JPT1R9L3ppdGkiIGNyZWF0ZSBjb25maWcgcm91dGVyIGVkZ2UgLS1yb3V0ZXJOYW1lICIke0hPU1ROQU1FfSIgLS1wcml2YXRlID4gIiR7b3V0cHV0X2ZpbGV9IgoiJHtaSVRJX0JJTl9ST09UfS96aXRpIiBlZGdlIGNyZWF0ZSBlZGdlLXJvdXRlciAiJHtIT1NUTkFNRX0iIC1vICIke1pJVElfSE9NRX0vJHtIT1NUTkFNRX0uand0IiAtdCAtLW5vLXRyYXZlcnNhbCA+IC9kZXYvbnVsbAo=",
+        "cloudInit2": "\n  owner: root:root\n  path: /var/lib/cloud/edge_router_setup\n  permissions: '0755'\nruncmd:",
+        "cloudInit3": "[concat('\n- [/var/lib/cloud/edge_router_setup, -v, ', parameters('zitiVersion'), ', -c, ', parameters('controllerDNS'), ', -p, ', parameters('controllerPassword'), ']')]",
+        "runCmd": "[concat(variables('cloudInit1'),' ',variables('cloudInit2'),' ',variables('cloudInit3'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName1')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName1'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName1'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "enableIPForwarding": true,
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId1')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName2')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName2'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName2'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "enableIPForwarding": true,
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId1')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName3')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName2'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName3'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName3'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId2')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName4')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName2'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName4'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName4'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId2')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[variables('networkSecurityGroupName1')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    },
+                    {
+                        "name": "Ziti-Services",
+                        "properties": {
+                            "priority": 310,
+                            "protocol": "*",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "[parameters('addressPrefixes')[0]]",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "*"
+                        }
+                    },
+                    {
+                        "name": "Health-Checks",
+                        "properties": {
+                            "priority": 320,
+                            "protocol": "*",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "168.63.129.16/32",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "8081"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[variables('networkSecurityGroupName2')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('vnetName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                },
+                "subnets": "[parameters('subnets')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName1')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName2')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName3')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName4')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName1')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName1'))]"
+            ],
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts-gen2",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName1'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName1')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    },
+                    "customData": "[base64(variables('runCmd'))]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName2')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName2'))]"
+            ],
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts-gen2",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName2'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName2')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    },
+                    "customData": "[base64(variables('runCmd'))]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName3')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName3'))]"
+            ],
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts-gen2",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName3'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName3')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName4')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName4'))]"
+            ],
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts-gen2",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName4'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName4')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2021-05-01",
+            "name": "[variables('loadbalancerName')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName1'))]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName2'))]"
+            ],
+            "tags": {},
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[variables('loadbalancerNameFEIP')]",
+                        "properties": {
+                            "privateIPAddress": "[parameters('loadBalancerIP')]",
+                            "privateIPAddressVersion": "IPv4",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        },
+                        "zones": [
+                            "3"
+                        ]
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('loadbalancerNameBEAP')]"
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('loadbalancerNameProbes')]",
+                        "properties": {
+                            "protocol": "Https",
+                            "port": 8081,
+                            "requestPath": "/health-checks",
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "[variables('loadbalancerNameLBRules')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('lbId'),'/frontendIPConfigurations/',variables('loadbalancerNameFEIP'))]"
+                            },
+                            "frontendPort": 0,
+                            "backendPort": 0,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "All",
+                            "loadDistribution": "SourceIPProtocol",
+                            "probe": {
+                                "id": "[concat(variables('lbId'),'/probes/',variables('loadbalancerNameProbes'))]"  
+                            },
+                            "disableOutboundSnat": true,
+                            "enableTcpReset": false,
+                            "backendAddressPools": [
+                                {
+                                    "id": "[concat(variables('lbId'),'/backendAddressPools/',variables('loadbalancerNameBEAP'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundRules": []
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/routeTables",
+            "name": "[variables('routeTableName')]",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "Ziti-Services",
+                        "properties": {
+                            "addressPrefix": "[parameters('zitiServiceNet')]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('loadBalancerIP')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "String",
+            "value": "[parameters('adminUsername')]"
+        }, 
+        "virtualMachineName1": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName1'))).IpAddress]"
+        }, 
+        "virtualMachineName2": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName2'))).IpAddress]"
+        }, 
+        "virtualMachineName3": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName3'))).IpAddress]"
+        }, 
+        "virtualMachineName4": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName4'))).IpAddress]"
+        }
+    }
+}
