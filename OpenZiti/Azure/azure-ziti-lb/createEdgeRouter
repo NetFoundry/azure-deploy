@@ -93,7 +93,8 @@ HeredocForRouterConf
 sudo chown ziggy:ziggy -R ${ZITI_HOME}
 "${ZITI_BIN_ROOT}/ziti" edge create edge-router "${HOSTNAME}" -o "${ZITI_HOME}/${HOSTNAME}.jwt" -t --no-traversal > /dev/null
 "${ZITI_BIN_ROOT}/ziti-router" enroll "${router_config}" --jwt "${ZITI_HOME}/${HOSTNAME}.jwt" &> "${ZITI_HOME}/${HOSTNAME}.enrollment.log"
-sudo nohup "${ZITI_BIN_ROOT}/ziti-router" run "${ZITI_HOME}/${HOSTNAME}.yml" &
+log_file="${ZITI_HOME}/${HOSTNAME}.log"
+sudo nohup "${ZITI_BIN_ROOT}/ziti-router" run "${ZITI_HOME}/${HOSTNAME}.yml" > "${log_file}" 2>&1 &
 pid=$!
 echo -e "Express Edge Router started as process id: $pid."
 
