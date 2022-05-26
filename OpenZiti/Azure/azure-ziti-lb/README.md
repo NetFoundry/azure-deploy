@@ -1,11 +1,10 @@
 
 ## Deploy LoadBalancer and 2 Ziti Edge Routers with 2 Ubuntu Client VMs to your Resource Group
 
-I have tested two way to deply this:
+I have tested two ways to deploy this:
 1. az cli
-
-**Note**
-    Update the paramters file to match your Azure and Ziti configuration, and install azure cli for your os
+**Important Note**
+    Update the paramters file to match your Azure Cloud / Ziti configurations, and install azure cli for your os
 
 ```
 git git@github.com:netfoundry/azure-deploy.git
