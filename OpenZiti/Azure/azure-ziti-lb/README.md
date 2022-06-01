@@ -1,9 +1,13 @@
 
 ## Deploy LoadBalancer and 2 Ziti Edge Routers with 2 Ubuntu Client VMs to your Resource Group
 
-I have tested two ways to deploy this:
+This template is created to work with the Zit network created with OpenZiti Quickstart that can be found [ExpressInstall](https://openziti.github.io/ziti/quickstarts/network/hosted.html). Scorll down to the Express Install section and follow the steps to install the Ziti Controller and Public Router. Once you have the controller DNS name and Password, then you can use the templates created here.
+
+**Note**
+    Here are the steps to create HA Infra (2 Ziti ERs, Network Load Balncer and 2 CLient Ubuntu VMs for testing in the Azure Region. You wil probaly need at least two regions. You can use Azure Cli or Azure Button.
+
 1. az cli
-**Important Note**
+**Important**
     Update the paramters file to match your Azure Cloud / Ziti configurations, and install azure cli for your os
 
 ```
