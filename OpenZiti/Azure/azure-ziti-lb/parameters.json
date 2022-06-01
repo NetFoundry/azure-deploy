@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus2"
+        },
+        "virtualNetworkName": {
+            "value": "DariuszZttv-vnet"
+        },
+        "addressPrefixes": {
+            "value": [
+                "10.17.0.0/16"
+            ]
+        },
+        "subnet": {
+            "value": "10.17.0.0/24"
+        },
+        "loadBalancerIP": {
+            "value": "10.17.0.10"
+        },
+        "zitiServiceNet": {
+            "value": "10.15.0.0/24"
+        },
+        "virtualMachineName": {
+            "value": "Belb-er"
+        },
+        "virtualMachineRG": {
+            "value": "DariuszZttv"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B2s"
+        },
+        "adminUsername": {
+            "value": "ziggy"
+        },
+        "adminPublicKey": {
+            "value": ""
+        },
+        "zitiVersion": {
+            "value": "0.25.8"
+        },
+        "controllerDNS": {
+            "value": "dariusz-zttv-01.eastus.cloudapp.azure.com"
+        },
+        "controllerPassword": {
+            "value": ""
+        }
+    }
+}
