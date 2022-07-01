@@ -18,4 +18,4 @@ cd azure-deploy/NetworkLoadBalancer/Azure
 az deployment group create --resource-group "Your RG" --template-file .\template.json --parameters .\parameters.json
 ```
 2. Using Azure Button
-[![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Ffeature%/2FCLOUDDEV-976%2FNetworkLoadBalancer%2FAzure%2Ftemplate.json)
+[![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Ffeature%2FCLOUDDEV-976%2FNetworkLoadBalancer%2FAzure%2Ftemplate.json)
