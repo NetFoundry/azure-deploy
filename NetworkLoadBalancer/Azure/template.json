@@ -57,7 +57,6 @@
               "description": "Enter the back end edge router key2"
             }
         }
-        }
     },
     "variables": {
         "networkSecurityGroupName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg1')]",
@@ -611,14 +610,6 @@
         "virtualMachineName2": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName2'))).IpAddress]"
-        }, 
-        "virtualMachineName3": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName3'))).IpAddress]"
-        }, 
-        "virtualMachineName4": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName4'))).IpAddress]"
         }
     }
 }
