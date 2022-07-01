@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "virtualNetworkName": {
+            "value": ""
+        },
+        "addressPrefixes": {
+            "value": [
+                "10.17.0.0/16"
+            ]
+        },
+        "subnet": {
+            "value": "10.17.0.0/24"
+        },
+        "loadBalancerIP": {
+            "value": "10.17.0.10"
+        },
+        "zitiServiceNet": {
+            "value": "10.15.0.0/24"
+        },
+        "virtualMachineNamePrefix": {
+            "value": "belb-er"
+        },
+        "virtualMachineRG": {
+            "value": ""
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B2s"
+        },
+        "adminUsername": {
+            "value": "ziggy"
+        },
+        "adminPublicKey": {
+            "value": ""
+        },
+        "edgeRouterKey1": {
+            "value": ""
+        },
+        "edgeRouterKey2": {
+            "value": ""
+        }
+    }
+    }
+}

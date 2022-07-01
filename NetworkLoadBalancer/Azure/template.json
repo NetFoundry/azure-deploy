@@ -1,0 +1,624 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "String",
+            "defaultValue": "centralus",
+            "metadata": {
+                "description": "Enter the location where you want to deploy LB and Edge Routers"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "String"
+        },
+        "addressPrefixes": {
+            "type": "Array",
+            "defaultValue": ["10.15.0.0/16"]
+        },
+        "subnet": {
+            "type": "String",
+            "defaultValue": "10.15.0.0/24"
+        },
+        "loadBalancerIP":{
+            "type": "String",
+            "defaultValue": "10.15.0.10"
+        },
+        "zitiServiceNet": {
+            "type": "String",
+            "defaultValue": "10.17.0.0/24"
+        },
+        "virtualMachineName": {
+            "type": "String",
+            "defaultValue": "Belb-er"
+        },
+        "virtualMachineRG": {
+            "type": "String"
+        },
+        "virtualMachineSize": {
+            "type": "String",
+            "defaultValue": "Standard_B2s"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "adminPublicKey": {
+            "type": "SecureString"
+        },
+        "edgeRouterKey1": {
+            "type": "string",
+            "metadata": {
+              "description": "Enter the back end edge router key1"
+            }
+        },
+        "edgeRouterKey2": {
+            "type": "string",
+            "metadata": {
+              "description": "Enter the back end edge router key2"
+            }
+        }
+        }
+    },
+    "variables": {
+        "networkSecurityGroupName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg1')]",
+        "networkSecurityGroupName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg2')]",
+        "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
+        "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
+        "vnetName": "[concat(parameters('virtualNetworkName'),'-',parameters('location'))]",
+        "subnetname": "[concat(parameters('virtualNetworkName'),'-default')]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "virtualMachineName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01')]",
+        "publicIpAddressName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-ip')]",
+        "networkInterfaceName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-netif')]",
+        "virtualMachineName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02')]",
+        "publicIpAddressName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-ip')]",
+        "networkInterfaceName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-netif')]",
+        "virtualMachineName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03')]",
+        "publicIpAddressName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-ip')]",
+        "networkInterfaceName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-netif')]",
+        "virtualMachineName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04')]",
+        "publicIpAddressName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-ip')]",
+        "networkInterfaceName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-netif')]",
+        "loadbalancerName": "[concat('ZitiLB', parameters('location'))]",
+        "loadbalancerNameFEIP": "[concat(variables('loadbalancerName'),'-FEIP')]",
+        "loadbalancerNameBEAP": "[concat(variables('loadbalancerName'),'-BEAP')]",
+        "loadbalancerNameProbes": "[concat(variables('loadbalancerName'),'-Probes')]",
+        "loadbalancerNameLBRules": "[concat(variables('loadbalancerName'),'-LBRules')]",
+        "lbId": "[resourceId(resourceGroup().name, 'Microsoft.Network/loadBalancers', variables('loadbalancerName'))]",
+        "routeTableName": "[concat('ZitiRT', parameters('location'))]",
+        "routeTableId": "[resourceId(resourceGroup().name,'Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey1'), ']')]",
+        "cloudInit2": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey2'), ']')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName1')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName1'))]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName1'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/loadBalancers/backendAddressPools/', variables('loadbalancerName'), variables('loadbalancerNameBEAP'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "enableIPForwarding": true,
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId1')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName2')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName2'))]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName2'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/loadBalancers/backendAddressPools/', variables('loadbalancerName'), variables('loadbalancerNameBEAP'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "enableIPForwarding": true,
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId1')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName3')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName2'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName3'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName3'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId2')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('networkInterfaceName4')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName2'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName4'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName4'))]",
+                                "properties": {
+                                    "deleteOption": "delete"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId2')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[variables('networkSecurityGroupName1')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    },
+                    {
+                        "name": "Ziti-Services",
+                        "properties": {
+                            "priority": 310,
+                            "protocol": "*",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "[parameters('addressPrefixes')[0]]",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "*"
+                        }
+                    },
+                    {
+                        "name": "Health-Checks",
+                        "properties": {
+                            "priority": 320,
+                            "protocol": "*",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "168.63.129.16/32",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "8081"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[variables('networkSecurityGroupName2')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('vnetName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[variables('routeTableName')]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet')]",
+                            "routeTable": {
+                                "id": "[variables('routeTableId')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName1')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('publicIpAddressName2')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName1')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName1'))]"
+            ],
+            "zones": [
+                "1"
+            ],
+            "plan": {
+                "name": "ziti-edge-router",
+                "product": "ziti-edge-router",
+                "publisher": "netfoundryinc"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "ziti-edge-router",
+                        "sku": "ziti-edge-router",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName1'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName1')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    },
+                    "customData": "[base64(variables('cloudInit1'))]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[variables('virtualMachineName2')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName2'))]"
+            ],
+            "zones": [
+                "2"
+            ],
+            "plan": {
+                "name": "ziti-edge-router",
+                "product": "ziti-edge-router",
+                "publisher": "netfoundryinc"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "ziti-edge-router",
+                        "sku": "ziti-edge-router",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName2'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName2')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    },
+                    "customData": "[base64(variables('cloudInit2'))]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2021-05-01",
+            "name": "[variables('loadbalancerName')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+            ],
+            "tags": {},
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[variables('loadbalancerNameFEIP')]",
+                        "properties": {
+                            "privateIPAddress": "[parameters('loadBalancerIP')]",
+                            "privateIPAddressVersion": "IPv4",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        },
+                        "zones": [
+                            "3"
+                        ]
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('loadbalancerNameBEAP')]"
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('loadbalancerNameProbes')]",
+                        "properties": {
+                            "protocol": "Https",
+                            "port": 8081,
+                            "requestPath": "/health-checks",
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "[variables('loadbalancerNameLBRules')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('lbId'),'/frontendIPConfigurations/',variables('loadbalancerNameFEIP'))]"
+                            },
+                            "frontendPort": 0,
+                            "backendPort": 0,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "All",
+                            "loadDistribution": "SourceIPProtocol",
+                            "probe": {
+                                "id": "[concat(variables('lbId'),'/probes/',variables('loadbalancerNameProbes'))]"  
+                            },
+                            "disableOutboundSnat": true,
+                            "enableTcpReset": false,
+                            "backendAddressPools": [
+                                {
+                                    "id": "[concat(variables('lbId'),'/backendAddressPools/',variables('loadbalancerNameBEAP'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundRules": []
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/routeTables",
+            "name": "[variables('routeTableName')]",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "Ziti-Services",
+                        "properties": {
+                            "addressPrefix": "[parameters('zitiServiceNet')]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('loadBalancerIP')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "String",
+            "value": "[parameters('adminUsername')]"
+        }, 
+        "virtualMachineName1": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName1'))).IpAddress]"
+        }, 
+        "virtualMachineName2": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName2'))).IpAddress]"
+        }, 
+        "virtualMachineName3": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName3'))).IpAddress]"
+        }, 
+        "virtualMachineName4": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIpAddressName4'))).IpAddress]"
+        }
+    }
+}
