@@ -63,8 +63,8 @@
         "networkSecurityGroupName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-nsg2')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', ƒ)]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
         "virtualMachineName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01')]",
         "publicIpAddressName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01-ip')]",
         "networkInterfaceName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01-netif')]",
@@ -90,7 +90,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName1'))]",
                 "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'))]"
             ],
@@ -130,7 +130,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName2'))]",
                 "[concat('Microsoft.Network/loadBalancers/', variables('loadbalancerName'))]"
             ],
@@ -238,7 +238,7 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-11-01",
-            "name": "[variables('vnetName')]",
+            "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[variables('routeTableName')]"
@@ -249,7 +249,7 @@
                 },
                 "subnets": [
                     {
-                        "name": "[variables('subnetName')]",
+                        "name": "[parameters('subnetName')]",
                         "properties": {
                             "addressPrefix": "[parameters('subnet')]",
                             "routeTable": {
@@ -432,7 +432,7 @@
             "type": "Microsoft.Network/loadBalancers",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
             "tags": {},
             "properties": {
