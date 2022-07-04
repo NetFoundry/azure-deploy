@@ -9,12 +9,15 @@
                 "description": "Enter the location where you want to deploy LB and Edge Routers"
             }
         },
-        "virtualNetworkName": {
+        "vnetName": {
             "type": "String"
         },
         "addressPrefixes": {
             "type": "Array",
             "defaultValue": ["10.15.0.0/16"]
+        },
+        "subnetname": {
+            "type": "String"
         },
         "subnet": {
             "type": "String",
@@ -60,8 +63,6 @@
         "networkSecurityGroupName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg2')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
-        "vnetName": "[concat(parameters('virtualNetworkName'),'-',parameters('location'))]",
-        "subnetname": "[concat(parameters('virtualNetworkName'),'-default')]",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
         "virtualMachineName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01')]",

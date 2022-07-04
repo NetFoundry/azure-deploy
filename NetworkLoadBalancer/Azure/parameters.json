@@ -5,13 +5,16 @@
         "location": {
             "value": ""
         },
-        "virtualNetworkName": {
+        "vnetName": {
             "value": ""
         },
         "addressPrefixes": {
             "value": [
                 "10.17.0.0/16"
             ]
+        },
+        "subnetname": {
+            "value": ""
         },
         "subnet": {
             "value": "10.17.0.0/24"
@@ -24,9 +27,6 @@
         },
         "virtualMachineNamePrefix": {
             "value": "belb-er"
-        },
-        "virtualMachineRG": {
-            "value": ""
         },
         "virtualMachineSize": {
             "value": "Standard_B2s"
