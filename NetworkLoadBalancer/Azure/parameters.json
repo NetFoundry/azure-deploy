@@ -8,22 +8,22 @@
         "vnetName": {
             "value": ""
         },
-        "addressPrefixes": {
+        "localAddressPrefixes": {
             "value": [
-                "10.17.0.0/16"
+                "10.15.0.0/16"
             ]
         },
         "subnetName": {
             "value": ""
         },
         "subnet": {
-            "value": "10.17.0.0/24"
+            "value": "10.15.0.0/24"
         },
         "loadBalancerIP": {
-            "value": "10.17.0.10"
+            "value": "10.15.0.10"
         },
-        "peerAddressNet": {
-            "value": "10.15.0.0/24"
+        "peerAddressPrefix": {
+            "value": "10.17.0.0/24"
         },
         "virtualMachineNamePrefix": {
             "value": "belb-er"

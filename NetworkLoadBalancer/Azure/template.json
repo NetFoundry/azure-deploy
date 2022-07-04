@@ -31,7 +31,7 @@
             "type": "String",
             "defaultValue": "10.17.0.0/24"
         },
-        "virtualMachineName": {
+        "virtualMachineNamePrefix": {
             "type": "String",
             "defaultValue": "Belb-er"
         },
@@ -59,24 +59,18 @@
         }
     },
     "variables": {
-        "networkSecurityGroupName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg1')]",
-        "networkSecurityGroupName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-nsg2')]",
+        "networkSecurityGroupName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-nsg1')]",
+        "networkSecurityGroupName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-nsg2')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
-        "virtualMachineName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01')]",
-        "publicIpAddressName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-ip')]",
-        "networkInterfaceName1": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-01-netif')]",
-        "virtualMachineName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02')]",
-        "publicIpAddressName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-ip')]",
-        "networkInterfaceName2": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-02-netif')]",
-        "virtualMachineName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03')]",
-        "publicIpAddressName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-ip')]",
-        "networkInterfaceName3": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-03-netif')]",
-        "virtualMachineName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04')]",
-        "publicIpAddressName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-ip')]",
-        "networkInterfaceName4": "[concat(parameters('virtualMachineName'),'-',parameters('location'),'-04-netif')]",
+        "virtualMachineName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01')]",
+        "publicIpAddressName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01-ip')]",
+        "networkInterfaceName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01-netif')]",
+        "virtualMachineName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-02')]",
+        "publicIpAddressName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-02-ip')]",
+        "networkInterfaceName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-02-netif')]",
         "loadbalancerName": "[concat('ZitiLB', parameters('location'))]",
         "loadbalancerNameFEIP": "[concat(variables('loadbalancerName'),'-FEIP')]",
         "loadbalancerNameBEAP": "[concat(variables('loadbalancerName'),'-BEAP')]",
