@@ -63,7 +63,7 @@
         "networkSecurityGroupName2": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-nsg2')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "nsgId2": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', ƒ)]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
         "virtualMachineName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01')]",
         "publicIpAddressName1": "[concat(parameters('virtualMachineNamePrefix'),'-',parameters('location'),'-01-ip')]",
