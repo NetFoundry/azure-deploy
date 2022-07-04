@@ -13,7 +13,7 @@
                 "10.17.0.0/16"
             ]
         },
-        "subnetname": {
+        "subnetName": {
             "value": ""
         },
         "subnet": {
@@ -22,7 +22,7 @@
         "loadBalancerIP": {
             "value": "10.17.0.10"
         },
-        "zitiServiceNet": {
+        "peerAddressNet": {
             "value": "10.15.0.0/24"
         },
         "virtualMachineNamePrefix": {

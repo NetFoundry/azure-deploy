@@ -12,11 +12,11 @@
         "vnetName": {
             "type": "String"
         },
-        "addressPrefixes": {
+        "localAddressPrefixes": {
             "type": "Array",
             "defaultValue": ["10.15.0.0/16"]
         },
-        "subnetname": {
+        "subnetName": {
             "type": "String"
         },
         "subnet": {
@@ -27,7 +27,7 @@
             "type": "String",
             "defaultValue": "10.15.0.10"
         },
-        "zitiServiceNet": {
+        "peerAddressPrefix": {
             "type": "String",
             "defaultValue": "10.17.0.0/24"
         },
@@ -196,7 +196,7 @@
                             "protocol": "*",
                             "access": "Allow",
                             "direction": "Inbound",
-                            "sourceAddressPrefix": "[parameters('addressPrefixes')[0]]",
+                            "sourceAddressPrefix": "[parameters('localAddressPrefixes')[0]]",
                             "sourcePortRange": "*",
                             "destinationAddressPrefix": "*",
                             "destinationPortRange": "*"
@@ -251,7 +251,7 @@
             ],
             "properties": {
                 "addressSpace": {
-                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                    "addressPrefixes": "[parameters('localAddressPrefixes')]"
                 },
                 "subnets": [
                     {
@@ -521,7 +521,7 @@
                     {
                         "name": "Ziti-Services",
                         "properties": {
-                            "addressPrefix": "[parameters('zitiServiceNet')]",
+                            "addressPrefix": "[parameters('peerAddressPrefixe')]",
                             "nextHopType": "VirtualAppliance",
                             "nextHopIpAddress": "[parameters('loadBalancerIP')]"
                         }
