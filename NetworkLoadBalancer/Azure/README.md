@@ -6,7 +6,7 @@ This arm template when used will create a new load balancer and 2 new NF Edge Ro
     Need to Create 2 Customer Hosted Edge Routers on your NF Network using the [Get Reg Keys](https://nfconsole.io/login) and save registration keys
 
 ***STEPS***
-    Here are the steps to create HA Infra (2 NF Backend ERs, Network Load Balancer in the Azure Region. If you need more than one reion, you can rerun it more than once. Just dont forget to change the region name. You can use Azure Cli or Azure Button.
+    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. You can use Azure Cli or Azure Button.
 
 1. az cli
 
