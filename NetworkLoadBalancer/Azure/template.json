@@ -220,7 +220,7 @@
             "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[variables('routeTableName')]"
+                "[parameters('routeTableName')]"
             ],
             "properties": {
                 "addressSpace": {
@@ -485,7 +485,7 @@
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/routeTables",
-            "name": "[variables('routeTableName')]",
+            "name": "[parameters('routeTableName')]",
             "location": "[parameters('location')]",
             "tags": {},
             "properties": {
