@@ -19,6 +19,9 @@
         "subnet": {
             "value": "10.15.0.0/24"
         },
+        "routeTableName": {
+            "value": ""
+        },
         "loadBalancerIP": {
             "value": "10.15.0.10"
         },
