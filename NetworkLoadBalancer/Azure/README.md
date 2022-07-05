@@ -11,7 +11,7 @@ This arm template when used will create a new load balancer and 2 new NF Edge Ro
 1. az cli
 
 ***IMPORTANT***
-    Update the parameters file to match your Azure Cloud / Ziti configurations, and install azure cli for your os
+    Update the parameters file to match your Azure Cloud / NetFoundry configurations, and install azure cli for your os
 
 ```
 git git@github.com:netfoundry/azure-deploy.git
