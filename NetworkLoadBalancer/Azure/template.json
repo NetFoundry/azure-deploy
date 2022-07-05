@@ -80,7 +80,7 @@
         "loadbalancerNameProbes": "[concat(variables('loadbalancerName'),'-Probes')]",
         "loadbalancerNameLBRules": "[concat(variables('loadbalancerName'),'-LBRules')]",
         "lbId": "[resourceId(resourceGroup().name, 'Microsoft.Network/loadBalancers', variables('loadbalancerName'))]",
-        "routeTableId": "[resourceId(resourceGroup().name,'Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "routeTableId": "[resourceId(resourceGroup().name,'Microsoft.Network/routeTables', parameters('routeTableName'))]",
         "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey1'), ']')]",
         "cloudInit2": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey2'), ']')]"
     },
