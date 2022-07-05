@@ -10,32 +10,32 @@
         },
         "localAddressPrefixes": {
             "value": [
-                "10.15.0.0/16"
+                ""
             ]
         },
         "subnetName": {
             "value": ""
         },
         "subnet": {
-            "value": "10.15.0.0/24"
+            "value": ""
         },
         "routeTableName": {
             "value": ""
         },
         "loadBalancerIP": {
-            "value": "10.15.0.10"
+            "value": ""
         },
         "peerAddressPrefix": {
-            "value": "10.17.0.0/24"
+            "value": ""
         },
         "virtualMachineNamePrefix": {
-            "value": "belb-er"
+            "value": ""
         },
         "virtualMachineSize": {
-            "value": "Standard_B2s"
+            "value": ""
         },
         "adminUsername": {
-            "value": "ziggy"
+            "value": ""
         },
         "adminPublicKey": {
             "value": ""

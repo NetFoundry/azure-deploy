@@ -16,7 +16,8 @@ This arm template when used will create a new load balancer and 2 new NF Edge Ro
 ```
 git git@github.com:netfoundry/azure-deploy.git
 cd azure-deploy/NetworkLoadBalancer/Azure
-az deployment group create --resource-group "Your RG" --template-file .\template.json --parameters .\parameters.json
+az login
+az deployment group create --subscription "Your Subscription ID"   --resource-group "Your RG" --template-file template.json --parameters parameters.json
 ```
 2. Using Azure Button
 [![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Ffeature%2FCLOUDDEV-976%2FNetworkLoadBalancer%2FAzure%2Ftemplate.json)
