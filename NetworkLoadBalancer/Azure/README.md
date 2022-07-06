@@ -11,19 +11,19 @@ This arm template when used will create a new load balancer and 2 new NF Edge Ro
 1. az cli
 
 ***IMPORTANT***
-    Update the parameters file to match your Azure Cloud / NetFoundry configurations, and install azure cli for your os
-    If you want to change any of the default values, you can just add the new value to the parameters file, i.e.
-    ```json
-    "subnet": {
-       "value": "10.1.1.0/24"
-    }
-    ```
-
+    Update the parameters file to match your Azure Cloud / NetFoundry configurations, and install azure cli for your os. If you want to change any of the default values, you can just add the new value to the parameters file, i.e.
+```json
+{
+    ...
+    "subnet":{"value": "10.1.1.0/24"}
+    ...
+}
 ```
+```bash
 git git@github.com:netfoundry/azure-deploy.git
 cd azure-deploy/NetworkLoadBalancer/Azure
 az login
 az deployment group create --subscription "Your Subscription ID"   --resource-group "Your RG" --template-file template.json --parameters parameters.json
 ```
 2. Using Azure Button
-[![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Fverifytemplate%2FNetworkLoadBalancer%2FAzure%2Ftemplate.json)
+[![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FNetFoundry%2Fazure-deploy%2Fmaster%2FNetworkLoadBalancer%2FAzure%2Ftemplate.json)
