@@ -273,7 +273,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2022-03-01",
+            "apiVersion": "2021-11-01",
             "name": "[variables('virtualMachineName1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -341,7 +341,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2022-03-01",
+            "apiVersion": "2021-11-01",
             "name": "[variables('virtualMachineName2')]",
             "location": "[parameters('location')]",
             "dependsOn": [

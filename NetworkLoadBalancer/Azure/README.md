@@ -12,6 +12,12 @@ This arm template when used will create a new load balancer and 2 new NF Edge Ro
 
 ***IMPORTANT***
     Update the parameters file to match your Azure Cloud / NetFoundry configurations, and install azure cli for your os
+    If you want to change any of the default values, you can just add the new value to the parameters file, i.e.
+    ```json
+    "subnet": {
+       "value": "10.1.1.0/24"
+    }
+    ```
 
 ```
 git git@github.com:netfoundry/azure-deploy.git
