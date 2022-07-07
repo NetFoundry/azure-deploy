@@ -1,37 +1,14 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "value": ""
-        },
         "vnetName": {
             "value": ""
-        },
-        "localAddressPrefixes": {
-            "value": [
-                ""
-            ]
         },
         "subnetName": {
             "value": ""
         },
-        "subnet": {
-            "value": ""
-        },
         "routeTableName": {
-            "value": ""
-        },
-        "loadBalancerIP": {
-            "value": ""
-        },
-        "peerAddressPrefix": {
-            "value": ""
-        },
-        "virtualMachineNamePrefix": {
-            "value": ""
-        },
-        "virtualMachineSize": {
             "value": ""
         },
         "adminUsername": {

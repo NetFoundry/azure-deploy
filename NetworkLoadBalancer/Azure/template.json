@@ -1,52 +1,52 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "http://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "centralus",
             "metadata": {
                 "description": "Enter the location where you want to deploy LB and Edge Routers"
             }
         },
         "vnetName": {
-            "type": "String"
+            "type": "string"
         },
         "localAddressPrefixes": {
-            "type": "Array",
+            "type": "array",
             "defaultValue": ["10.15.0.0/16"]
         },
         "subnetName": {
-            "type": "String"
+            "type": "string"
         },
         "subnet": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "10.15.0.0/24"
         },
         "routeTableName": {
             "type": "string"
         },
         "loadBalancerIP":{
-            "type": "String",
+            "type": "string",
             "defaultValue": "10.15.0.10"
         },
         "peerAddressPrefix": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "10.17.0.0/24"
         },
         "virtualMachineNamePrefix": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "Belb-er"
         },
         "virtualMachineSize": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "Standard_B2s"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "string"
         },
         "adminPublicKey": {
-            "type": "SecureString"
+            "type": "securestring"
         },
         "edgeRouterKey1": {
             "type": "string",
@@ -89,7 +89,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2021-03-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('networkInterfaceName1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -129,7 +129,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2021-03-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('networkInterfaceName2')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -169,7 +169,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-02-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('networkSecurityGroupName1')]",
             "location": "[parameters('location')]",
             "properties": {
@@ -218,7 +218,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2021-08-01",
             "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -243,7 +243,7 @@
         },
         {
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('publicIpAddressName1')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -258,7 +258,7 @@
         },
         {
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('publicIpAddressName2')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -273,7 +273,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2021-07-01",
+            "apiVersion": "2021-11-01",
             "name": "[variables('virtualMachineName1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -341,7 +341,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2021-07-01",
+            "apiVersion": "2021-11-01",
             "name": "[variables('virtualMachineName2')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -408,7 +408,7 @@
             }
         },
         {
-            "apiVersion": "2021-05-01",
+            "apiVersion": "2021-08-01",
             "name": "[variables('loadbalancerName')]",
             "type": "Microsoft.Network/loadBalancers",
             "location": "[parameters('location')]",
@@ -485,7 +485,7 @@
             }
         },
         {
-            "apiVersion": "2020-05-01",
+            "apiVersion": "2021-08-01",
             "type": "Microsoft.Network/routeTables",
             "name": "[parameters('routeTableName')]",
             "location": "[parameters('location')]",
@@ -507,7 +507,7 @@
     ],
     "outputs": {
         "adminUsername": {
-            "type": "String",
+            "type": "string",
             "value": "[parameters('adminUsername')]"
         }, 
         "virtualMachineName1": {
