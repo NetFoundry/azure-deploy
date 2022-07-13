@@ -34,3 +34,6 @@ az deployment group create --name dariuszaks --subscription "d8cde576-86a1-437f-
 ```
 
 kubectl apply -f nginx-manifest.yaml
+
+
+kubectl create secret generic ziti-enrolled-identity --from-file=ziti-enrolled-identity=./myZitiIdentityFile.json
