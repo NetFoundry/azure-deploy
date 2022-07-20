@@ -17,7 +17,7 @@
                 "osType": "Linux",
                 "name": "netfoundry",
                 "vhd": {
-                  "uri": "https://clouddevimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub1.8.20220225-osDisk.05c2fd5e-4975-4ce0-bbf3-042acb435cfb.vhd?sp=r&st=2022-04-04T14:28:00Z&se=2023-04-04T22:28:00Z&spr=https&sv=2020-08-04&sr=b&sig=XqhL312JrL3WviexyJw4joyBWJ32KEEJ4BShfbHOukA%3D"
+                  "uri": "https://clouddevimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub1.10.20220719-osDisk.9f7d0f47-f632-4955-ad22-4524858aae35.vhd?sp=r&st=2022-07-19T13:17:10Z&se=2023-07-20T21:17:10Z&spr=https&sv=2021-06-08&sr=b&sig=jwTg10ZQD%2BCE%2FWRXxB4H487QkHptPG8%2ByrnrJ4rjhh8%3D"
                 }
               },
               "dataDisks": [
