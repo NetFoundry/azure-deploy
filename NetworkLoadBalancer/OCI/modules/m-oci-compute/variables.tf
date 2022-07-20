@@ -17,7 +17,9 @@ variable "instance_ocpus" {
 variable "instance_shape_config_memory_in_gbs" {
   default = 8
 }
-variable "subnet_id" {}
+variable "vcn_name" {}
+variable "route_table_name" {}
+variable "subnet_cidr" {}
 variable "freeform_tag" {
   default = "terraform_nlb"
 }

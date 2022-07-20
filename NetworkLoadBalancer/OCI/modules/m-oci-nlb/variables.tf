@@ -1,6 +1,8 @@
 variable "region" {}
 variable "compartment_ocid" {}
+variable "vcn_id" {}
 variable "subnet_id" {}
+variable "route_table_name" {}
 variable "backend_set_policy" {
   default = "FIVE_TUPLE"
 }
@@ -18,6 +20,19 @@ variable "backend_set_health_checker_retries" {
 }
 variable "backend_set_health_checker_timeout_in_millis" {
   default = 3000
+}
+variable "instance_ids" {}
+variable "backend_weight" {
+  default = 1
+}
+variable "backend_is_drain" {
+  default = false
+}
+variable "backend_is_offline" {
+  default = false
+}
+variable "backend_is_backup" {
+  default = false
 }
 variable "availability_domain" {
   default = 3

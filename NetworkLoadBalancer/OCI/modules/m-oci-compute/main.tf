@@ -44,12 +44,84 @@ data "oci_core_app_catalog_listing_resource_version" "test_catalog_listing" {
   resource_version = data.oci_marketplace_listing_package.test_listing_package.app_catalog_listing_resource_version
 }
 /*
+Lookup vcn id and route table id
+*/
+data "oci_core_vcns" "lookup_vcn" {
+  compartment_id  = var.compartment_ocid
+  display_name    = var.vcn_name
+}
+data "oci_core_route_tables" "lookup_route_table" {
+  compartment_id  = var.compartment_ocid
+  display_name    = var.route_table_name
+  vcn_id          = data.oci_core_vcns.lookup_vcn.virtual_networks[0].id
+}
+/*
+Create nf edge router subnet
+*/
+resource "oci_core_subnet" "nf_subnet" {
+  cidr_block          = var.subnet_cidr
+  display_name        = "${var.vcn_name}_nfsn"
+  dns_label           = replace(var.vcn_name, "_", "")
+  compartment_id      = var.compartment_ocid
+  vcn_id              = data.oci_core_vcns.lookup_vcn.virtual_networks[0].id
+  route_table_id      = data.oci_core_route_tables.lookup_route_table.route_tables[0].id
+  freeform_tags = {
+    "creator" = var.freeform_tag
+  }
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+/*
+Security group for Edge Routers
+*/
+resource "oci_core_network_security_group" "edge_router_sg1" {
+  compartment_id = var.compartment_ocid
+  vcn_id = data.oci_core_vcns.lookup_vcn.virtual_networks[0].id
+  display_name = "${var.instance_name_prefix}-${var.region}"
+  freeform_tags = {
+    "creator" = var.freeform_tag
+  }
+}
+resource "oci_core_network_security_group_security_rule" "edge_router_sg1_egress_rule_all" {
+    network_security_group_id = oci_core_network_security_group.edge_router_sg1.id
+    direction = "EGRESS"
+    protocol = "ALL"
+    description = "egress rule for all nf edge routers"
+    destination = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    stateless = false
+}
+resource "oci_core_network_security_group_security_rule" "edge_router_sg1_ingress_rule_all_local" {
+    network_security_group_id = oci_core_network_security_group.edge_router_sg1.id
+    direction = "INGRESS"
+    protocol = "ALL"
+    description = "ingress rule for all nf edge routers"
+    source = var.subnet_cidr
+    source_type = "CIDR_BLOCK"
+    stateless = false
+}
+resource "oci_core_network_security_group_security_rule" "edge_router_sg1_ingress_rule_ssh_remote" {
+    network_security_group_id = oci_core_network_security_group.edge_router_sg1.id
+    direction = "INGRESS"
+    protocol = "6"
+    description = "ingress rule for all nf edge routers"
+    source = "0.0.0.0/0"
+    source_type = "CIDR_BLOCK"
+    stateless = false
+    tcp_options {
+      destination_port_range {
+          max = 22
+          min = 22
+      }
+    }
+}
+/*
     Compute Resources
 */
-
 resource "oci_core_instance" "backend_edge_router" {
   count               = var.num_instances
-  availability_domain = data.oci_identity_availability_domain.ad.name
+  availability_domain = data.oci_identity_availability_domains.ads.availability_domains[count.index].name
   compartment_id      = var.compartment_ocid
   display_name        = "${var.instance_name_prefix}${count.index}"
   shape               = var.instance_shape
@@ -60,11 +132,12 @@ resource "oci_core_instance" "backend_edge_router" {
   }
 
   create_vnic_details {
-    subnet_id                 = var.subnet_id
+    subnet_id                 = resource.oci_core_subnet.nf_subnet.id
     display_name              = "${var.instance_name_prefix}${count.index}-vnic"
     assign_public_ip          = true
     assign_private_dns_record = true
     skip_source_dest_check    = true
+    nsg_ids                   = [oci_core_network_security_group.edge_router_sg1.id]
     hostname_label            = "${var.instance_name_prefix}${count.index}"
   }
 
@@ -88,22 +161,25 @@ resource "oci_core_instance" "backend_edge_router" {
   }
 }
 
-data "oci_core_instance_devices" "backend_edge_router_devices" {
-  count       = var.num_instances
-  instance_id = oci_core_instance.backend_edge_router[count.index].id
-}
-# Output the private and public IPs of the instance
 output "instance_private_ips" {
-  value = [oci_core_instance.backend_edge_router.*.private_ip]
+  value = oci_core_instance.backend_edge_router.*.private_ip
 }
 output "instance_public_ips" {
-  value = [oci_core_instance.backend_edge_router.*.public_ip]
+  value = oci_core_instance.backend_edge_router.*.public_ip
 }
-# Output all the devices for all instances
-output "instance_devices" {
-  value = [data.oci_core_instance_devices.backend_edge_router_devices.*.devices]
+
+output "instance_ids" {
+  value = oci_core_instance.backend_edge_router.*.id
 }
-data "oci_identity_availability_domain" "ad" {
+
+output "subnet_id" {
+  value = oci_core_subnet.nf_subnet.id
+}
+
+output "vcn_id" {
+  value = data.oci_core_vcns.lookup_vcn.virtual_networks[0].id
+}
+
+data "oci_identity_availability_domains" "ads" {
   compartment_id = var.compartment_ocid
-  ad_number      = 1
 }

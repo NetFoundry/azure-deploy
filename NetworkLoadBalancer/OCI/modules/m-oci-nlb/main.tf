@@ -8,7 +8,7 @@ resource "oci_network_load_balancer_network_load_balancer" "nlb1" {
   subnet_id = var.subnet_id
   display_name = "${var.lb_name_prefix}-${var.region}"
   freeform_tags = {
-		"creator" = "${var.freeform_tag}"
+		"creator" = var.freeform_tag
 	}
   is_preserve_source_destination = true
   is_private = true
@@ -39,4 +39,16 @@ resource "oci_network_load_balancer_listener" "nlb-listener1" {
   port = 0
   protocol = "ANY"
   ip_version = "IPV4"
+}
+
+resource "oci_network_load_balancer_backend" "nlb-beadd" {
+  count = length(var.instance_ids)
+  backend_set_name = oci_network_load_balancer_backend_set.nlb-bes1.name
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.nlb1.id
+  port = 0
+  is_backup = var.backend_is_backup
+  is_drain = var.backend_is_drain
+  is_offline = var.backend_is_offline
+  target_id = var.instance_ids[count.index]
+  weight = var.backend_weight
 }

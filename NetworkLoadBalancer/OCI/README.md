@@ -1,43 +1,67 @@
 
-## Deploy LoadBalancer and 2 Customer Hosted Edge Routers to your Resource Group
-This arm template when used will create a new load balancer and 2 new NF Edge Routers in your existing/new resource group. All NLB associated resources and options will be created/configured as well, among other things health checks to each ER, the lb algorithm will be set to "SourceIPProtocol", and backend pool will be set to 2 ERs created part of this deploymnet. Obviously, one can add more ERs or change any configuration option once all the resources are created. The vnet and route table names must be provided either of existing resources or new unique names to be used for creation of such resources. It is recommended to use a new or existing dedicated subnet prefix for this deployment.
+## Deploy LoadBalancer and 2 Customer Hosted Edge Routers to your Virtual Cloud Network
 
-***PREREQUISITES***
-    Need to Create 2 Customer Hosted Edge Routers on your NF Network using the [Get Reg Keys](https://nfconsole.io/login) and save registration keys
+This terraform plan when used will create a new load balancer and 2 new NF Edge Routers in your existing virtual network (vcn). All NLB associated resources and options will be created/configured as well, among other things health checks to each ER, the lb algorithm will be set to "Five Tuple", and backend pool will be set to 2 ERs created part of this deployment. Obviously, one can add more ERs or change any configuration option once all the resources are created. The vcn name, subnet prefix, and route table name must be provided. It is recommended to use a dedicated subnet prefix for this deployment.
 
-***STEPS***
-    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. You can use Azure Cli or Azure Button.
+**PREREQUISITES**
 
-1. az cli
+    Need to Create 2 Customer Hosted Edge Routers on your NF Network using the follwing link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
 
-***IMPORTANT***
-    Update the parameters file to match your Azure Cloud / NetFoundry configurations, and install azure cli for your os. If you want to change any of the default values, you can just add the new value to the parameters file, i.e.
+**STEPS**
 
-***Terraform***
+    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name.
 
-To run these modules for AWS, one need to install .aws configure
-file and all the different keys for all NF accounts.
+1. Install Terraform
 
-This also configures an ip on the second interface, but the bash script
-(ifcfg-eth1.sh) needs to be add in the home directory.
+    [Get Terraform](https://www.terraform.io/downloads) 
 
-Example how to use modules. Builkd top level .tf file with declaration like so:
+2. Set up your OCI provider Authetication
 
-module "vpc1" {
-  source = ".//modules/edge/m-aws-vpc"
-  awsRegion = "us-east-2"
-  public_subnet_cidr = 
-  private_subnet_cidr = 
+    [Add API Key-Based Authentication](https://docs.oracle.com/en-us/iaas/developer-tutorials/tutorials/tf-provider/01-summary.htm#:~:text=Add%20API%20Key%2DBased%20Authentication)
+
+3. Clone the repo and cd into NetworkLoadBalancer/OCI
+
+4. Update the variables input file with your parameters
+
+```bash
+nano input_vars.tfvars.json
+```
+```json
+{
+    "region": "",
+    "compartment_id": "",
+    "nf_subnet_cidr": "",
+    "vcn_name": "",
+    "route_table_name": "",
+    "nf_router_registration_key_list": []
 }
-module "vm1" {
-  source = ".//modules/m-aws-instance"
-  awsRegion = "us-east-2"
-  nfnKey = "598C3B56F004C1F09124668CB5F542610621C4AC"
-  ami    = "ami-08b73ab007b78538e"
-  sgId   = "${module.vpc1.sgId}"
-  keyPairId = "${module.vpc1.keyPairId}"
-  publicSubnetId = "${module.vpc1.publicSubnetId}"
-  privateSubnetId = "${module.vpc1.privateSubnetId}"
-}
-output "public_ips" {value = [module.vm1.instance_public_ips]}
-output "private_ips" {value = [module.vm1.instance_private_ips]}
+```
+
+5. Run the plan
+
+```bash
+terraform plan -var-file input_vars.tfvars.json
+```
+
+6. Apply the plan if no errors otherwise fix them
+
+```bash
+terraform apply -var-file input_vars.tfvars.json
+```
+
+7. Destroy the plan if required
+
+```bash
+terraform destroy -var-file input_vars.tfvars.json
+```
+
+8. At this point the destination prefixes that need to be forwarded across the NetFoundry Network can be configured in the route table that was provided for this plan. The next hop ip will be the private ip address of the network load balancer created by this plan. Furthermore, the security group for the netfoundry edge routers are set to only allow traffic in from the subnet that they are deployed in by default. If sessions originated from other subnets in the virtual network need to be forwarded through the load balancer, then one needs to add the ingress rules to allow that to happen.
+
+**TESTING NOTE**
+
+If one wants to test the configuration before deployment, it can be done on the new virtual network. The new virtual network will be created by the terraform plan. To do that enable the following parameters in the variables file (i.e input_vars.tfvars.json).
+
+```json
+  "include_m_oci_vcn": true,
+  "vcn_cidr": "10.100.0.0/16"
+```
