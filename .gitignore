@@ -4,3 +4,6 @@
 *.ini
 *.zip
 *.pem
+provider.tf
+*.tfstate*
+.terraform*
