@@ -5,11 +5,11 @@ This terraform plan when used will create a new load balancer and 2 new NF Edge 
 
 **PREREQUISITES**
 
-    Need to Create 2 Customer Hosted Edge Routers on your NF Network using the follwing link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
+    Need to Create 2 Customer Hosted Edge Routers on your NF Network using the following link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
 
 **STEPS**
 
-    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name.
+    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. The next iteration of this deployment plan could be to  modify the input variables into a list, so one can deploy network load balancers in multiple regions at a time. This would also help with keeping the latet state of the deployed plan in one location for the entire network.
 
 1. Install Terraform
 
