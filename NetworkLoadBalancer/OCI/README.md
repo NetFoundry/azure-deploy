@@ -3,13 +3,11 @@
 
 This terraform plan when used will create a new load balancer and 2 new NF Edge Routers in your existing virtual network (vcn). All NLB associated resources and options will be created/configured as well, among other things health checks to each ER, the lb algorithm will be set to "Five Tuple", and backend pool will be set to 2 ERs created part of this deployment. Obviously, one can add more ERs or change any configuration option once all the resources are created. The vcn name, subnet prefix, and route table name must be provided. It is recommended to use a dedicated subnet prefix for this deployment.
 
-**PREREQUISITES**
+**PREREQUISITES** \
+Need to Create 2 Customer Hosted Edge Routers on your NF Network using the following link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
 
-    Need to Create 2 Customer Hosted Edge Routers on your NF Network using the following link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
-
-**STEPS**
-
-    If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. The next iteration of this deployment plan could be to  modify the input variables into a list, so one can deploy network load balancers in multiple regions at a time. This would also help with keeping the latet state of the deployed plan in one location for the entire network.
+**STEPS** \
+If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. The next iteration of this deployment plan could be to  modify the input variables into a list, so one can deploy network load balancers in multiple regions at a time. This would also help with keeping the latet state of the deployed plan in one location for the entire network.
 
 1. Install Terraform
 
@@ -57,8 +55,7 @@ terraform destroy -var-file input_vars.tfvars.json
 
 8. At this point the destination prefixes that need to be forwarded across the NetFoundry Network can be configured in the route table that was provided for this plan. The next hop ip will be the private ip address of the network load balancer created by this plan. Furthermore, the security group for the netfoundry edge routers are set to only allow traffic in from the subnet that they are deployed in by default. If sessions originated from other subnets in the virtual network need to be forwarded through the load balancer, then one needs to add the ingress rules to allow that to happen.
 
-**TESTING NOTE**
-
+**TESTING NOTE** \
 If one wants to test the configuration before deployment, it can be done on the new virtual network. The new virtual network will be created by the terraform plan. To do that enable the following parameters in the variables file (i.e input_vars.tfvars.json).
 
 ```json
