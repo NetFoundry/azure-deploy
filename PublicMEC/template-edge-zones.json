@@ -14,6 +14,13 @@
                 "description": "The location of resources."
             }
         },
+        "edgeZone": {
+            "type": "string",
+            "defaultValue": "attatlanta1",
+            "metadata": {
+                "description": "The edge zone location of resources."
+            }
+        },
         "dnsPrefix": {
             "type": "string",
             "metadata": {
@@ -187,10 +194,10 @@
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "nfErName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01')]",
-        "publicIpAddressEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01-ip')]",
-        "networkInterfaceEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01-netif')]",
-        "networkSecurityGroupName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-nsg1')]",
+        "nfErName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02')]",
+        "publicIpAddressEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02-ip')]",
+        "networkInterfaceEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02-netif')]",
+        "networkSecurityGroupName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-nsg2')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey1'), ']')]"
     },
@@ -261,6 +268,10 @@
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
             "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
@@ -323,6 +334,10 @@
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2021-08-01",
             "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "properties": {
                 "subnets": [
                     {
@@ -374,6 +389,10 @@
             "apiVersion": "2021-08-01",
             "name": "[variables('networkInterfaceEr1')]",
             "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
@@ -408,6 +427,10 @@
             "apiVersion": "2021-08-01",
             "name": "[variables('publicIpAddressEr1')]",
             "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "sku": {
                 "name": "Standard"
             },
@@ -459,6 +482,10 @@
             "apiVersion": "2021-11-01",
             "name": "[variables('nfErName1')]",
             "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]"
             ],

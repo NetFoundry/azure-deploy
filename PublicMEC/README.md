@@ -30,7 +30,7 @@ aks-nodepool1-31718369-0   Ready    agent   6m44s   v1.12.8
 ```
 
 ```bash
-az deployment group create --name dariuszaks --subscription "d8cde576-86a1-437f-863e-8d1e30d9a58b"   --resource-group "dariusz.sliwinski" --template-file template.json --parameters parameters.json
+az deployment group create --name dariuszaks --subscription "53d234e8-b7ac-4f09-a517-508ed55e4cae"   --resource-group "test02" --template-file template.json --parameters parameters.json
 ```
 
 kubectl apply -f nginx-manifest.yaml
