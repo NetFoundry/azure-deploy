@@ -9,13 +9,13 @@
             "value": "eastus2"
         },
         "dnsPrefix": {
-            "value": "dariusz-kube01-dns"
+            "value": "dariusz-kube02-dns"
         },
         "kubernetesVersion": {
             "value": "1.22.6"
         },
         "vnetName": {
-            "value": "dariusz-vnet2"
+            "value": "dariusz-vnet02"
         },
         "localAddressPrefixes": {
             "value": ["10.15.0.0/16"]
@@ -27,7 +27,7 @@
             "value": "10.15.0.10"
         },
         "acrName": {
-            "value": "dariuszCR2"
+            "value": "dariuszCR02"
         },
         "acrResourceGroup": {
             "value": "test02"
@@ -39,7 +39,7 @@
             "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjga67wcolSXaD1bswknLrejRYtZ4W55Y6qfoipYfeDVrwVgtalcWcEGPsrqcs3hd/+xSZ0bC6BakO4wpuX38I3uMH0RVOiZlKzgCkVih5hJoAi2YAMCCpV0FhAvKEWIs9HPXEW0Ke5hRkGybi7lkHIfKWwOBOQZTkHCbTR4HdcjrOo2MdTbJK/6EgsJF6Cy9k+F0z8SSKd0C2S0O2VZ49/iF5OcEHeUuyjurJZWdPl3CutQ9dNTgUkOiVfHWRUco7n4wTa/1I/8V0w8dU2F+rHu2UEo1h3humFfyT0nOfsySgLTG+4h90C+INMSungC0QwoVmpJs/TrPnaWRvZ9dJ DariuszSliwinski@dsliwinski-byod"
         },
         "edgeRouterKey1": {
-            "value": "9X3IVBUJVZ"
+            "value": "XMESBN32V6"
         }
     }
 }

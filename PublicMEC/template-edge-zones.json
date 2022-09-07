@@ -203,62 +203,33 @@
     },
     "resources": [
         {
-            "name": "[concat('ConnectAKStoACR', parameters('acrResourceGroup'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
+            "apiVersion": "2018-09-01-preview",
+            "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
-                "[concat('Microsoft.Resources/deployments/', 'AcrDeployment', parameters('acrResourceGroup'))]"
+                "[concat('Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
             ],
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "apiVersion": "2018-09-01-preview",
-                            "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
-                            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
-                            "properties": {
-                                "principalId": "[reference(parameters('resourceName'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
-                                "principalType": "ServicePrincipal",
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
-                            }
-                        }
-                    ]
-                }
+                "principalId": "[reference(parameters('resourceName'),'2021-07-01').identityProfile.kubeletidentity.objectId]",
+                "principalType": "ServicePrincipal",
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
             }
+        
         },
         {
-            "name": "[concat('AcrDeployment', parameters('acrResourceGroup'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "name": "[parameters('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2021-09-01",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "type": "Microsoft.ContainerRegistry/registries",
-                            "apiVersion": "2021-09-01",
-                            "name": "[parameters('acrName')]",
-                            "location": "[parameters('location')]",
-                            "sku": {
-                                "name": "Standard"
-                            },
-                            "properties": {
-                                "adminUserEnabled": true
-                            },
-                            "tags": {}
-                        }
-                    ]
-                }
-            }
+                "adminUserEnabled": true
+            },
+            "tags": {}
         },
         {
             "name": "[parameters('resourceName')]",
@@ -355,33 +326,16 @@
             "tags": {}
         },
         {
-            "name": "[concat('ClusterSubnetRoleAssignment', parameters('acrResourceGroup'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
+            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "variables": {},
-                    "resources": [
-                        {
-                            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
-                            "apiVersion": "2020-04-01-preview",
-                            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
-                            "properties": {
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                                "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
-                                "scope": "[variables('serviceSubnetId')]"
-                            }
-                        }
-                    ]
-                }
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
+                "scope": "[variables('serviceSubnetId')]"
             }
         },
         {
@@ -434,9 +388,6 @@
             "sku": {
                 "name": "Standard"
             },
-            "zones": [
-                "1"
-            ],
             "properties": {
                 "publicIpAllocationMethod": "Static"
             }
@@ -488,9 +439,6 @@
             },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]"
-            ],
-            "zones": [
-                "1"
             ],
             "plan": {
                 "name": "ziti-edge-router",
