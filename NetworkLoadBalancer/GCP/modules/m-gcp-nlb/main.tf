@@ -19,7 +19,7 @@ resource "google_compute_instance_group" "nf-edge-routers-group" {
   count  = length(data.google_compute_instance.nf-edge-routers.*.self_link)
   name   = "${var.instance_name_prefix}-igrp${count.index}"
   zone = "${var.region}-${var.zone_list[count.index]}"
-  instances = [data.google_compute_instance.nf-edge-routers[count.index].self_link]
+  instances = [try(element(data.google_compute_instance.nf-edge-routers.*.self_link, count.index))]
 }
 
 # ------------------------------------------------------------------------------

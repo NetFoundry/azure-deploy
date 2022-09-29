@@ -28,7 +28,7 @@ resource "google_compute_instance" "backend_edge_router" {
 
     metadata = {
         "ssh-keys" = "ziggy:${file(var.er_ssh_public_key)}",
-        "user-data" = local.user_data[count.index]
+        "user-data" = local.user_data[count.index],
     }
 }
 
