@@ -19,8 +19,8 @@ If you need such HA set up in more than one region, you can rerun it more than o
     [Api Key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
 
 1. Clone the repo and cd into NetworkLoadBalancer/GCP/tf-provider
-1. Create provider.tf in this folder with the api fiel deatisl in it as shown:
-    ```json
+1. Create provider.tf in this folder with the api file details in it as shown:
+    ```powershell
     provider "google" {
         project     = "YOUR PROJECT NAME"
         region      = "us-east1"
@@ -56,7 +56,7 @@ If you need such HA set up in more than one region, you can rerun it more than o
     terraform apply -var-file input_vars.tfvars.json
     ```
 
-1. At this point the destination prefixes that need to be forwarded across the NetFoundry Network can be configured in the routes section under  VPC NEtwork. Select a forwarding rule of internal TCP/UDP load balancer created by this plan as the next hop ip will be. One fo reach TCp and one for UDP LB. Furthermore, the network firewall policy for the netfoundry edge routers are set to only allow traffic in from the subnet that they are deployed in by default. If sessions originated from other subnets in the virtual network need to be forwarded through the load balancer, then one needs to add the ingress rules to allow that to happen.
+1. At this point the destination prefixes that need to be forwarded across the NetFoundry Network can be configured in the routes section under  VPC Network. Select a forwarding rule of internal TCP/UDP load balancer created by this plan as the next hop ip, one to reach TCP and one for UDP LB. Furthermore, the network firewall policy for the netfoundry edge routers are set to only allow traffic in from the subnet that they are deployed in by default. If sessions originated from other subnets in the virtual network need to be forwarded through the load balancer, then one needs to add the ingress rules to allow that to happen.
 
 1. Destroy the plan if required
 
@@ -64,12 +64,12 @@ If you need such HA set up in more than one region, you can rerun it more than o
     terraform destroy -var-file input_vars.tfvars.json
     ```
 
-**TESTING NOTE** \
+**TESTING NOTE**
+
 If one wants to test the configuration before deployment, it can be done on the new virtual network. The new virtual network will be created by the terraform plan. To do that enable the following parameters in the root terrafrom file (i.e .tf).
 
 ```powershell
     module "vcn1" {
-        source = "../modules/m-gcp-network"
         ...
         create_vcn = true
     }
