@@ -16,7 +16,7 @@ resource "google_compute_subnetwork" "nf_public_sn_10" {
 
 resource "google_compute_firewall" "fw_ssh_10" {
   count = var.create_vcn ? 1 : 0
-  name        = "nf-fw-ssh"
+  name        = "nf-fw-ssh-${var.region}"
   network     = var.vcn_name
   description = "Creates firewall rule targeting tagged instances"
 
@@ -28,13 +28,13 @@ resource "google_compute_firewall" "fw_ssh_10" {
   source_ranges = ["0.0.0.0/0"]
   target_tags = ["nf-fw-rules"]
   depends_on = [
-    google_compute_subnetwork.nf_public_sn_01
+    google_compute_network.vpc_net_10
   ]
 }
 
 resource "google_compute_firewall" "fw_hc_10" {
   count = var.create_vcn ? 1 : 0
-  name        = "nf-fw-hc"
+  name        = "nf-fw-hc-${var.region}"
   network     = var.vcn_name
   description = "Creates firewall rule targeting tagged instances"
 
@@ -65,7 +65,7 @@ resource "google_compute_subnetwork" "nf_public_sn_01" {
 
 resource "google_compute_firewall" "fw_ssh_01" {
   count = var.create_vcn ? 0 : 1
-  name        = "nf-fw-ssh"
+  name        = "nf-fw-ssh-${var.region}"
   network     = var.vcn_name
   description = "Creates firewall rule targeting tagged instances"
 
@@ -80,7 +80,7 @@ resource "google_compute_firewall" "fw_ssh_01" {
 
 resource "google_compute_firewall" "fw_hc_01" {
   count = var.create_vcn ? 0 : 1
-  name        = "nf-fw-hc"
+  name        = "nf-fw-hc-${var.region}"
   network     = var.vcn_name
   description = "Creates firewall rule targeting tagged instances"
 

@@ -32,7 +32,25 @@ If you need such HA set up in more than one region, you can rerun it more than o
         "nf_router_registration_key_list": []
     }
     ```
-1. Run the plan
+    ***Note - Multiregion Deployment***
+
+    To deploy in more than one region, one can use workspaces if the creds or access controls are the same(not recommended if not [as state here](https://www.terraform.io/language/state/workspaces#using-workspaces)). Here is how to initialize them. You would need to update the region and nf_subnet_cidr in your input_vars.tfvars.json as well when you switch workspaces and you want to create a new region.
+
+    ```bash
+    terraform workspace new us-east1
+    terraform workspace new us-west1
+    etc...
+    ```
+    Then you can list or select one:
+    ```
+    terraform workspace list
+    terraform workspace select us-west1
+    ```
+1.  Initialize terraform
+    ```bash
+    terraform init
+    ```
+1.  Run the plan
 
     ```bash
     terraform plan -var-file input_vars.tfvars.json

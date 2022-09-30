@@ -7,7 +7,7 @@ data "google_compute_image" "nf_image" {
 
 resource "google_compute_instance" "backend_edge_router" {
     count        = length(var.zone_list)
-    name         = "${var.instance_name_prefix}${count.index}"
+    name         = "${var.instance_name_prefix}-${var.region}-${count.index}"
     machine_type = var.instance_shape 
     zone         = "${var.region}-${var.zone_list[count.index]}"
 

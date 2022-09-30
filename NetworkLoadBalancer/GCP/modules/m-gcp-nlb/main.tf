@@ -8,7 +8,7 @@
 # 
 data "google_compute_instance" "nf-edge-routers" {
     count  = length(var.zone_list)
-    name   = "${var.instance_name_prefix}${count.index}"
+    name   = "${var.instance_name_prefix}-${var.region}-${count.index}"
     zone   = "${var.region}-${var.zone_list[count.index]}"
 }
 
@@ -17,7 +17,7 @@ data "google_compute_instance" "nf-edge-routers" {
 # ------------------------------------------------------------------------------
 resource "google_compute_instance_group" "nf-edge-routers-group" {
   count  = length(data.google_compute_instance.nf-edge-routers.*.self_link)
-  name   = "${var.instance_name_prefix}-igrp${count.index}"
+  name   = "${var.instance_name_prefix}-${var.region}-${count.index}"
   zone = "${var.region}-${var.zone_list[count.index]}"
   instances = [try(element(data.google_compute_instance.nf-edge-routers.*.self_link, count.index))]
 }
@@ -27,7 +27,7 @@ resource "google_compute_instance_group" "nf-edge-routers-group" {
 # ------------------------------------------------------------------------------
 
 resource "google_compute_health_check" "nf-edge-routers-hc" {
-  name                = "${var.instance_name_prefix}-hc"
+  name                = "${var.instance_name_prefix}-${var.region}-hc"
   https_health_check {
     port          = "8081"
     request_path  = "/health-checks"

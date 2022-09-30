@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.3.0"
 }
 
 variable "vcn_name" {}
@@ -12,6 +12,7 @@ module "vcn1" {
   vcn_name = var.vcn_name
   region = var.region
   nf_subnet_cidr = var.nf_subnet_cidr
+  create_vcn = false
 }
 
 module "compute1" {
