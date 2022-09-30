@@ -1,6 +1,6 @@
 ## Deploy LoadBalancer and 2 Customer Hosted Edge Routers to your VPC Network
 
-This terraform plan when used will create a new load balancer and 2 new NF Edge Routers in your existing VPC network. All NLB associated resources and options will be created/configured as well, among other things health checks to each ER, the lb algorithm will be set to "Five Tuple", and backend pool will be set to 2 ERs created part of this deployment. Obviously, one can add more ERs or change any configuration option once all the resources are created. The vcn name, subnet prefix, and route table name must be provided. It is recommended to use a dedicated subnet prefix for this deployment.
+This terraform plan when used will create a new load balancer and 2 new NF Edge Routers in your existing VPC network. All NLB associated resources and options will be created/configured as well, among other things health checks to each ER, the lb algorithm will be set to "CLIENT_IP_PORT_PROTO", and backend pool will be set to 2 ERs created part of this deployment. Obviously, one can add more ERs or change any configuration option once all the resources are created. The vcn name, subnet prefix must be provided. It is recommended to use a dedicated subnet prefix for this deployment.
 
 **PREREQUISITES** \
 Need to Create 2 Customer Hosted Edge Routers on your NF Network using the following link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
@@ -8,18 +8,69 @@ Need to Create 2 Customer Hosted Edge Routers on your NF Network using the follo
 **STEPS** \
 If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. The next iteration of this deployment plan could be to  modify the input variables into a list, so one can deploy network load balancers in multiple regions at a time. This would also help with keeping the latet state of the deployed plan in one location for the entire network.
 
-1. Install gcloud CLI
+1. Install Terraform
 
-    [Get CLI](https://cloud.google.com/sdk/docs/install) 
+    [Get Terraform](https://www.terraform.io/downloads)
 
-2. Autheticate to use CLI
-    `gcloud auth login --no-launch-browser`
+1. Set up your service account and get API CRED JSON file
 
+    [Create Service Account](https://cloud.google.com/iam/docs/creating-managing-service-accounts)
+    
+    [Api Key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
 
-3. Clone the repo and cd into NetworkLoadBalancer/OCI
+1. Clone the repo and cd into NetworkLoadBalancer/GCP/tf-provider
+1. Create provider.tf in this folder with the api fiel deatisl in it as shown:
+    ```json
+    provider "google" {
+        project     = "YOUR PROJECT NAME"
+        region      = "us-east1"
+        zone        = "us-east1-b"
+        credentials = pathexpand(var.gcp-creds)
+    }
 
+    variable "gcp-creds" {
+        default = "~/.gcp/nf-cloud-dev-700d695c36c3.json"
+    }
+    ```
+1. Update the variables input file with your parameters
+    ```bash
+    nano input_vars.tfvars.json
+    ```
+    ```json
+    {
+        "region": "us-east1",
+        "nf_subnet_cidr": "10.2.0.0/24",
+        "vcn_name": "nf-lb-test-01",
+        "nf_router_registration_key_list": ["EF1ZII5Z5S","BU15J943VF"]
+    }
+    ```
+1. Run the plan
 
-* Run `gcloud help config` to learn how to change individual settings
-* Run `gcloud --help` to see the Cloud Platform services you can interact with. And run `gcloud help COMMAND` to get help on any gcloud command.
-* Run `gcloud topic --help` to learn about advanced features of the SDK like arg files and output formatting
-* Run `gcloud cheat-sheet` to see a roster of go-to `gcloud` commands.
+    ```bash
+    terraform plan -var-file input_vars.tfvars.json
+    ```
+
+1. Apply the plan if no errors otherwise fix them
+
+    ```bash
+    terraform apply -var-file input_vars.tfvars.json
+    ```
+
+1. At this point the destination prefixes that need to be forwarded across the NetFoundry Network can be configured in the routes section under  VPC NEtwork. Select a forwarding rule of internal TCP/UDP load balancer created by this plan as the next hop ip will be. One fo reach TCp and one for UDP LB. Furthermore, the network firewall policy for the netfoundry edge routers are set to only allow traffic in from the subnet that they are deployed in by default. If sessions originated from other subnets in the virtual network need to be forwarded through the load balancer, then one needs to add the ingress rules to allow that to happen.
+
+1. Destroy the plan if required
+
+    ```bash
+    terraform destroy -var-file input_vars.tfvars.json
+    ```
+
+**TESTING NOTE** \
+If one wants to test the configuration before deployment, it can be done on the new virtual network. The new virtual network will be created by the terraform plan. To do that enable the following parameters in the root terrafrom file (i.e .tf).
+
+```powershell
+    module "vcn1" {
+        source = "../modules/m-gcp-network"
+        ...
+        create_vcn = true
+    }
+```
