@@ -5,9 +5,7 @@ This terraform plan when used will create a new load balancer and 2 new NF Edge 
 **PREREQUISITES** \
 Need to Create 2 Customer Hosted Edge Routers on your NF Network using the following link [Get Reg Keys](https://nfconsole.io/login) and copy registration keys in the input variables file under nf_router_registration_key_list.
 
-**STEPS** \
-If you need such HA set up in more than one region, you can rerun it more than once. Just don't forget to change the region name. The next iteration of this deployment plan could be to  modify the input variables into a list, so one can deploy network load balancers in multiple regions at a time. This would also help with keeping the latet state of the deployed plan in one location for the entire network.
-
+**STEPS** 
 1. Install Terraform
 
     [Get Terraform](https://www.terraform.io/downloads)
@@ -31,6 +29,24 @@ If you need such HA set up in more than one region, you can rerun it more than o
     variable "gcp-creds" {
         default = "~/.gcp/nf-cloud-dev-700d695c36c3.json"
     }
+    ```
+    ***Note - Multiregion Deployment***
+
+    To deploy in more than one region, one can use workspaces if the creds or access controls are the same(not recommended if not [as state here](https://www.terraform.io/language/state/workspaces#using-workspaces)). Here is how to initialize them. You would need to update the region and nf_subnet_cidr in your input_vars.tfvars.json as well when you switch workspaces and you want to create a new region.
+
+    ```bash
+    terraform workspace new us-east1
+    terraform workspace new us-west1
+    etc...
+    ```
+    Then you can list or select one:
+    ```
+    terraform workspace list
+    terraform workspace select us-west1
+    ```
+1.  Initialize terraform
+    ```bash
+    terraform init
     ```
 1. Update the variables input file with your parameters
     ```bash
