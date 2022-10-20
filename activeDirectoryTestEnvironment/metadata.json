@@ -1,0 +1,8 @@
+{
+    "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+    "type": "QuickStart",
+    "itemDisplayName": "Create an VM with a new AD Forest and NetFoundry Edge Router",
+    "description": "This template creates a new Azure VM, it configures the VM to be an AD DC for a new Forest and creates a NetFoundry Edge Router",
+    "summary": "This template creates an Azure VM with AD",
+    "dateUpdated": "2022-08-26"
+  }
