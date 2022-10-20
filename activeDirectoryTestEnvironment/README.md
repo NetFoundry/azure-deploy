@@ -1,6 +1,6 @@
 ---
 description: This template creates a new Azure VM, it configures the VM to be an AD DC for a new Forest
-urlFragment: active-directory-new-domain
+urlFragment: active-directory-test-environment
 languages:
 - json
 ---
