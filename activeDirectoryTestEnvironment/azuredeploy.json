@@ -100,7 +100,7 @@
 
     },
     "variables": {
-        "cloudInit": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration ",
+        "cloudInit": "#cloud-config\nruncmd:\n - [until host netfoundry.jfrog.io > /dev/null ;do sleep 1; done; /opt/netfoundry/router-registration ",
         "runZitiCmd": "[concat(variables('cloudInit'),', ', parameters('edgeRouterKey'),']')]"
     },
     "resources": [
