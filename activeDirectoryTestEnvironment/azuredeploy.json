@@ -107,7 +107,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "name": "[parameters('virtualNetworkName')]",
+            "name": "adVNET",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
